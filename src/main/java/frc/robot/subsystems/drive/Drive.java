@@ -54,7 +54,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
-import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -91,20 +90,21 @@ public class Drive extends SubsystemBase {
 
   public static final DriveTrainSimulationConfig config =
       DriveTrainSimulationConfig.Default()
-          .withBumperSize(Inches.of(30), Inches.of(30))
-          .withTrackLengthTrackWidth(Inches.of(24), Inches.of(24))
+          .withBumperSize(Inches.of(24), Inches.of(24))
+          .withTrackLengthTrackWidth(Inches.of(22.62), Inches.of(22.62))
           .withGyro(COTS.ofPigeon2())
           .withSwerveModule(
-              new SwerveModuleSimulationConfig(
-                  DCMotor.getKrakenX60(1),
-                  DCMotor.getFalcon500(1),
-                  TunerConstants.kDriveGearRatio,
-                  TunerConstants.kSteerGearRatio,
-                  TunerConstants.kDriveFrictionVoltage,
-                  TunerConstants.kSteerFrictionVoltage,
-                  TunerConstants.kWheelRadius,
-                  TunerConstants.kSteerInertia,
-                  WHEEL_COF));
+              COTS.ofMark4i(DCMotor.getKrakenX60(1), DCMotor.getFalcon500(1), WHEEL_COF, 1));
+  /*new SwerveModuleSimulationConfig(
+  DCMotor.getKrakenX60(1),
+  DCMotor.getFalcon500(1),
+  TunerConstants.kDriveGearRatio,
+  TunerConstants.kSteerGearRatio,
+  TunerConstants.kDriveFrictionVoltage,
+  TunerConstants.kSteerFrictionVoltage,
+  TunerConstants.kWheelRadius,
+  TunerConstants.kSteerInertia,
+  WHEEL_COF));*/
 
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;

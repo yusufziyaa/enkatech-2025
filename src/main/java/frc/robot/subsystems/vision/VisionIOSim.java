@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import java.util.List;
 import org.photonvision.PhotonCamera;
+import org.photonvision.common.hardware.VisionLEDMode;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
@@ -16,7 +17,7 @@ public class VisionIOSim implements VisionIO {
   private final VisionSystemSim visionSystemSim = new VisionSystemSim("main");
   private PhotonCameraSim sim;
 
-  private final PhotonCamera camera = new PhotonCamera("camera");
+  private final PhotonCamera camera = new PhotonCamera("camera_sim");
   private AprilTagFieldLayout fieldLayout = Constants.fieldLayout;
 
   public VisionIOSim() {
@@ -52,6 +53,7 @@ public class VisionIOSim implements VisionIO {
   @Override
   public void updateInputs(VisionInputs inputs) {
     inputs.connected = true;
+    inputs.ledMode = VisionLEDMode.kDefault;
   }
 
   @Override

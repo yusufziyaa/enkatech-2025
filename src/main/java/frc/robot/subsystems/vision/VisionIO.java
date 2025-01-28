@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import java.util.List;
 import org.littletonrobotics.junction.AutoLog;
+import org.photonvision.common.hardware.VisionLEDMode;
 import org.photonvision.targeting.PhotonPipelineResult;
 
 public interface VisionIO {
@@ -20,5 +21,6 @@ public interface VisionIO {
   @AutoLog
   public static class VisionInputs {
     public boolean connected = false;
+    public VisionLEDMode ledMode = VisionLEDMode.kOff;
   }
 }
