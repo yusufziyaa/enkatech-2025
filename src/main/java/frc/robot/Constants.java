@@ -46,6 +46,9 @@ public final class Constants {
   public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
   public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
 
+  // 0 ile 1 arasinda deger almali. ne kadar yuksek o kadar tolerans
+  public static final double visionPoseEstimationMaxAmbiguity = 0.6;
+
   public static enum Mode {
     /** Running on a real robot. */
     REAL,

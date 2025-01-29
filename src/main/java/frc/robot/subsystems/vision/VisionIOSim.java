@@ -38,9 +38,9 @@ public class VisionIOSim implements VisionIO {
     sim = new PhotonCameraSim(camera, properties);
     visionSystemSim.addCamera(sim, Constants.robot2Camera);
 
-    sim.enableProcessedStream(true);
-    sim.enableRawStream(true);
-    sim.enableDrawWireframe(true);
+    // sim.enableProcessedStream(true);
+    // sim.enableRawStream(true);
+    // sim.enableDrawWireframe(true);
   }
 
   @Override
@@ -59,5 +59,11 @@ public class VisionIOSim implements VisionIO {
   @Override
   public List<PhotonPipelineResult> getPipeline() {
     return camera.getAllUnreadResults();
+  }
+
+  @SuppressWarnings("removal")
+  @Override
+  public PhotonPipelineResult getLatestResult() {
+    return camera.getLatestResult();
   }
 }

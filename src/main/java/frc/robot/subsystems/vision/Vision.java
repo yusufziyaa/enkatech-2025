@@ -21,6 +21,7 @@ import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class Vision extends SubsystemBase {
@@ -53,7 +54,12 @@ public class Vision extends SubsystemBase {
 
   public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
     Optional<EstimatedRobotPose> visionEst = Optional.empty();
-    for (var change : io.getPipeline()) {
+    List<PhotonPipelineResult> pipelineResults = io.getPipeline();
+    for (var change : pipelineResults) {
+      // if (!change.hasTargets() || change.getBestTarget().objDetectConf)
+      if (change.hasTargets()
+          && change.getBestTarget().poseAmbiguity > Constants.visionPoseEstimationMaxAmbiguity)
+        continue;
       visionEst = poseEstimator.update(change);
       updateEstimationStdDevs(visionEst, change.getTargets());
       //
@@ -66,6 +72,29 @@ public class Vision extends SubsystemBase {
       }
     }
     return visionEst;
+  }
+
+  public List<PhotonTrackedTarget> getAllTargets() {
+    return io.getLatestResult().getTargets();
+  }
+
+  public PhotonTrackedTarget getBiggestTarget() {
+    double biggestArea = 0;
+    PhotonTrackedTarget biggestAreaID = null;
+    var targetN = getAllTargets();
+    for (PhotonTrackedTarget photonTrackedTarget : targetN) {
+      if (photonTrackedTarget.area > biggestArea) {
+        biggestArea = photonTrackedTarget.area;
+        biggestAreaID = photonTrackedTarget;
+      }
+    }
+    return biggestAreaID;
+  }
+
+  public PhotonTrackedTarget getBestTarget() {
+    PhotonPipelineResult res = io.getLatestResult();
+    if (!res.hasTargets()) return null;
+    return res.getBestTarget();
   }
 
   private void updateEstimationStdDevs(

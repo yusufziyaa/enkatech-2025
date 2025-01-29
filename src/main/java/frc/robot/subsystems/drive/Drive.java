@@ -95,16 +95,6 @@ public class Drive extends SubsystemBase {
           .withGyro(COTS.ofPigeon2())
           .withSwerveModule(
               COTS.ofMark4i(DCMotor.getKrakenX60(1), DCMotor.getFalcon500(1), WHEEL_COF, 1));
-  /*new SwerveModuleSimulationConfig(
-  DCMotor.getKrakenX60(1),
-  DCMotor.getFalcon500(1),
-  TunerConstants.kDriveGearRatio,
-  TunerConstants.kSteerGearRatio,
-  TunerConstants.kDriveFrictionVoltage,
-  TunerConstants.kSteerFrictionVoltage,
-  TunerConstants.kWheelRadius,
-  TunerConstants.kSteerInertia,
-  WHEEL_COF));*/
 
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;
@@ -150,8 +140,7 @@ public class Drive extends SubsystemBase {
         this::setPose,
         this::getChassisSpeeds,
         this::runVelocity,
-        new PPHolonomicDriveController(
-            new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
+        new PPHolonomicDriveController(new PIDConstants(5, 0, 0.0), new PIDConstants(5, 0, 0.0)),
         PP_CONFIG,
         () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
         this);
