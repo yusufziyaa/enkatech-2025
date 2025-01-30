@@ -89,7 +89,6 @@ public class AutoCommands {
                           * photonTrackedTarget.getYaw();
                 }
               }
-              System.out.println(drive.getMaxAngularSpeedRadPerSec());
 
               ChassisSpeeds speeds = new ChassisSpeeds(0, 0, speed);
               drive.runVelocity(speeds);

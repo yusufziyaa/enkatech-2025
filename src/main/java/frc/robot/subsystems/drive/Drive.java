@@ -90,8 +90,8 @@ public class Drive extends SubsystemBase {
 
   public static final DriveTrainSimulationConfig config =
       DriveTrainSimulationConfig.Default()
-          .withBumperSize(Inches.of(24), Inches.of(24))
-          .withTrackLengthTrackWidth(Inches.of(22.62), Inches.of(22.62))
+          .withBumperSize(Millimeters.of(885), Millimeters.of(885))
+          .withTrackLengthTrackWidth(Millimeters.of(577.85), Millimeters.of(577.85))
           .withGyro(COTS.ofPigeon2())
           .withSwerveModule(
               COTS.ofMark4i(DCMotor.getKrakenX60(1), DCMotor.getFalcon500(1), WHEEL_COF, 1));

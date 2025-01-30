@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.ScoreCoralCommand;
+import frc.robot.commands.ElevatorCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -30,6 +30,8 @@ import frc.robot.subsystems.drive.GyroIOSim;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIOPhoton;
 import frc.robot.subsystems.vision.VisionIOSim;
@@ -64,6 +66,7 @@ public class RobotContainer {
   Pose2d initialPos = Constants.initialPose;
 
   private final Vision vision;
+  private final Elevator elevator;
 
   public RobotContainer() {
 
@@ -80,10 +83,12 @@ public class RobotContainer {
 
         // TODO:implement real io
         vision = new Vision(new VisionIOPhoton());
+        elevator = new Elevator(new ElevatorIOSim());
 
         break;
 
       case SIM:
+        elevator = new Elevator(new ElevatorIOSim());
 
         // Sim robot, instantiate physics sim IO implementations
         this.sim = new SwerveDriveSimulation(Drive.config, initialPos);
@@ -114,6 +119,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
         vision = new Vision();
+        elevator = new Elevator();
         break;
     }
     drive.setPose(initialPos);
@@ -150,8 +156,11 @@ public class RobotContainer {
             () -> -joystick.getRawAxis(2)));
   }
 
+  Pose2d relativePose = new Pose2d(1.96, 1.1, new Rotation2d());
+
   public Command getAutonomousCommand() {
-    return new ScoreCoralCommand(drive, vision);
+    // return new ScoreCoralCommand(drive, vision);
+    return ElevatorCommands.adjustTo(elevator, relativePose);
   }
 
   public void updateCamera() {
@@ -165,6 +174,8 @@ public class RobotContainer {
     // coral konumlarını publishleme
     Pose3d[] corals = SimulatedArena.getInstance().getGamePiecesArrayByType("Coral");
     Logger.recordOutput("FieldSimulation/CoralPos", corals);
+
+    // Logger.recordOutput("RelativePosition", new Pose2d(drive.getPose() + relativePose);
   }
 
   public void periodic() {

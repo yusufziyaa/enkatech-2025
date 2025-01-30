@@ -16,6 +16,8 @@ package frc.robot;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -179,6 +181,12 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {
+
+    Logger.recordOutput("ZeroedPose", new Pose3d(0, 0, 0, new Rotation3d()));
+    Logger.recordOutput("ZeroedComponentPositions", new Pose3d[] {new Pose3d()});
+
+    // Logger.recordOutput("")
+
     SimulatedArena.getInstance().simulationPeriodic();
     robotContainer.displaySim();
     robotContainer.updateCamera();
