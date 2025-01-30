@@ -2,7 +2,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.Constants;
@@ -27,39 +26,58 @@ public class ElevatorCommands {
    * robot kolun asansör ile yaptığı açı Teta = A+B (önden açı)
    *
    */
-  private static final double elevatorAngle = Constants.elevatorAngle; // angle between elevator and normal
+  private static final double elevatorAngle =
+      Constants.elevatorAngle; // angle between elevator and normal
   private static final double armLength = Constants.elevatorArmLength; // m, length of arm
 
   /*
    * asansöre göre verilen bir konum ile o konuma intake'in ulaşması için gereken
    * asansör yüksekliği ve kol açısı
+   *
+   * null döndürürse mümkün değil
    */
   public static Pair<Double, Double> getRequiredValues(Pose2d relativePose) {
     double a = 1;
-    double b = 2
-        * (relativePose.getX() * Math.cos(Math.toRadians(elevatorAngle))
-            - relativePose.getY() * Math.sin(Math.toRadians(elevatorAngle)));
-    double c = relativePose.getX() * relativePose.getX()
-        + relativePose.getY() * relativePose.getY()
-        - armLength * armLength;
+    double b =
+        2
+            * (relativePose.getX() * Math.cos(Math.toRadians(elevatorAngle))
+                - relativePose.getY() * Math.sin(Math.toRadians(elevatorAngle)));
+    double c =
+        relativePose.getX() * relativePose.getX()
+            + relativePose.getY() * relativePose.getY()
+            - armLength * armLength;
 
     double delta = b * b - 4 * a * c;
 
-    if (delta < 0)
-      return null;
+    if (delta < 0) return null;
 
     double elevatorLength1 = (-b + Math.sqrt(delta)) / 2 * a;
     double elevatorLength2 = (-b - Math.sqrt(delta)) / 2 * a;
 
-    double armAngle1 = 180
-        - Math.toDegrees(
-            Math.acos((elevatorLength1 * Math.sin(Math.toRadians(elevatorAngle)) - relativePose.getY()) / armLength))
-        + 90 - elevatorAngle;
+    double armInnerAngle =
+            elevatorAngle - (Math.toDegrees(
+                Math.acos(
+                    (elevatorLength1 * Math.cos(Math.toRadians(elevatorAngle))
+                            + relativePose.getX())
+                        / armLength))
+            );
 
-    double armAngle2 = 180
-        - Math.toDegrees(
-            Math.acos((elevatorLength2 * Math.sin(Math.toRadians(elevatorAngle)) - relativePose.getY()) / armLength))
-        + 90 - elevatorAngle;
+    double armAngle1 = armInnerAngle+90;
+    double armAngle2 = armInnerAngle;
+    //System.out.println(armAnlg);
+    // sağdaysa +90 derece eklenmeli
+    if (relativePose.getX() >= 0
+        || relativePose.getY() / relativePose.getX() < Math.tan(Math.toRadians(elevatorAngle))) {
+      armAngle1 += 90;
+      armAngle2 = 360-armInnerAngle;
+    }
+
+    /*
+     * if (elevatorLength1 > Constants.elevatorMaxLength) {
+     * if (elevatorLength2 > Constants.elevatorMaxLength) return null;
+     * return new Pair<Double, Double>(elevatorLength2, armAngle2);
+     * }
+     */
 
     return new Pair<Double, Double>(elevatorLength1, armAngle1);
   }
@@ -67,32 +85,33 @@ public class ElevatorCommands {
   public static Command adjustTo(
       Elevator elevator, Pose2d relativePose) { // relativePose of IK target to the robot, in meters
 
-    elevator.io.addTargetMech(
-        new Pose2d(-relativePose.getX(), relativePose.getY(), new Rotation2d()));
+    Pair<Double, Double> ans = getRequiredValues(relativePose);
 
-    Pair<Double,Double> ans = getRequiredValues(relativePose);
-
-    if (ans==null) {
-      //cant reach pos
+    if (ans == null) {
+      System.out.println("what a prick");
+      // cant reach pos
       return null;
     }
 
     double usedElevatorLength = ans.getFirst();
     double armAngle = ans.getSecond();
 
+    System.out.println(usedElevatorLength);
+
     return adjustElevatorSetpoints(elevator, usedElevatorLength, armAngle, 0);
   }
 
   public static Command adjustElevatorSetpoints(
       Elevator elevator, double elevatorLength, double armAngle, double intakeAngle) {
-    Command cmd = new RunCommand(
-        () -> {
-          /// System.out.println(elevatorLength-elevator.getElevatorEncoder());
-          elevator.runVelocity(
-              elevatorLength - elevator.getElevatorEncoder(),
-              armAngle - elevator.getArmEncoder(),
-              intakeAngle - elevator.getIntakeEncoder());
-        });
+    Command cmd =
+        new RunCommand(
+            () -> {
+              /// System.out.println(elevatorLength-elevator.getElevatorEncoder());
+              elevator.runVelocity(
+                  elevatorLength - elevator.getElevatorEncoder(),
+                  armAngle - elevator.getArmEncoder(),
+                  intakeAngle - elevator.getIntakeEncoder());
+            });
     cmd.addRequirements(elevator);
     return cmd;
   }

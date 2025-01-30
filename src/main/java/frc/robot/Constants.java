@@ -49,8 +49,10 @@ public final class Constants {
   // 0 ile 1 arasinda deger almali. ne kadar yuksek o kadar tolerans
   public static final double visionPoseEstimationMaxAmbiguity = 0.6;
 
-  public static final double elevatorArmLength = 3.34881;
+  public static final double elevatorArmLength = 0.334881;
   public static final double elevatorAngle = 72.048;
+
+  public static final double elevatorMaxLength = 2;
 
   public static enum Mode {
     /** Running on a real robot. */

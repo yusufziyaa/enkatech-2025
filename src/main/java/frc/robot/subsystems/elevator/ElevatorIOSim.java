@@ -1,10 +1,11 @@
 package frc.robot.subsystems.elevator;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.Constants;
 
 public class ElevatorIOSim implements ElevatorIO {
@@ -12,7 +13,8 @@ public class ElevatorIOSim implements ElevatorIO {
 
   Mechanism2d mech = new Mechanism2d(3, 3);
   // MechanismRoot2d root = mech.getRoot("arm", 2 - 0.885 - 0.208955, 0);
-  MechanismRoot2d root = mech.getRoot("arm", 1.0869 - 0.154922 + 0.208955, 0);
+  // MechanismRoot2d root = mech.getRoot("arm", 1.0869 - 0.154922 + 0.208955, 0);
+  MechanismRoot2d root = mech.getRoot("arm", 3 / 2 + 0.885 / 2 + 0.208955 + 0.2, 0);
 
   MechanismLigament2d m_elevator;
   // MechanismLigament2d mavi_parca; mavi parcayi eklemek yerine asansor daha
@@ -24,13 +26,21 @@ public class ElevatorIOSim implements ElevatorIO {
   double elevatorLength = 1; // m
   double intakeAngle;
 
+  double lineWidth = 3;
+
   public ElevatorIOSim() {
     m_elevator =
         root.append(
             new MechanismLigament2d(
-                "elevator", elevatorLength, Constants.elevatorAngle)); // asansör
+                "elevator", elevatorLength, 180 - Constants.elevatorAngle)); // asansör
     m_arm =
-        m_elevator.append(new MechanismLigament2d("arm", Constants.elevatorArmLength, armAngle));
+        m_elevator.append(
+            new MechanismLigament2d(
+                "arm",
+                Constants.elevatorArmLength,
+                armAngle,
+                lineWidth,
+                new Color8Bit(Color.kPurple)));
   }
 
   double elevatorKp = 0.1;
@@ -59,14 +69,6 @@ public class ElevatorIOSim implements ElevatorIO {
             + elevatorKp * (getElevatorEncoder() - desiredElevatorLength) * elevatorMaxSpeed);
 
     // intake not ready yet
-  }
-
-  public void addTargetMech(Pose2d pose) {
-    root.append(
-        new MechanismLigament2d(
-            "target",
-            Math.sqrt(pose.getX() * pose.getX() + pose.getY() * pose.getY()),
-            Math.toDegrees(Math.atan2(pose.getY(), pose.getX()))));
   }
 
   @Override

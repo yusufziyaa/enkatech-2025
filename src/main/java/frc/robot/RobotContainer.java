@@ -17,6 +17,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -156,7 +158,7 @@ public class RobotContainer {
             () -> -joystick.getRawAxis(2)));
   }
 
-  Pose2d relativePose = new Pose2d(1.96, 1.1, new Rotation2d());
+  Pose2d relativePose = new Pose2d(0.244, 0.2295, new Rotation2d());
 
   public Command getAutonomousCommand() {
     // return new ScoreCoralCommand(drive, vision);
@@ -174,6 +176,32 @@ public class RobotContainer {
     // coral konumlarını publishleme
     Pose3d[] corals = SimulatedArena.getInstance().getGamePiecesArrayByType("Coral");
     Logger.recordOutput("FieldSimulation/CoralPos", corals);
+
+    Pose2d pose =
+        drive
+            .getPose()
+            .plus(
+                new Transform2d(
+                    Math.cos(
+                                Math.toRadians(
+                                    180 - elevator.getArmEncoder() - Constants.elevatorAngle))
+                            * Constants.elevatorArmLength
+                        - elevator.getElevatorEncoder()
+                            * Math.cos(Math.toRadians(Constants.elevatorAngle)),
+                    0,
+                    new Rotation2d()));
+
+    Pose3d np =
+        new Pose3d(
+            pose.getX(),
+            pose.getY(),
+            elevator.getElevatorEncoder() * Math.sin(Math.toRadians(Constants.elevatorAngle))
+                + Constants.elevatorArmLength
+                    * Math.sin(
+                        Math.toRadians(180 - elevator.getArmEncoder() - Constants.elevatorAngle)),
+            new Rotation3d());
+
+    Logger.recordOutput("FieldSimulation/Translation", np);
 
     // Logger.recordOutput("RelativePosition", new Pose2d(drive.getPose() + relativePose);
   }

@@ -1,6 +1,5 @@
 package frc.robot.subsystems.elevator;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -16,8 +15,6 @@ public interface ElevatorIO {
   public default double getElevatorEncoder() {
     return 0;
   }
-
-  public default void addTargetMech(Pose2d pose) {}
 
   public default double getArmEncoder() {
     return 0;
