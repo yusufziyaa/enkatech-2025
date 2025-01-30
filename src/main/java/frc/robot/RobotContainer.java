@@ -158,7 +158,7 @@ public class RobotContainer {
             () -> -joystick.getRawAxis(2)));
   }
 
-  Pose2d relativePose = new Pose2d(0.244, 0.2295, new Rotation2d());
+  Pose2d relativePose = new Pose2d(1.202, 2.13, new Rotation2d());
 
   public Command getAutonomousCommand() {
     // return new ScoreCoralCommand(drive, vision);

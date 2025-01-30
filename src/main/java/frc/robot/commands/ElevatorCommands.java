@@ -40,7 +40,7 @@ public class ElevatorCommands {
     double a = 1;
     double b =
         2
-            * (relativePose.getX() * Math.cos(Math.toRadians(elevatorAngle))
+            * (-relativePose.getX() * Math.cos(Math.toRadians(elevatorAngle))
                 - relativePose.getY() * Math.sin(Math.toRadians(elevatorAngle)));
     double c =
         relativePose.getX() * relativePose.getX()
@@ -54,22 +54,21 @@ public class ElevatorCommands {
     double elevatorLength1 = (-b + Math.sqrt(delta)) / 2 * a;
     double elevatorLength2 = (-b - Math.sqrt(delta)) / 2 * a;
 
-    double armInnerAngle =
-            elevatorAngle - (Math.toDegrees(
-                Math.acos(
-                    (elevatorLength1 * Math.cos(Math.toRadians(elevatorAngle))
-                            + relativePose.getX())
-                        / armLength))
-            );
+    double theta =
+        Math.toDegrees(
+            Math.asin(
+                elevatorLength1 * Math.cos(Math.toRadians(elevatorAngle)) / armLength
+                    - relativePose.getX() / armLength));
 
-    double armAngle1 = armInnerAngle+90;
-    double armAngle2 = armInnerAngle;
-    //System.out.println(armAnlg);
-    // sağdaysa +90 derece eklenmeli
-    if (relativePose.getX() >= 0
-        || relativePose.getY() / relativePose.getX() < Math.tan(Math.toRadians(elevatorAngle))) {
-      armAngle1 += 90;
-      armAngle2 = 360-armInnerAngle;
+    double armAngle1 = 180 - theta + 90 - elevatorAngle;
+    double armAngle2 = theta - 90 + elevatorAngle;
+    System.out.println(theta);
+    // sağdaysa
+    if (relativePose.getX() != 0
+        && relativePose.getY() / relativePose.getX() < Math.tan(Math.toRadians(elevatorAngle))) {
+      System.out.println("nigga");
+      armAngle1 = 180 - (theta - 90 + elevatorAngle);
+      armAngle2 = theta - 90 + elevatorAngle;
     }
 
     /*
@@ -79,7 +78,7 @@ public class ElevatorCommands {
      * }
      */
 
-    return new Pair<Double, Double>(elevatorLength1, armAngle1);
+    return new Pair<Double, Double>(elevatorLength2, armAngle2);
   }
 
   public static Command adjustTo(

@@ -49,8 +49,8 @@ public final class Constants {
   // 0 ile 1 arasinda deger almali. ne kadar yuksek o kadar tolerans
   public static final double visionPoseEstimationMaxAmbiguity = 0.6;
 
-  public static final double elevatorArmLength = 0.334881;
-  public static final double elevatorAngle = 72.048;
+  public static final double elevatorArmLength = 0.463;
+  public static final double elevatorAngle = 70.2;
 
   public static final double elevatorMaxLength = 2;
 

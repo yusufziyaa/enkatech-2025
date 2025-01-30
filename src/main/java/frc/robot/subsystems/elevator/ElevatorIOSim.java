@@ -13,8 +13,8 @@ public class ElevatorIOSim implements ElevatorIO {
 
   Mechanism2d mech = new Mechanism2d(3, 3);
   // MechanismRoot2d root = mech.getRoot("arm", 2 - 0.885 - 0.208955, 0);
-  // MechanismRoot2d root = mech.getRoot("arm", 1.0869 - 0.154922 + 0.208955, 0);
-  MechanismRoot2d root = mech.getRoot("arm", 3 / 2 + 0.885 / 2 + 0.208955 + 0.2, 0);
+  MechanismRoot2d root = mech.getRoot("arm", 1.0869 - 0.154922 + 0.208955, 0);
+  // MechanismRoot2d root = mech.getRoot("arm", 3 / 2 + 0.885 / 2 + 0.208955 + 0.2, 0);
 
   MechanismLigament2d m_elevator;
   // MechanismLigament2d mavi_parca; mavi parcayi eklemek yerine asansor daha
@@ -32,7 +32,7 @@ public class ElevatorIOSim implements ElevatorIO {
     m_elevator =
         root.append(
             new MechanismLigament2d(
-                "elevator", elevatorLength, 180 - Constants.elevatorAngle)); // asansör
+                "elevator", elevatorLength, Constants.elevatorAngle)); // asansör
     m_arm =
         m_elevator.append(
             new MechanismLigament2d(
