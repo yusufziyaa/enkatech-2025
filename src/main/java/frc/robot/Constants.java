@@ -37,18 +37,21 @@ public final class Constants {
 
   // kameranın robota göre konumu
   // TODO: fix camera position
-  public static final Transform3d robot2Camera = new Transform3d(0, 0, 0.5, new Rotation3d());
+  public static final Transform3d robot2CameraL =
+      new Transform3d(0, 0.4, 0.5, new Rotation3d(0, 0, Math.toRadians(90)));
+  public static final Transform3d robot2CameraR =
+      new Transform3d(0, -0.4, 0.5, new Rotation3d(0, 0, Math.toRadians(-90)));
 
   public static final Pose2d initialPose = new Pose2d(3, 3, new Rotation2d());
 
   public static final AprilTagFieldLayout fieldLayout =
       AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 
-  public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
+  public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(10, 10, 20);
   public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
 
   // 0 ile 1 arasinda deger almali. ne kadar yuksek o kadar tolerans
-  public static final double visionPoseEstimationMaxAmbiguity = 0.4;
+  public static final double visionPoseEstimationMaxAmbiguity = 0.2;
 
   public static final double elevatorArmLength = 0.463;
   public static final double elevatorAngle = 70.2;

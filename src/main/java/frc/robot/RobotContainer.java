@@ -21,7 +21,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ScoreCoralCommand;
@@ -42,6 +41,7 @@ import frc.robot.subsystems.elevator.interior.InteriorIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIOPhoton;
 import frc.robot.subsystems.vision.VisionIOSim;
+import frc.robot.util.General;
 import java.util.Optional;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -175,7 +175,8 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // return new ScoreCoralCommand(drive, vision);
     // return ElevatorCommands.adjustTo(elevator, relativePose);
-    // FIXME: when the autonomous command ends, robot sometimes keeps going at a random velocity continiously
+    // FIXME: when the autonomous command ends, robot sometimes keeps going at a random velocity
+    // continiously
     return new ScoreCoralCommand(drive, vision);
   }
 
@@ -217,16 +218,28 @@ public class RobotContainer {
 
     Logger.recordOutput("FieldSimulation/Translation", np);
 
+    Logger.recordOutput(
+        "FieldSimulation/OdometryError",
+        General.DistancePose2d(sim.getSimulatedDriveTrainPose(), drive.getPose()));
+
     // Logger.recordOutput("RelativePosition", new Pose2d(drive.getPose() + relativePose);
   }
 
   public void periodic() {
-    Optional<EstimatedRobotPose> robotPose = vision.getEstimatedGlobalPose();
-    if (robotPose.isPresent()) {
+    Optional<EstimatedRobotPose> robotPoseL = vision.getEstimatedGlobalPose(0);
+    if (robotPoseL.isPresent()) {
       drive.addVisionMeasurement(
-          robotPose.get().estimatedPose.toPose2d(),
-          robotPose.get().timestampSeconds,
-          vision.getEstimationStdDevs());
+          robotPoseL.get().estimatedPose.toPose2d(),
+          robotPoseL.get().timestampSeconds,
+          vision.getEstimationStdDevs(0));
+    }
+
+    Optional<EstimatedRobotPose> robotPoseR = vision.getEstimatedGlobalPose(1);
+    if (robotPoseR.isPresent()) {
+      drive.addVisionMeasurement(
+          robotPoseR.get().estimatedPose.toPose2d(),
+          robotPoseR.get().timestampSeconds,
+          vision.getEstimationStdDevs(1));
     }
   }
 }

@@ -15,9 +15,11 @@ import org.photonvision.targeting.PhotonPipelineResult;
 
 public class VisionIOSim implements VisionIO {
   private final VisionSystemSim visionSystemSim = new VisionSystemSim("main");
-  private PhotonCameraSim sim;
+  private PhotonCameraSim simL;
+  private PhotonCameraSim simR;
 
-  private final PhotonCamera camera = new PhotonCamera("camera_sim");
+  private final PhotonCamera cameraL = new PhotonCamera("camera_sim_left");
+  private final PhotonCamera cameraR = new PhotonCamera("camera_sim_right");
   private AprilTagFieldLayout fieldLayout = Constants.fieldLayout;
 
   public VisionIOSim() {
@@ -35,8 +37,11 @@ public class VisionIOSim implements VisionIO {
 
     // camera = new PhotonCamera("camera");
 
-    sim = new PhotonCameraSim(camera, properties);
-    visionSystemSim.addCamera(sim, Constants.robot2Camera);
+    simL = new PhotonCameraSim(cameraL, properties);
+    simR = new PhotonCameraSim(cameraR, properties);
+
+    visionSystemSim.addCamera(simL, Constants.robot2CameraL);
+    visionSystemSim.addCamera(simR, Constants.robot2CameraR);
 
     // sim.enableProcessedStream(true);
     // sim.enableRawStream(true);
@@ -57,13 +62,24 @@ public class VisionIOSim implements VisionIO {
   }
 
   @Override
-  public List<PhotonPipelineResult> getPipeline() {
-    return camera.getAllUnreadResults();
+  public List<PhotonPipelineResult> getPipelineL() {
+    return cameraL.getAllUnreadResults();
+  }
+
+  @Override
+  public List<PhotonPipelineResult> getPipelineR() {
+    return cameraR.getAllUnreadResults();
   }
 
   @SuppressWarnings("removal")
   @Override
-  public PhotonPipelineResult getLatestResult() {
-    return camera.getLatestResult();
+  public PhotonPipelineResult getLatestResultL() {
+    return cameraL.getLatestResult();
+  }
+
+  @SuppressWarnings("removal")
+  @Override
+  public PhotonPipelineResult getLatestResultR() {
+    return cameraR.getLatestResult();
   }
 }

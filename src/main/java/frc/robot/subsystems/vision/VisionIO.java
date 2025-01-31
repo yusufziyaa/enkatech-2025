@@ -14,11 +14,19 @@ public interface VisionIO {
 
   default void updateInputs(VisionInputs inputs) {}
 
-  default PhotonPipelineResult getLatestResult() {
+  default PhotonPipelineResult getLatestResultL() {
     return null;
   }
 
-  default List<PhotonPipelineResult> getPipeline() {
+  default PhotonPipelineResult getLatestResultR() {
+    return null;
+  }
+
+  default List<PhotonPipelineResult> getPipelineL() {
+    return null;
+  }
+
+  default List<PhotonPipelineResult> getPipelineR() {
     return null;
   }
 

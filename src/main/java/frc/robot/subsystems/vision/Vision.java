@@ -15,8 +15,10 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator;
@@ -30,19 +32,27 @@ public class Vision extends SubsystemBase {
 
   private final VisionInputsAutoLogged inputs = new VisionInputsAutoLogged();
   private AprilTagFieldLayout fieldLayout = Constants.fieldLayout;
-  private PhotonPoseEstimator poseEstimator = null;
+  private PhotonPoseEstimator poseEstimatorL = null;
+  private PhotonPoseEstimator poseEstimatorR = null;
 
-  private Matrix<N3, N1> curStdDevs;
+  private List<Matrix<N3, N1>> curStdDevs = new ArrayList<Matrix<N3, N1>>();
 
   public Vision() {}
 
   public Vision(VisionIO io) {
+    curStdDevs.add(Constants.kSingleTagStdDevs);
+    curStdDevs.add(Constants.kSingleTagStdDevs);
     this.io = io;
 
-    poseEstimator =
+    poseEstimatorL =
         new PhotonPoseEstimator(
-            fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.robot2Camera);
-    poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+            fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.robot2CameraL);
+    poseEstimatorR =
+        new PhotonPoseEstimator(
+            fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.robot2CameraR);
+
+    poseEstimatorL.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+    poseEstimatorR.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
   }
 
   @Override
@@ -52,29 +62,40 @@ public class Vision extends SubsystemBase {
     Logger.processInputs("Vision/AutoLogged", inputs);
   }
 
-  public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
+  public Optional<EstimatedRobotPose> getEstimatedGlobalPose(int index) {
     Optional<EstimatedRobotPose> visionEst = Optional.empty();
-    List<PhotonPipelineResult> pipelineResults = io.getPipeline();
+
+    List<PhotonPipelineResult> pipelineResults;
+    PhotonPoseEstimator poseEstimator;
+    if (index == 0) {
+      pipelineResults = io.getPipelineL();
+      poseEstimator = poseEstimatorL;
+    } else {
+      pipelineResults = io.getPipelineR();
+      poseEstimator = poseEstimatorR;
+    }
+
     for (var change : pipelineResults) {
       // if (!change.hasTargets() || change.getBestTarget().objDetectConf)
-      if (change.hasTargets()
-          && change.getBestTarget().poseAmbiguity > Constants.visionPoseEstimationMaxAmbiguity)
-        continue;
       visionEst = poseEstimator.update(change);
-      updateEstimationStdDevs(visionEst, change.getTargets());
+      updateEstimationStdDevs(visionEst, change.getTargets(), poseEstimator, index);
       //
 
       if (Robot.isSimulation() && visionEst.isPresent()) {
-        Logger.recordOutput("Vision/PoseEstimate", visionEst.get().estimatedPose);
+        Logger.recordOutput("Vision/PoseEstimate" + index, visionEst.get().estimatedPose);
       } else if (Robot.isSimulation()) {
-        Logger.recordOutput("Vision/PoseEstimate", new Pose3d(-1, -1, -1, new Rotation3d()));
+        Logger.recordOutput(
+            "Vision/PoseEstimate" + index, new Pose3d(-1, -1, -1, new Rotation3d()));
       }
     }
     return visionEst;
   }
 
   public List<PhotonTrackedTarget> getAllTargets() {
-    return io.getLatestResult().getTargets();
+    return Stream.concat(
+            io.getLatestResultL().getTargets().stream(),
+            io.getLatestResultR().getTargets().stream())
+        .toList();
   }
 
   public PhotonTrackedTarget getBiggestTarget() {
@@ -90,17 +111,31 @@ public class Vision extends SubsystemBase {
     return biggestAreaID;
   }
 
-  public PhotonTrackedTarget getBestTarget() {
-    PhotonPipelineResult res = io.getLatestResult();
+  public PhotonTrackedTarget getBestTargetL() {
+    PhotonPipelineResult res = io.getLatestResultL();
     if (!res.hasTargets()) return null;
     return res.getBestTarget();
   }
 
+  public PhotonTrackedTarget getBestTargetR() {
+    PhotonPipelineResult res = io.getLatestResultR();
+    if (!res.hasTargets()) return null;
+    return res.getBestTarget();
+  }
+
+  // FIXME: BIG PROBLEM
+  // because the standart deviations are calculated for both cameras, as their stddevs are equal.
+  // this makes the odometry we get very unreliable
+  //
+
   private void updateEstimationStdDevs(
-      Optional<EstimatedRobotPose> estimatedPose, List<PhotonTrackedTarget> targets) {
+      Optional<EstimatedRobotPose> estimatedPose,
+      List<PhotonTrackedTarget> targets,
+      PhotonPoseEstimator poseEstimator,
+      int index) {
     if (estimatedPose.isEmpty()) {
       // No pose input. Default to single-tag std devs
-      curStdDevs = Constants.kSingleTagStdDevs;
+      curStdDevs.set(index, Constants.kSingleTagStdDevs);
 
     } else {
       // Pose present. Start running Heuristic
@@ -124,17 +159,17 @@ public class Vision extends SubsystemBase {
 
       if (numTags == 0) {
         // No tags visible. Default to single-tag std devs
-        curStdDevs = Constants.kSingleTagStdDevs;
+        curStdDevs.set(index, Constants.kSingleTagStdDevs);
       } else {
         // One or more tags visible, run the full heuristic.
         avgDist /= numTags;
         // Decrease std devs if multiple targets are visible
-        if (numTags > 1) estStdDevs = Constants.kMultiTagStdDevs;
+        if (numTags > 2) estStdDevs = Constants.kMultiTagStdDevs;
         // Increase std devs based on (average) distance
-        if (numTags == 1 && avgDist > 4)
+        if (numTags < 3 && avgDist > 4)
           estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
         else estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
-        curStdDevs = estStdDevs;
+        curStdDevs.set(index, estStdDevs);
       }
     }
   }
@@ -147,8 +182,8 @@ public class Vision extends SubsystemBase {
     return null;
   }
 
-  public Matrix<N3, N1> getEstimationStdDevs() {
-    return curStdDevs;
+  public Matrix<N3, N1> getEstimationStdDevs(int index) {
+    return curStdDevs.get(index);
   }
 
   public void simulationPeriodic(Pose2d pose) {

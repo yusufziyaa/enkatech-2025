@@ -15,9 +15,9 @@ public class VisionIOPhoton implements VisionIO {
     inputs.connected = camera.isConnected();
     inputs.ledMode = camera.getLEDMode();
   }
-
+  // FIXME
   @Override
-  public List<PhotonPipelineResult> getPipeline() {
+  public List<PhotonPipelineResult> getPipelineL() {
     return camera.getAllUnreadResults();
   }
 }
