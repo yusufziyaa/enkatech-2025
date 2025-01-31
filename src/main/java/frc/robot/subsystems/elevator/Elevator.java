@@ -19,7 +19,6 @@ public class Elevator extends SubsystemBase {
   public Elevator(ElevatorIO io) {
     this.io = io;
     // asansör
-
   }
 
   public void runVelocity(double elevatorSpeed, double armSpeed, double intakeSpeed) {
@@ -27,7 +26,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public double getElevatorEncoder() {
-    return io.getElevatorEncoder();
+    return io.getElevatorExtEncoder();
   }
 
   public double getArmEncoder() {

@@ -6,6 +6,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.elevator.Elevator;
+import java.util.Arrays;
+import java.util.List;
 
 public class ElevatorCommands {
 
@@ -36,7 +38,7 @@ public class ElevatorCommands {
    *
    * null döndürürse mümkün değil
    */
-  public static Pair<Double, Double> getRequiredValues(Pose2d relativePose) {
+  public static List<Double> getRequiredValues(Pose2d relativePose) {
     double a = 1;
     double b =
         2
@@ -54,6 +56,13 @@ public class ElevatorCommands {
     double elevatorLength1 = (-b + Math.sqrt(delta)) / 2 * a;
     double elevatorLength2 = (-b - Math.sqrt(delta)) / 2 * a;
 
+    if (elevatorLength1 > Constants.elevatorMaxLength)
+      elevatorLength1 = Constants.elevatorMaxLength;
+    if (elevatorLength2 > Constants.elevatorMaxLength)
+      elevatorLength2 = Constants.elevatorMaxLength;
+
+    // if ()
+
     double theta =
         Math.toDegrees(
             Math.asin(
@@ -62,11 +71,10 @@ public class ElevatorCommands {
 
     double armAngle1 = 180 - theta + 90 - elevatorAngle;
     double armAngle2 = theta - 90 + elevatorAngle;
-    System.out.println(theta);
     // sağdaysa
     if (relativePose.getX() != 0
         && relativePose.getY() / relativePose.getX() < Math.tan(Math.toRadians(elevatorAngle))) {
-      System.out.println("nigga");
+
       armAngle1 = 180 - (theta - 90 + elevatorAngle);
       armAngle2 = theta - 90 + elevatorAngle;
     }
@@ -77,25 +85,33 @@ public class ElevatorCommands {
      * return new Pair<Double, Double>(elevatorLength2, armAngle2);
      * }
      */
+    return Arrays.asList(elevatorLength1, armAngle1, elevatorLength2, armAngle2);
 
-    return new Pair<Double, Double>(elevatorLength2, armAngle2);
+    // return new Pair<Double, Double>(elevatorLength1, armAngle1);
+  }
+
+  public static final Pair<Double, Double> getUpperApproach(Pose2d relativePose) {
+    List<Double> res = getRequiredValues(relativePose);
+    return new Pair<Double, Double>(res.get(0), res.get(1));
+  }
+
+  public static final Pair<Double, Double> getLowerApproach(Pose2d relativePose) {
+    List<Double> res = getRequiredValues(relativePose);
+    return new Pair<Double, Double>(res.get(2), res.get(3));
   }
 
   public static Command adjustTo(
       Elevator elevator, Pose2d relativePose) { // relativePose of IK target to the robot, in meters
 
-    Pair<Double, Double> ans = getRequiredValues(relativePose);
+    Pair<Double, Double> ans = getLowerApproach(relativePose);
 
     if (ans == null) {
-      System.out.println("what a prick");
       // cant reach pos
       return null;
     }
 
     double usedElevatorLength = ans.getFirst();
     double armAngle = ans.getSecond();
-
-    System.out.println(usedElevatorLength);
 
     return adjustElevatorSetpoints(elevator, usedElevatorLength, armAngle, 0);
   }
@@ -105,7 +121,6 @@ public class ElevatorCommands {
     Command cmd =
         new RunCommand(
             () -> {
-              /// System.out.println(elevatorLength-elevator.getElevatorEncoder());
               elevator.runVelocity(
                   elevatorLength - elevator.getElevatorEncoder(),
                   armAngle - elevator.getArmEncoder(),

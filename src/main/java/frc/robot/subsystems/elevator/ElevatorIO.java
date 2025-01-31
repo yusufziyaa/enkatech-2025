@@ -12,7 +12,11 @@ public interface ElevatorIO {
 
   public default void runVelocity(double elevatorSpeed, double armSpeed, double intakeSpeed) {}
 
-  public default double getElevatorEncoder() {
+  public default double getElevatorExtEncoder() {
+    return 0;
+  }
+
+  public default double getElevatorIntEncoder() {
     return 0;
   }
 

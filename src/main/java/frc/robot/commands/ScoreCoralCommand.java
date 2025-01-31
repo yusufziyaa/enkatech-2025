@@ -17,6 +17,8 @@ public class ScoreCoralCommand extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addRequirements(vision, drive);
-    addCommands(AutoCommands.alignToCurrentReef(vision, drive));
+    addCommands(
+        AutoCommands.getToClosestReef(drive).getFirst(),
+        AutoCommands.alignToCurrentReef(vision, drive));
   }
 }

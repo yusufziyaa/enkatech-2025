@@ -21,9 +21,10 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.ElevatorCommands;
+import frc.robot.commands.ScoreCoralCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -33,7 +34,11 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.elevator.ElevatorIOReal;
+import frc.robot.subsystems.elevator.arm.ArmIOTalonFX;
+import frc.robot.subsystems.elevator.exterior.ExteriorIOTalonFX;
+import frc.robot.subsystems.elevator.intake.IntakeIOTalonFX;
+import frc.robot.subsystems.elevator.interior.InteriorIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIOPhoton;
 import frc.robot.subsystems.vision.VisionIOSim;
@@ -85,12 +90,19 @@ public class RobotContainer {
 
         // TODO:implement real io
         vision = new Vision(new VisionIOPhoton());
-        elevator = new Elevator(new ElevatorIOSim());
+
+        elevator = new Elevator();
 
         break;
 
       case SIM:
-        elevator = new Elevator(new ElevatorIOSim());
+        elevator =
+            new Elevator(
+                new ElevatorIOReal(
+                    new IntakeIOTalonFX(0, 1),
+                    new ArmIOTalonFX(1, 2),
+                    new InteriorIOTalonFX(3, 4),
+                    new ExteriorIOTalonFX(5, 6)));
 
         // Sim robot, instantiate physics sim IO implementations
         this.sim = new SwerveDriveSimulation(Drive.config, initialPos);
@@ -153,16 +165,18 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -joystick.getRawAxis(1),
-            () -> joystick.getRawAxis(0),
+            () -> joystick.getRawAxis(1),
+            () -> -joystick.getRawAxis(0),
             () -> -joystick.getRawAxis(2)));
   }
 
-  Pose2d relativePose = new Pose2d(1.202, 2.13, new Rotation2d());
+  Pose2d relativePose = new Pose2d(0.8, 2, new Rotation2d());
 
   public Command getAutonomousCommand() {
     // return new ScoreCoralCommand(drive, vision);
-    return ElevatorCommands.adjustTo(elevator, relativePose);
+    // return ElevatorCommands.adjustTo(elevator, relativePose);
+    // FIXME: when the autonomous command ends, robot sometimes keeps going at a random velocity continiously
+    return new ScoreCoralCommand(drive, vision);
   }
 
   public void updateCamera() {

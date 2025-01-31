@@ -54,7 +54,7 @@ public class ElevatorIOSim implements ElevatorIO {
   @Override
   public void runVelocity(double elevatorSpeed, double armSpeed, double intakeSpeed) {
     m_arm.setAngle(getArmEncoder() + armKp * armSpeed);
-    m_elevator.setLength(getElevatorEncoder() + elevatorKp * elevatorSpeed);
+    m_elevator.setLength(getElevatorExtEncoder() + elevatorKp * elevatorSpeed);
   }
 
   @Override
@@ -65,14 +65,14 @@ public class ElevatorIOSim implements ElevatorIO {
     m_arm.setAngle(
         getArmEncoder() + armKp * -1 * (getArmEncoder() - desiredArmAngle) * armMaxSpeed);
     m_elevator.setLength(
-        getElevatorEncoder()
-            + elevatorKp * (getElevatorEncoder() - desiredElevatorLength) * elevatorMaxSpeed);
+        getElevatorExtEncoder()
+            + elevatorKp * (getElevatorExtEncoder() - desiredElevatorLength) * elevatorMaxSpeed);
 
     // intake not ready yet
   }
 
   @Override
-  public double getElevatorEncoder() {
+  public double getElevatorExtEncoder() {
     return m_elevator.getLength();
   }
 

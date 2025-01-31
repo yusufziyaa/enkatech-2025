@@ -67,7 +67,6 @@ public class Vision extends SubsystemBase {
       if (Robot.isSimulation() && visionEst.isPresent()) {
         Logger.recordOutput("Vision/PoseEstimate", visionEst.get().estimatedPose);
       } else if (Robot.isSimulation()) {
-        // System.out.println("yo");
         Logger.recordOutput("Vision/PoseEstimate", new Pose3d(-1, -1, -1, new Rotation3d()));
       }
     }
@@ -140,11 +139,29 @@ public class Vision extends SubsystemBase {
     }
   }
 
+  public final PhotonTrackedTarget getTarget(int ID) {
+    List<PhotonTrackedTarget> targets = getAllTargets();
+    for (PhotonTrackedTarget photonTrackedTarget : targets) {
+      if (photonTrackedTarget.getFiducialId() == ID) return photonTrackedTarget;
+    }
+    return null;
+  }
+
   public Matrix<N3, N1> getEstimationStdDevs() {
     return curStdDevs;
   }
 
   public void simulationPeriodic(Pose2d pose) {
     io.setRobotPose(pose);
+
+    PhotonTrackedTarget target = getTarget(18);
+    if (target == null) Logger.recordOutput("Odometry/BestTarget", (double) 0);
+    else
+      Logger.recordOutput(
+          "Odometry/BestTarget",
+          target.getDetectedCorners().get(0).y
+              - target.getDetectedCorners().get(3).y
+              - target.getDetectedCorners().get(1).y
+              + target.getDetectedCorners().get(2).y);
   }
 }

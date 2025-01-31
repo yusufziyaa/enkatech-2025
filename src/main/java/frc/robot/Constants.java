@@ -13,6 +13,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
@@ -47,12 +48,14 @@ public final class Constants {
   public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
 
   // 0 ile 1 arasinda deger almali. ne kadar yuksek o kadar tolerans
-  public static final double visionPoseEstimationMaxAmbiguity = 0.6;
+  public static final double visionPoseEstimationMaxAmbiguity = 0.4;
 
   public static final double elevatorArmLength = 0.463;
   public static final double elevatorAngle = 70.2;
 
   public static final double elevatorMaxLength = 2;
+
+  public static final CANcoderConfiguration initialCancoderConfig = new CANcoderConfiguration();
 
   public static enum Mode {
     /** Running on a real robot. */
