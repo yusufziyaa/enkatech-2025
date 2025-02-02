@@ -30,6 +30,8 @@ public class Vision extends SubsystemBase {
   /** Creates a new Vision. */
   VisionIO io;
 
+  VisionIO limelight;
+
   private final VisionInputsAutoLogged inputs = new VisionInputsAutoLogged();
   private AprilTagFieldLayout fieldLayout = Constants.fieldLayout;
   private PhotonPoseEstimator poseEstimatorL = null;
@@ -145,16 +147,20 @@ public class Vision extends SubsystemBase {
 
       // Precalculation - see how many tags we found, and calculate an
       // average-distance metric
+      double minDist = 1e9;
       for (var tgt : targets) {
         var tagPose = poseEstimator.getFieldTags().getTagPose(tgt.getFiducialId());
         if (tagPose.isEmpty()) continue;
         numTags++;
-        avgDist +=
+        double tagDist =
             tagPose
                 .get()
                 .toPose2d()
                 .getTranslation()
                 .getDistance(estimatedPose.get().estimatedPose.toPose2d().getTranslation());
+        avgDist += tagDist;
+
+        minDist = Double.min(minDist, tagDist);
       }
 
       if (numTags == 0) {
@@ -166,9 +172,12 @@ public class Vision extends SubsystemBase {
         // Decrease std devs if multiple targets are visible
         if (numTags > 2) estStdDevs = Constants.kMultiTagStdDevs;
         // Increase std devs based on (average) distance
-        if (numTags < 3 && avgDist > 4)
+        if (numTags < 3 && minDist > 3)
           estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
-        else estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
+        else {
+          System.out.println(minDist);
+          estStdDevs = estStdDevs.times((minDist * minDist / 30));
+        }
         curStdDevs.set(index, estStdDevs);
       }
     }

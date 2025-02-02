@@ -47,7 +47,7 @@ public final class Constants {
   public static final AprilTagFieldLayout fieldLayout =
       AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 
-  public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(10, 10, 20);
+  public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(50, 50, 100);
   public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
 
   // 0 ile 1 arasinda deger almali. ne kadar yuksek o kadar tolerans

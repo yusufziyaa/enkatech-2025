@@ -3,6 +3,11 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.NetworkTableValue;
+import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import java.util.List;
@@ -12,14 +17,18 @@ import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class VisionIOSim implements VisionIO {
   private final VisionSystemSim visionSystemSim = new VisionSystemSim("main");
   private PhotonCameraSim simL;
   private PhotonCameraSim simR;
+  private PhotonCameraSim simF;
 
   private final PhotonCamera cameraL = new PhotonCamera("camera_sim_left");
   private final PhotonCamera cameraR = new PhotonCamera("camera_sim_right");
+  private final PhotonCamera cameraF = new PhotonCamera("camera_sim_front");
+
   private AprilTagFieldLayout fieldLayout = Constants.fieldLayout;
 
   public VisionIOSim() {
@@ -39,26 +48,36 @@ public class VisionIOSim implements VisionIO {
 
     simL = new PhotonCameraSim(cameraL, properties);
     simR = new PhotonCameraSim(cameraR, properties);
+    simF = new PhotonCameraSim(cameraF, properties);
 
     visionSystemSim.addCamera(simL, Constants.robot2CameraL);
     visionSystemSim.addCamera(simR, Constants.robot2CameraR);
+    visionSystemSim.addCamera(simF, new Transform3d(0.5, 0, 0.5, new Rotation3d()));
 
     // sim.enableProcessedStream(true);
     // sim.enableRawStream(true);
     // sim.enableDrawWireframe(true);
   }
-
+  @SuppressWarnings("removal")
   @Override
   public void setRobotPose(Pose2d pose) {
     visionSystemSim.update(pose);
     SmartDashboard.putData("vision_field", visionSystemSim.getDebugField());
+
+    // NetworkTableInstance.getDefault().getTable("limelight").getEntry
+    PhotonTrackedTarget results = cameraF.getLatestResult().getBestTarget();
+    //NetworkTableInstance.getDefault().getTable("limelight").putValue("tx", );
+
     // Logger.recordOutput("FieldSimulation/VisionField", visionSystemSim.getDebugField());
   }
 
   @Override
   public void updateInputs(VisionInputs inputs) {
-    inputs.connected = true;
-    inputs.ledMode = VisionLEDMode.kDefault;
+    inputs.connectedLeft = true;
+    inputs.ledModeLeft = VisionLEDMode.kDefault;
+
+    inputs.connectedRight = true;
+    inputs.ledModeRight = VisionLEDMode.kDefault;
   }
 
   @Override

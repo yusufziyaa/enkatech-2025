@@ -32,7 +32,10 @@ public interface VisionIO {
 
   @AutoLog
   public static class VisionInputs {
-    public boolean connected = false;
-    public VisionLEDMode ledMode = VisionLEDMode.kOff;
+    boolean connectedLeft;
+    boolean connectedRight;
+
+    VisionLEDMode ledModeLeft;
+    VisionLEDMode ledModeRight;
   }
 }

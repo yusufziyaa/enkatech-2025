@@ -175,8 +175,8 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // return new ScoreCoralCommand(drive, vision);
     // return ElevatorCommands.adjustTo(elevator, relativePose);
-    // FIXME: when the autonomous command ends, robot sometimes keeps going at a random velocity
-    // continiously
+    // FIXME: when the autonomous command ends, robot sometimes keeps going at a random velocity continiously
+    
     return new ScoreCoralCommand(drive, vision);
   }
 
