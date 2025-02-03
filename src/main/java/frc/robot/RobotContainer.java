@@ -22,8 +22,8 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.commands.AutoCommands;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.ScoreCoralCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -175,9 +175,10 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // return new ScoreCoralCommand(drive, vision);
     // return ElevatorCommands.adjustTo(elevator, relativePose);
-    // FIXME: when the autonomous command ends, robot sometimes keeps going at a random velocity continiously
-    
-    return new ScoreCoralCommand(drive, vision);
+    // FIXME: when the autonomous command ends, robot sometimes keeps going at a random velocity
+    // continiously
+
+    return AutoCommands.alignToCurrentReef(vision, drive);
   }
 
   public void updateCamera() {

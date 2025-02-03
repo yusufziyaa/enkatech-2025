@@ -69,6 +69,8 @@ public class ElevatorCommands {
                 elevatorLength1 * Math.cos(Math.toRadians(elevatorAngle)) / armLength
                     - relativePose.getX() / armLength));
 
+    // FIXME: handle NaN values
+
     double armAngle1 = 180 - theta + 90 - elevatorAngle;
     double armAngle2 = theta - 90 + elevatorAngle;
     // sağdaysa

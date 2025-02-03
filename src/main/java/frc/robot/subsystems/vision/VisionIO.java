@@ -30,6 +30,10 @@ public interface VisionIO {
     return null;
   }
 
+  default double getLimelightYaw(int targetID) {
+    return 0;
+  }
+
   @AutoLog
   public static class VisionInputs {
     boolean connectedLeft;

@@ -5,9 +5,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.NetworkTableValue;
-import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import java.util.List;
@@ -58,17 +55,28 @@ public class VisionIOSim implements VisionIO {
     // sim.enableRawStream(true);
     // sim.enableDrawWireframe(true);
   }
-  @SuppressWarnings("removal")
+
   @Override
   public void setRobotPose(Pose2d pose) {
     visionSystemSim.update(pose);
     SmartDashboard.putData("vision_field", visionSystemSim.getDebugField());
 
     // NetworkTableInstance.getDefault().getTable("limelight").getEntry
-    PhotonTrackedTarget results = cameraF.getLatestResult().getBestTarget();
-    //NetworkTableInstance.getDefault().getTable("limelight").putValue("tx", );
+
+    // NetworkTableInstance.getDefault().getTable("limelight").putValue("tx", );
 
     // Logger.recordOutput("FieldSimulation/VisionField", visionSystemSim.getDebugField());
+  }
+
+  @SuppressWarnings("removal")
+  @Override
+  public double getLimelightYaw(int targetID) {
+    for (PhotonTrackedTarget target : cameraF.getLatestResult().getTargets()) {
+      if (target.getFiducialId() == targetID) {
+        return target.getYaw();
+      }
+    }
+    return 0;
   }
 
   @Override

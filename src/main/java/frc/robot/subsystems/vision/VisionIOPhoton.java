@@ -4,6 +4,8 @@ import java.util.List;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 
+import frc.robot.util.LimelightHelpers;
+
 public class VisionIOPhoton implements VisionIO {
   PhotonCamera cameraL = new PhotonCamera("camera_left");
   PhotonCamera cameraR = new PhotonCamera("camera_right");
@@ -24,5 +26,10 @@ public class VisionIOPhoton implements VisionIO {
   @Override
   public List<PhotonPipelineResult> getPipelineL() {
     return cameraL.getAllUnreadResults();
+  }
+
+  @Override
+  public double getLimelightYaw(int targetID) {
+    return LimelightHelpers.getTX("limelight");
   }
 }

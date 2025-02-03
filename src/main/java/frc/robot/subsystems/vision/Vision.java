@@ -172,10 +172,9 @@ public class Vision extends SubsystemBase {
         // Decrease std devs if multiple targets are visible
         if (numTags > 2) estStdDevs = Constants.kMultiTagStdDevs;
         // Increase std devs based on (average) distance
-        if (numTags < 3 && minDist > 3)
+        if (numTags < 3 || minDist > 3)
           estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
         else {
-          System.out.println(minDist);
           estStdDevs = estStdDevs.times((minDist * minDist / 30));
         }
         curStdDevs.set(index, estStdDevs);
@@ -189,6 +188,10 @@ public class Vision extends SubsystemBase {
       if (photonTrackedTarget.getFiducialId() == ID) return photonTrackedTarget;
     }
     return null;
+  }
+
+  public double getLimelightYaw(int targetID) {
+    return io.getLimelightYaw(targetID);
   }
 
   public Matrix<N3, N1> getEstimationStdDevs(int index) {

@@ -53,8 +53,14 @@ public class AutoCommands {
     }
     return minReef;
   }
+  // lookat PIDs
+  private static final PIDController lookAtTurnPID = new PIDController(0.01, 0.01, 0);
 
-  private static final PIDController turnPID = new PIDController(0.01, 0.01, 0);
+  // align PIDs
+  // TODO: recalibrate turn
+  private static final PIDController alignTurnPID = new PIDController(0.5, 0, 0);
+  private static final PIDController alignDrivePID = new PIDController(0.2, 0, 0);
+
   // private static final PIDController drivePID = new PIDController(0.1, 0, 0);
 
   private static final PathConstraints constraints =
@@ -98,6 +104,35 @@ public class AutoCommands {
   }
 
   public static Command alignToCurrentReef(Vision vision, Drive drive) {
+    Reef reef;
+    reef = getNearest(drive.getPose(), reefs);
+    final FunctionalCommand command =
+        new FunctionalCommand(
+            () -> {},
+            () -> {
+              double targetYaw = vision.getLimelightYaw(reef.getID());
+              double angularSpeed =
+                  alignTurnPID.calculate(
+                      drive.rawGyroRotation.getDegrees() - reef.pose.getRotation().getDegrees());
+              double ySpeed = alignDrivePID.calculate(targetYaw);
+
+              //TODO: try real gyro and incorporate turning to the right angle if possible
+
+              ChassisSpeeds speeds = new ChassisSpeeds(0, ySpeed, 0);
+              System.out.println(drive.rawGyroRotation.getDegrees());
+              drive.runVelocity(speeds);
+            },
+            drive::stopConsumer,
+            () -> {
+              return false;
+            },
+            vision,
+            drive);
+
+    return getToClosestReef(drive).getFirst().andThen(command);
+  }
+
+  public static Command lookAtCurrentReef(Vision vision, Drive drive) {
     Integer id;
     id = getNearest(drive.getPose(), reefs).getID();
 
@@ -109,7 +144,7 @@ public class AutoCommands {
               var target = vision.getTarget(id);
               if (target != null) {
                 angularSpeed =
-                    turnPID.calculate(drive.getMaxAngularSpeedRadPerSec() * target.getYaw());
+                    lookAtTurnPID.calculate(drive.getMaxAngularSpeedRadPerSec() * target.getYaw());
                 // ySpeed = (Math.PI - Math.abs(modSpeed)) * Math.signum(modSpeed);
 
                 // System.out.println(Math.sin(ySpeed));
