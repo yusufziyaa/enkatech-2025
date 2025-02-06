@@ -1,10 +1,9 @@
 package frc.robot.subsystems.vision;
 
+import frc.robot.util.LimelightHelpers;
 import java.util.List;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
-
-import frc.robot.util.LimelightHelpers;
 
 public class VisionIOPhoton implements VisionIO {
   PhotonCamera cameraL = new PhotonCamera("camera_left");

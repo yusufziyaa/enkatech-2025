@@ -22,7 +22,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.AutoCommands;
+import frc.robot.commands.AutoCycle;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -33,11 +33,7 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorIOReal;
-import frc.robot.subsystems.elevator.arm.ArmIOTalonFX;
-import frc.robot.subsystems.elevator.exterior.ExteriorIOTalonFX;
-import frc.robot.subsystems.elevator.intake.IntakeIOTalonFX;
-import frc.robot.subsystems.elevator.interior.InteriorIOTalonFX;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIOPhoton;
 import frc.robot.subsystems.vision.VisionIOSim;
@@ -96,13 +92,16 @@ public class RobotContainer {
         break;
 
       case SIM:
-        elevator =
+        /*elevator =
             new Elevator(
                 new ElevatorIOReal(
                     new IntakeIOTalonFX(0, 1),
                     new ArmIOTalonFX(1, 2),
                     new InteriorIOTalonFX(3, 4),
                     new ExteriorIOTalonFX(5, 6)));
+        */
+
+        elevator = new Elevator(new ElevatorIOSim());
 
         // Sim robot, instantiate physics sim IO implementations
         this.sim = new SwerveDriveSimulation(Drive.config, initialPos);
@@ -177,8 +176,7 @@ public class RobotContainer {
     // return ElevatorCommands.adjustTo(elevator, relativePose);
     // FIXME: when the autonomous command ends, robot sometimes keeps going at a random velocity
     // continiously
-
-    return AutoCommands.alignToCurrentReef(vision, drive);
+    return new AutoCycle(drive, vision, elevator);
   }
 
   public void updateCamera() {

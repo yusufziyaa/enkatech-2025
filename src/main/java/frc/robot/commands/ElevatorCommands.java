@@ -3,8 +3,9 @@ package frc.robot.commands;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import frc.robot.Constants;
+import frc.robot.Constants.APPROACH_TYPE;
 import frc.robot.subsystems.elevator.Elevator;
 import java.util.Arrays;
 import java.util.List;
@@ -51,7 +52,9 @@ public class ElevatorCommands {
 
     double delta = b * b - 4 * a * c;
 
-    if (delta < 0) return null;
+    if (delta < 0) {
+      return Arrays.asList(null, null, null, null);
+    }
 
     double elevatorLength1 = (-b + Math.sqrt(delta)) / 2 * a;
     double elevatorLength2 = (-b - Math.sqrt(delta)) / 2 * a;
@@ -64,21 +67,28 @@ public class ElevatorCommands {
     // if ()
 
     double theta =
-        Math.toDegrees(
-            Math.asin(
-                elevatorLength1 * Math.cos(Math.toRadians(elevatorAngle)) / armLength
-                    - relativePose.getX() / armLength));
+        Math.acos(
+                (armLength * armLength
+                        + elevatorLength1 * elevatorLength1
+                        - relativePose.getX() * relativePose.getX()
+                        - relativePose.getY() * relativePose.getY())
+                    / 2
+                    * armLength
+                    * elevatorLength1)
+            * 360
+            / (Math.PI * 2);
 
     // FIXME: handle NaN values
 
-    double armAngle1 = 180 - theta + 90 - elevatorAngle;
-    double armAngle2 = theta - 90 + elevatorAngle;
+    double armAngle1 = 180 - theta;
+    double armAngle2 = theta;
+    System.out.println(theta);
     // sağdaysa
-    if (relativePose.getX() != 0
+    if (relativePose.getX() > 0
         && relativePose.getY() / relativePose.getX() < Math.tan(Math.toRadians(elevatorAngle))) {
 
-      armAngle1 = 180 - (theta - 90 + elevatorAngle);
-      armAngle2 = theta - 90 + elevatorAngle;
+      armAngle1 = -180 + theta;
+      armAngle2 = -theta;
     }
 
     /*
@@ -102,12 +112,22 @@ public class ElevatorCommands {
     return new Pair<Double, Double>(res.get(2), res.get(3));
   }
 
+  public static final Command adjustToStation(Elevator elevator) {
+    return adjustTo(elevator, Constants.stationPos, APPROACH_TYPE.LOWER);
+  }
+
   public static Command adjustTo(
-      Elevator elevator, Pose2d relativePose) { // relativePose of IK target to the robot, in meters
+      Elevator elevator,
+      Pose2d relativePose,
+      APPROACH_TYPE type) { // relativePose of IK target to the robot, in meters
+    Pair<Double, Double> ans;
+    if (type == APPROACH_TYPE.LOWER) {
+      ans = getLowerApproach(relativePose);
+    } else {
+      ans = getUpperApproach(relativePose);
+    }
 
-    Pair<Double, Double> ans = getLowerApproach(relativePose);
-
-    if (ans == null) {
+    if (ans.getFirst() == null) {
       // cant reach pos
       return null;
     }
@@ -119,16 +139,30 @@ public class ElevatorCommands {
   }
 
   public static Command adjustElevatorSetpoints(
-      Elevator elevator, double elevatorLength, double armAngle, double intakeAngle) {
+      Elevator elevator, double elevatorLengthRaw, double armAngle, double intakeAngle) {
+
+    final double elevatorLength =
+        Math.min(
+            Math.max(elevatorLengthRaw, Constants.elevatorMinLength), Constants.elevatorMaxLength);
     Command cmd =
-        new RunCommand(
+        new FunctionalCommand(
+            () -> {},
             () -> {
               elevator.runVelocity(
                   elevatorLength - elevator.getElevatorEncoder(),
                   armAngle - elevator.getArmEncoder(),
                   intakeAngle - elevator.getIntakeEncoder());
-            });
-    cmd.addRequirements(elevator);
+            },
+            elevator::stopConsumer,
+            () -> {
+              double totalError =
+                  Math.abs(elevatorLength - elevator.getElevatorEncoder())
+                      + Math.abs(armAngle - elevator.getArmEncoder())
+                      + Math.abs(intakeAngle - elevator.getIntakeEncoder());
+              if (totalError < 0.01) return true;
+              return false;
+            },
+            elevator);
     return cmd;
   }
 }

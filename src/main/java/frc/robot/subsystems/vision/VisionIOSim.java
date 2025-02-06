@@ -47,8 +47,8 @@ public class VisionIOSim implements VisionIO {
     simR = new PhotonCameraSim(cameraR, properties);
     simF = new PhotonCameraSim(cameraF, properties);
 
-    visionSystemSim.addCamera(simL, Constants.robot2CameraL);
-    visionSystemSim.addCamera(simR, Constants.robot2CameraR);
+    visionSystemSim.addCamera(simL, Constants.robot2Camera1);
+    visionSystemSim.addCamera(simR, Constants.robot2Camera2);
     visionSystemSim.addCamera(simF, new Transform3d(0.5, 0, 0.5, new Rotation3d()));
 
     // sim.enableProcessedStream(true);

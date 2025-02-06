@@ -5,25 +5,18 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.vision.Vision;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class ScoreCoralCommand extends ParallelCommandGroup {
-  /** Creates a new ScoreCoralCommand. */
-  public ScoreCoralCommand(Drive drive, Vision vision, Elevator elevator) {
+public class GetToStationCommand extends ParallelCommandGroup {
+  /** Creates a new GetToStationCommand. */
+  public GetToStationCommand(Drive drive, Elevator elevator) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    // addRequirements(vision, drive, elevator);
-    addCommands(
-        new SequentialCommandGroup(
-            AutoCommands.getToClosestReef(drive, false).getFirst(),
-            AutoCommands.alignToCurrentReef(vision, drive)),
-        ElevatorCommands.adjustTo(elevator, Constants.lowerCoralPos, Constants.lowerApproachType));
+    addCommands(AutoCommands.getToStationA(drive), ElevatorCommands.adjustToStation(elevator));
+    addRequirements(elevator, drive);
   }
 }

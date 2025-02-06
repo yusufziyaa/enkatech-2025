@@ -21,6 +21,8 @@ public class Elevator extends SubsystemBase {
     // asansör
   }
 
+  public void stopConsumer(boolean stop) {}
+
   public void runVelocity(double elevatorSpeed, double armSpeed, double intakeSpeed) {
     io.runVelocity(elevatorSpeed, armSpeed, intakeSpeed);
   }

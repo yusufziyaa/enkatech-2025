@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.Vision;
 import java.util.Arrays;
@@ -76,6 +77,11 @@ public class AutoCommands {
           new Reef(new Pose2d(5.88, 4.02, new Rotation2d(Units.degreesToRadians(-180))), 21, 10),
           new Reef(new Pose2d(5.16, 2.82, new Rotation2d(Units.degreesToRadians(-240))), 22, 9));
 
+  public static List<Pose2d> stations =
+      Arrays.asList(
+          new Pose2d(1.14, 6.92, new Rotation2d(Units.degreesToRadians(307.23))),
+          new Pose2d(1.21, 1.06, new Rotation2d(Units.degreesToRadians(52.99))));
+
   public static List<Integer> reefIDSBlue = Arrays.asList(17, 18, 19, 20, 21, 22);
 
   public static List<Integer> reefIDSRed = Arrays.asList(8, 7, 6, 11, 10, 9);
@@ -86,20 +92,43 @@ public class AutoCommands {
         : reefIDSRed;
   }
 
-  public static Command getPathfindingCommand(Pose2d targetPose) {
+  public static Command getPathfindingCommand(
+      Drive drive, Pose2d targetPose, boolean invertRotation) {
     // FIXME
-    return AutoBuilder.pathfindToPose(targetPose, constraints, 0);
+    // eğer invertRotation true olursa robot ters yaklaşıyor.
+    // arka ve öne birer kamera takmak lazım
+    Pose2d targetPoseNew = targetPose;
+    if (invertRotation)
+      targetPoseNew =
+          new Pose2d(
+              targetPose.getX(),
+              targetPose.getY(),
+              new Rotation2d(Math.PI + targetPose.getRotation().getRadians()));
+    return AutoBuilder.pathfindToPose(targetPoseNew, constraints, 0)
+        .andThen(
+            new InstantCommand(
+                () -> {
+                  drive.stop();
+                }));
   }
 
-  public static Pair<Command, Integer> getToClosestReef(Drive drive) {
+  public static final Command getToStationA(Drive drive) {
+    return getPathfindingCommand(drive, stations.get(0), false);
+  }
+
+  public static final Command getToStationB(Drive drive) {
+    return getPathfindingCommand(drive, stations.get(1), false);
+  }
+
+  public static Pair<Command, Integer> getToClosestReef(Drive drive, boolean inverseApproach) {
     Reef nearest = getNearest(drive.getPose(), reefs);
-    Command getTo = getPathfindingCommand(nearest.pose);
+    Command getTo = getPathfindingCommand(drive, nearest.pose, inverseApproach);
     getTo.addRequirements(drive);
     return new Pair<Command, Integer>(getTo, nearest.getID());
   }
 
-  public static Command getToReef(int reefNumber) {
-    Command getTo = getPathfindingCommand(reefs.get(reefNumber).pose);
+  public static Command getToReef(Drive drive, int reefNumber, boolean inverseApproach) {
+    Command getTo = getPathfindingCommand(drive, reefs.get(reefNumber).pose, inverseApproach);
     return getTo;
   }
 
@@ -116,20 +145,22 @@ public class AutoCommands {
                       drive.rawGyroRotation.getDegrees() - reef.pose.getRotation().getDegrees());
               double ySpeed = alignDrivePID.calculate(targetYaw);
 
-              //TODO: try real gyro and incorporate turning to the right angle if possible
+              // TODO: try real gyro and incorporate turning to the right angle if possible
 
               ChassisSpeeds speeds = new ChassisSpeeds(0, ySpeed, 0);
-              System.out.println(drive.rawGyroRotation.getDegrees());
               drive.runVelocity(speeds);
             },
             drive::stopConsumer,
             () -> {
+              if (vision.getLimelightYaw(reef.getID()) < 1) {
+                return true;
+              }
               return false;
             },
             vision,
             drive);
 
-    return getToClosestReef(drive).getFirst().andThen(command);
+    return command;
   }
 
   public static Command lookAtCurrentReef(Vision vision, Drive drive) {

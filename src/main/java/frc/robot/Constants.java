@@ -37,10 +37,10 @@ public final class Constants {
 
   // kameranın robota göre konumu
   // TODO: fix camera position
-  public static final Transform3d robot2CameraL =
-      new Transform3d(0, 0.4, 0.5, new Rotation3d(0, 0, Math.toRadians(90)));
-  public static final Transform3d robot2CameraR =
-      new Transform3d(0, -0.4, 0.5, new Rotation3d(0, 0, Math.toRadians(-90)));
+  public static final Transform3d robot2Camera1 =
+      new Transform3d(0.5, 0, 0.5, new Rotation3d(0, 0, Math.toRadians(0)));
+  public static final Transform3d robot2Camera2 =
+      new Transform3d(-0.5, 0, 0.5, new Rotation3d(0, 0, Math.toRadians(180)));
 
   public static final Pose2d initialPose = new Pose2d(3, 3, new Rotation2d());
 
@@ -57,8 +57,24 @@ public final class Constants {
   public static final double elevatorAngle = 70.2;
 
   public static final double elevatorMaxLength = 2;
+  public static final double elevatorMinLength = 0.1;
+
+  public static final Pose2d upperCoralPos = new Pose2d(0.8, 2.1, new Rotation2d());
+  public static final Pose2d midCoralPos = new Pose2d(0.9, 1.3, new Rotation2d());
+  public static final Pose2d lowerCoralPos = new Pose2d(0.75, 0.8, new Rotation2d());
+
+  public static final Pose2d stationPos = new Pose2d(-0.11, 1.05, new Rotation2d());
+
+  public static final APPROACH_TYPE upperApproachType = APPROACH_TYPE.LOWER;
+  public static final APPROACH_TYPE midApproachType = APPROACH_TYPE.UPPER;
+  public static final APPROACH_TYPE lowerApproachType = APPROACH_TYPE.UPPER;
 
   public static final CANcoderConfiguration initialCancoderConfig = new CANcoderConfiguration();
+
+  public static enum APPROACH_TYPE {
+    LOWER,
+    UPPER
+  };
 
   public static enum Mode {
     /** Running on a real robot. */
@@ -69,5 +85,5 @@ public final class Constants {
 
     /** Replaying from a log file. */
     REPLAY
-  }
+  };
 }
