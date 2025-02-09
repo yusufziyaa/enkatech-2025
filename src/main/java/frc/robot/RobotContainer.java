@@ -33,7 +33,11 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorConstants;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOReal;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.elevator.MotorIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIOPhoton;
 import frc.robot.subsystems.vision.VisionIOSim;
@@ -72,7 +76,7 @@ public class RobotContainer {
   private final Elevator elevator;
 
   public RobotContainer() {
-
+    
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
@@ -87,7 +91,14 @@ public class RobotContainer {
         // TODO:implement real io
         vision = new Vision(new VisionIOPhoton());
 
-        elevator = new Elevator();
+        elevator = new Elevator(
+            new ElevatorIOReal(
+              new MotorIOTalonFX(0, 0,ElevatorConstants.intakeConfig),
+              new MotorIOTalonFX(1, 1,ElevatorConstants.armConfig),
+              new MotorIOTalonFX(3, 3,ElevatorConstants.interiorConfig),
+              new MotorIOTalonFX(2, 2,ElevatorConstants.exteriorConfig)
+            )
+        );
 
         break;
 
