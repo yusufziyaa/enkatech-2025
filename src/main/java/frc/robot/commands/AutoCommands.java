@@ -97,7 +97,9 @@ public class AutoCommands {
     // FIXME
     // eğer invertRotation true olursa robot ters yaklaşıyor.
     // arka ve öne birer kamera takmak lazım
-    Pose2d targetPoseNew = targetPose;
+    Pose2d targetPoseNew =
+        new Pose2d(drive.getPose().getX(), drive.getPose().getY(), drive.getPose().getRotation());
+    ;
     if (invertRotation)
       targetPoseNew =
           new Pose2d(

@@ -19,9 +19,10 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.commands.AutoCommands;
 import frc.robot.commands.AutoCycle;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
@@ -33,22 +34,14 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorConstants;
-import frc.robot.subsystems.elevator.ElevatorIO;
-import frc.robot.subsystems.elevator.ElevatorIOReal;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
-import frc.robot.subsystems.elevator.MotorIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionIOPhoton;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.util.General;
-import java.util.Optional;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
-import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoral;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import org.photonvision.EstimatedRobotPose;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -63,7 +56,7 @@ public class RobotContainer {
   // Controller
   // private final CommandXboxController controller = new
   // CommandXboxController(0);
-  private final Joystick joystick = new Joystick(0);
+  private final CommandXboxController controller = new CommandXboxController(0);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -76,7 +69,7 @@ public class RobotContainer {
   private final Elevator elevator;
 
   public RobotContainer() {
-    
+
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
@@ -89,17 +82,17 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackRight));
 
         // TODO:implement real io
-        vision = new Vision(new VisionIOPhoton());
+        vision = new Vision();
 
-        elevator = new Elevator(
-            new ElevatorIOReal(
-              new MotorIOTalonFX(0, 0,ElevatorConstants.intakeConfig),
-              new MotorIOTalonFX(1, 1,ElevatorConstants.armConfig),
-              new MotorIOTalonFX(3, 3,ElevatorConstants.interiorConfig),
-              new MotorIOTalonFX(2, 2,ElevatorConstants.exteriorConfig)
-            )
-        );
-
+        /*elevator =
+            new Elevator(
+                new ElevatorIOReal(
+                    new MotorIOTalonFX(0, 0, ElevatorConstants.intakeConfig),
+                    new MotorIOTalonFX(1, 1, ElevatorConstants.armConfig),
+                    new MotorIOTalonFX(3, 3, ElevatorConstants.interiorConfig),
+                    new MotorIOTalonFX(2, 2, ElevatorConstants.exteriorConfig)));
+        */
+        elevator = new Elevator();
         break;
 
       case SIM:
@@ -126,8 +119,8 @@ public class RobotContainer {
 
         vision = new Vision(new VisionIOSim());
 
-        SimulatedArena.getInstance()
-            .addGamePiece(new ReefscapeCoral(new Pose2d(0, 0, new Rotation2d())));
+        // SimulatedArena.getInstance()
+        //    .addGamePiece(new ReefscapeCoral(new Pose2d(0, 0, new Rotation2d())));
 
         SimulatedArena.getInstance().addDriveTrainSimulation(sim);
 
@@ -166,7 +159,6 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -175,9 +167,17 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> joystick.getRawAxis(1),
-            () -> -joystick.getRawAxis(0),
-            () -> -joystick.getRawAxis(2)));
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> -controller.getRightX()));
+
+    controller
+        .x()
+        .onTrue(
+            AutoCommands.getPathfindingCommand(
+                drive,
+                new Pose2d(drive.getPose().getX() + 1, drive.getPose().getY(), new Rotation2d()),
+                false));
   }
 
   Pose2d relativePose = new Pose2d(0.8, 2, new Rotation2d());
@@ -236,7 +236,7 @@ public class RobotContainer {
   }
 
   public void periodic() {
-    Optional<EstimatedRobotPose> robotPoseL = vision.getEstimatedGlobalPose(0);
+    /*Optional<EstimatedRobotPose> robotPoseL = vision.getEstimatedGlobalPose(0);
     if (robotPoseL.isPresent()) {
       drive.addVisionMeasurement(
           robotPoseL.get().estimatedPose.toPose2d(),
@@ -250,6 +250,6 @@ public class RobotContainer {
           robotPoseR.get().estimatedPose.toPose2d(),
           robotPoseR.get().timestampSeconds,
           vision.getEstimationStdDevs(1));
-    }
+    }*/
   }
 }

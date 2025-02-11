@@ -46,7 +46,7 @@ public class Elevator extends SubsystemBase {
 
   @Override
   public void periodic() {
-    io.updateInputs(inputs);
+    if (io != null) io.updateInputs(inputs);
 
     // io.adjustSetpoints(desiredArmAngle, desiredElevatorLength,
     // desiredIntakeAngle);

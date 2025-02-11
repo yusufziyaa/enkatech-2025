@@ -6,7 +6,13 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ElevatorIO {
   public Mechanism2d mech = null;
 
-  public default void updateInputs(ElevatorInputs inputs) {}
+  public default void updateInputs(ElevatorInputs inputs) {
+    inputs.interiorElevatorConnected = true;
+    inputs.exteriorElevatorConnected = true;
+
+    inputs.exteriorElevatorState = 0;
+    inputs.interiorElevatorState = 0;
+  }
 
   public default void adjustSetpoints(double angle, double elevatorLength, double intakeAngle) {}
 

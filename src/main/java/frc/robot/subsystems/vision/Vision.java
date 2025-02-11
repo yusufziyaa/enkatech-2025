@@ -59,7 +59,7 @@ public class Vision extends SubsystemBase {
 
   @Override
   public void periodic() {
-    io.updateInputs(inputs);
+    if (io != null) io.updateInputs(inputs);
 
     Logger.processInputs("Vision/AutoLogged", inputs);
   }
