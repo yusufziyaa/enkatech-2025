@@ -35,6 +35,8 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.util.General;
@@ -67,6 +69,7 @@ public class RobotContainer {
 
   private final Vision vision;
   private final Elevator elevator;
+  private Shooter shooter;
 
   public RobotContainer() {
 
@@ -83,6 +86,8 @@ public class RobotContainer {
 
         // TODO:implement real io
         vision = new Vision();
+
+        shooter = new Shooter(new ShooterIOTalonFX(Constants.ShooterCANID));
 
         /*elevator =
             new Elevator(
@@ -187,7 +192,8 @@ public class RobotContainer {
     // return ElevatorCommands.adjustTo(elevator, relativePose);
     // FIXME: when the autonomous command ends, robot sometimes keeps going at a random velocity
     // continiously
-    return new AutoCycle(drive, vision, elevator);
+    return shooter.runAtVoltage(5);
+    //return new AutoCycle(drive, vision, elevator);
   }
 
   public void updateCamera() {

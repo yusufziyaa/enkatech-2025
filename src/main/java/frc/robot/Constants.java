@@ -70,6 +70,10 @@ public final class Constants {
 
   public static final CANcoderConfiguration initialCancoderConfig = new CANcoderConfiguration();
 
+
+  public static int ShooterCANID = 31; 
+  public static int GripperCANID = 35;
+
   public static enum APPROACH_TYPE {
     LOWER,
     UPPER
