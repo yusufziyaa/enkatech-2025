@@ -7,7 +7,7 @@ public class GripperIOTalonFX implements GripperIO {
     TalonFX m_motor;
     VoltageOut voltageOut = new VoltageOut(0);
     public GripperIOTalonFX(int gripperCANID) {
-        m_motor = new TalonFX(gripperCANID);
+        m_motor = new TalonFX(gripperCANID,"canivore");
     }
 
     @Override

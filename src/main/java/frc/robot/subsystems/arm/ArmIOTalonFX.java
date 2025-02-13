@@ -1,0 +1,34 @@
+package frc.robot.subsystems.arm;
+
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
+
+public class ArmIOTalonFX implements ArmIO {
+    TalonFX m_motor;
+    MotionMagicTorqueCurrentFOC request = new MotionMagicTorqueCurrentFOC(0);
+    public ArmIOTalonFX(int armCANID) {
+        m_motor = new TalonFX(armCANID,"canivore");
+        m_motor.getConfigurator().apply(
+            new MotionMagicConfigs()
+                .withMotionMagicAcceleration(0.1)
+                .withMotionMagicCruiseVelocity(0.5)   
+        );
+
+        //TODO: tune, use setPosition to overcome Arm_cosine control type. probably no need for ratio tuning because there is no reductory (or maybe there  is??) 
+        m_motor.getConfigurator().apply(
+            new Slot0Configs()
+                .withGravityType(GravityTypeValue.Arm_Cosine)
+                .withKG(0)
+                .withKP(0)
+                .withKD(0)
+        );
+    }
+
+    @Override
+    public void getToAngle(double angle) {
+        m_motor.setControl(request.withPosition(angle));
+    }
+}
