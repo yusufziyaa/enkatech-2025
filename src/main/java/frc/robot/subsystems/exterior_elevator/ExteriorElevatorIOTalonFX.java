@@ -3,36 +3,44 @@ package frc.robot.subsystems.exterior_elevator;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 
 public class ExteriorElevatorIOTalonFX implements ExteriorElevatorIO {
-    TalonFX m_motorA,m_motorB;
-    MotionMagicTorqueCurrentFOC request = new MotionMagicTorqueCurrentFOC(0);
-    public ExteriorElevatorIOTalonFX(int CANID1,int CANID2) {
-        m_motorA = new TalonFX(CANID1,"canivore");
-        m_motorB = new TalonFX(CANID2,"canivore");
+  TalonFX m_motor;
+  MotionMagicTorqueCurrentFOC request = new MotionMagicTorqueCurrentFOC(0);
 
-        MotionMagicConfigs configs = new MotionMagicConfigs()
+  public ExteriorElevatorIOTalonFX(int CANID) {
+    m_motor = new TalonFX(CANID, "canivore");
+
+    MotionMagicConfigs configs =
+        new MotionMagicConfigs()
             .withMotionMagicAcceleration(0.1)
             .withMotionMagicCruiseVelocity(0.2);
 
-        Slot0Configs cSlot0Configs = new Slot0Configs()
+    Slot0Configs cSlot0Configs =
+        new Slot0Configs()
             .withGravityType(GravityTypeValue.Elevator_Static)
             .withKG(0)
             .withKP(0)
             .withKD(0);
-        
-        m_motorA.getConfigurator().apply(configs);
-        m_motorA.getConfigurator().apply(cSlot0Configs);
 
-        m_motorB.getConfigurator().apply(configs);
-        m_motorB.getConfigurator().apply(cSlot0Configs);
-    }
-    @Override
-    public void getToPosition(double pos) {
-        m_motorA.setControl(request.withPosition(pos));
-        m_motorB.setControl(request.withPosition(-pos));
-    }
+    m_motor.getConfigurator().apply(configs);
+    m_motor.getConfigurator().apply(cSlot0Configs);
+  }
+
+  @Override
+  public void getToPosition(double pos) {
+    m_motor.setControl(request.withPosition(pos));
+  }
+
+  @Override
+  public void updateInputs(ExteriorElevatorIOInputs inputs) {
+    inputs.isAlive = m_motor.isAlive();
+    inputs.isConnected = m_motor.isConnected();
+    inputs.speed = m_motor.get();
+    inputs.position = m_motor.getPosition().getValueAsDouble();
+    inputs.appliedAmps = m_motor.getTorqueCurrent().getValueAsDouble();
+    inputs.appliedVoltage = m_motor.getMotorVoltage().getValueAsDouble();
+  }
 }

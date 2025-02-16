@@ -9,12 +9,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Gripper extends SubsystemBase {
   /** Creates a new Gripper. */
   GripperIO io;
+
+  GripperIOInputsAutoLogged inputs = new GripperIOInputsAutoLogged();
+
   public Gripper(GripperIO io) {
     this.io = io;
   }
 
   @Override
   public void periodic() {
+    io.updateInputs(inputs);
     // This method will be called once per scheduler run
   }
 }

@@ -4,26 +4,29 @@
 
 package frc.robot.subsystems.shooter;
 
-import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
   ShooterIO io;
+  ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
+
   public Shooter(ShooterIO io) {
     this.io = io;
   }
 
   public Command runAtVoltage(double nVoltage) {
-    return new RunCommand(()->{
-      io.runVoltage(nVoltage);
-    }, this);
+    return new RunCommand(
+        () -> {
+          io.runVoltage(nVoltage);
+        },
+        this);
   }
 
   @Override
   public void periodic() {
+    io.updateInputs(inputs);
     // This method will be called once per scheduler run
   }
 }

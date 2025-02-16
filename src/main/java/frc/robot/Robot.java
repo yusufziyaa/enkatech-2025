@@ -187,6 +187,8 @@ public class Robot extends LoggedRobot {
   @Override
   public void simulationPeriodic() {
 
+    if (Constants.currentMode == frc.robot.Constants.Mode.REAL) return;
+
     Logger.recordOutput("ZeroedPose", new Pose3d(0, 0, 0, new Rotation3d()));
     Logger.recordOutput("ZeroedComponentPositions", new Pose3d[] {new Pose3d()});
 

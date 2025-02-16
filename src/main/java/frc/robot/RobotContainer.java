@@ -17,15 +17,13 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.AutoCommands;
-import frc.robot.commands.AutoCycle;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.ArmIOTalonFX;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -33,17 +31,25 @@ import frc.robot.subsystems.drive.GyroIOSim;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.exterior_elevator.ExteriorElevator;
+import frc.robot.subsystems.exterior_elevator.ExteriorElevatorIOTalonFX;
+import frc.robot.subsystems.gripper.Gripper;
+import frc.robot.subsystems.gripper.GripperIOTalonFX;
+import frc.robot.subsystems.interior_elevator.InteriorElevator;
+import frc.robot.subsystems.interior_elevator.InteriorElevatorIOTalonFX;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOPhoton;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.util.General;
+import java.util.Optional;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.photonvision.EstimatedRobotPose;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -64,12 +70,12 @@ public class RobotContainer {
   private final LoggedDashboardChooser<Command> autoChooser;
   SwerveDriveSimulation sim;
 
-  // SIMULASYON BASLANGIC ROBOT KOORDINATI
-  Pose2d initialPos = Constants.initialPose;
-
   private final Vision vision;
-  private final Elevator elevator;
   private Shooter shooter;
+  private Gripper gripper;
+  private Arm arm;
+  private InteriorElevator interiorElevator;
+  private ExteriorElevator exteriorElevator;
 
   public RobotContainer() {
 
@@ -85,35 +91,25 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackRight));
 
         // TODO:implement real io
-        vision = new Vision();
+        vision = new Vision(new VisionIOPhoton("camera1", "camera2", "limelight"));
 
         shooter = new Shooter(new ShooterIOTalonFX(Constants.ShooterCANID));
+        gripper = new Gripper(new GripperIOTalonFX(Constants.GripperCANID));
 
-        /*elevator =
-            new Elevator(
-                new ElevatorIOReal(
-                    new MotorIOTalonFX(0, 0, ElevatorConstants.intakeConfig),
-                    new MotorIOTalonFX(1, 1, ElevatorConstants.armConfig),
-                    new MotorIOTalonFX(3, 3, ElevatorConstants.interiorConfig),
-                    new MotorIOTalonFX(2, 2, ElevatorConstants.exteriorConfig)));
-        */
-        elevator = new Elevator();
+        arm = new Arm(new ArmIOTalonFX(Constants.ArmCANID));
+
+        interiorElevator =
+            new InteriorElevator(new InteriorElevatorIOTalonFX(Constants.InteriorElevatorCANID));
+        exteriorElevator =
+            new ExteriorElevator(
+                new ExteriorElevatorIOTalonFX(Constants.ExteriorElevatorCANID_AKU),
+                new ExteriorElevatorIOTalonFX(Constants.ExteriorElevatorCANID_N));
         break;
 
       case SIM:
-        /*elevator =
-            new Elevator(
-                new ElevatorIOReal(
-                    new IntakeIOTalonFX(0, 1),
-                    new ArmIOTalonFX(1, 2),
-                    new InteriorIOTalonFX(3, 4),
-                    new ExteriorIOTalonFX(5, 6)));
-        */
-
-        elevator = new Elevator(new ElevatorIOSim());
 
         // Sim robot, instantiate physics sim IO implementations
-        this.sim = new SwerveDriveSimulation(Drive.config, initialPos);
+        this.sim = new SwerveDriveSimulation(Drive.config, Constants.initialPose);
         drive =
             new Drive(
                 new GyroIOSim(sim.getGyroSimulation()),
@@ -123,9 +119,6 @@ public class RobotContainer {
                 new ModuleIOSim(sim.getModules()[3]));
 
         vision = new Vision(new VisionIOSim());
-
-        // SimulatedArena.getInstance()
-        //    .addGamePiece(new ReefscapeCoral(new Pose2d(0, 0, new Rotation2d())));
 
         SimulatedArena.getInstance().addDriveTrainSimulation(sim);
 
@@ -140,30 +133,14 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
-        vision = new Vision();
-        elevator = new Elevator();
+        vision = new Vision(new VisionIO() {});
+
         break;
     }
-    drive.setPose(initialPos);
+    drive.setPose(Constants.initialPose);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
-    // Set up SysId routines
-    autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -185,15 +162,13 @@ public class RobotContainer {
                 false));
   }
 
-  Pose2d relativePose = new Pose2d(0.8, 2, new Rotation2d());
-
   public Command getAutonomousCommand() {
     // return new ScoreCoralCommand(drive, vision);
     // return ElevatorCommands.adjustTo(elevator, relativePose);
     // FIXME: when the autonomous command ends, robot sometimes keeps going at a random velocity
     // continiously
     return shooter.runAtVoltage(5);
-    //return new AutoCycle(drive, vision, elevator);
+    // return new AutoCycle(drive, vision, elevator);
   }
 
   public void updateCamera() {
@@ -208,32 +183,6 @@ public class RobotContainer {
     Pose3d[] corals = SimulatedArena.getInstance().getGamePiecesArrayByType("Coral");
     Logger.recordOutput("FieldSimulation/CoralPos", corals);
 
-    Pose2d pose =
-        drive
-            .getPose()
-            .plus(
-                new Transform2d(
-                    Math.cos(
-                                Math.toRadians(
-                                    180 - elevator.getArmEncoder() - Constants.elevatorAngle))
-                            * Constants.elevatorArmLength
-                        - elevator.getElevatorEncoder()
-                            * Math.cos(Math.toRadians(Constants.elevatorAngle)),
-                    0,
-                    new Rotation2d()));
-
-    Pose3d np =
-        new Pose3d(
-            pose.getX(),
-            pose.getY(),
-            elevator.getElevatorEncoder() * Math.sin(Math.toRadians(Constants.elevatorAngle))
-                + Constants.elevatorArmLength
-                    * Math.sin(
-                        Math.toRadians(180 - elevator.getArmEncoder() - Constants.elevatorAngle)),
-            new Rotation3d());
-
-    Logger.recordOutput("FieldSimulation/Translation", np);
-
     Logger.recordOutput(
         "FieldSimulation/OdometryError",
         General.DistancePose2d(sim.getSimulatedDriveTrainPose(), drive.getPose()));
@@ -242,7 +191,7 @@ public class RobotContainer {
   }
 
   public void periodic() {
-    /*Optional<EstimatedRobotPose> robotPoseL = vision.getEstimatedGlobalPose(0);
+    Optional<EstimatedRobotPose> robotPoseL = vision.getEstimatedGlobalPose(0);
     if (robotPoseL.isPresent()) {
       drive.addVisionMeasurement(
           robotPoseL.get().estimatedPose.toPose2d(),
@@ -256,6 +205,6 @@ public class RobotContainer {
           robotPoseR.get().estimatedPose.toPose2d(),
           robotPoseR.get().timestampSeconds,
           vision.getEstimationStdDevs(1));
-    }*/
+    }
   }
 }

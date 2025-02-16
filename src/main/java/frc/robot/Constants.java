@@ -24,6 +24,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.RobotBase;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -32,13 +33,13 @@ import edu.wpi.first.math.numbers.N3;
  */
 public final class Constants {
   public static final Mode simMode = Mode.SIM;
-  public static final Mode currentMode = Mode.REAL;
+  public static final Mode currentMode = RobotBase.isReal()?Mode.REAL:Mode.SIM;
 
   // kameranın robota göre konumu
   // TODO: fix camera position
-  public static final Transform3d robot2Camera1 =
+  public static final Transform3d robot2CameraAKU =
       new Transform3d(0.5, 0, 0.5, new Rotation3d(0, 0, Math.toRadians(0)));
-  public static final Transform3d robot2Camera2 =
+  public static final Transform3d robot2CameraN =
       new Transform3d(-0.5, 0, 0.5, new Rotation3d(0, 0, Math.toRadians(180)));
 
   public static final Pose2d initialPose = new Pose2d(3, 3, new Rotation2d());
@@ -70,9 +71,14 @@ public final class Constants {
 
   public static final CANcoderConfiguration initialCancoderConfig = new CANcoderConfiguration();
 
-
-  public static int ShooterCANID = 31; 
+  public static int ShooterCANID = 31;
   public static int GripperCANID = 35;
+
+  public static int ArmCANID = 0;
+  public static int InteriorElevatorCANID = 0;
+
+  public static int ExteriorElevatorCANID_AKU = 0;
+  public static int ExteriorElevatorCANID_N = 0;
 
   public static enum APPROACH_TYPE {
     LOWER,

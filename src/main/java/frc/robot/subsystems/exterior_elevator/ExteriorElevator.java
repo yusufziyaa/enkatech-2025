@@ -8,17 +8,25 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ExteriorElevator extends SubsystemBase {
   /** Creates a new ExteriorElevator. */
-  ExteriorElevatorIO io;
-  public ExteriorElevator(ExteriorElevatorIO io) {
-    this.io = io;
+  ExteriorElevatorIO io_1, io_2;
+
+  ExteriorElevatorIOInputsAutoLogged inputs1 = new ExteriorElevatorIOInputsAutoLogged();
+  ExteriorElevatorIOInputsAutoLogged inputs2 = new ExteriorElevatorIOInputsAutoLogged();
+
+  public ExteriorElevator(ExteriorElevatorIO io1, ExteriorElevatorIO io2) {
+    this.io_1 = io1;
+    this.io_2 = io2;
   }
 
   public void getToPosition(double pos) {
-    io.getToPosition(pos);
+    io_1.getToPosition(pos);
+    io_2.getToPosition(-pos);
   }
 
   @Override
   public void periodic() {
+    io_1.updateInputs(inputs1);
+    io_2.updateInputs(inputs2);
     // This method will be called once per scheduler run
   }
 }

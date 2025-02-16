@@ -34,8 +34,8 @@ public class Vision extends SubsystemBase {
 
   private final VisionInputsAutoLogged inputs = new VisionInputsAutoLogged();
   private AprilTagFieldLayout fieldLayout = Constants.fieldLayout;
-  private PhotonPoseEstimator poseEstimatorL = null;
-  private PhotonPoseEstimator poseEstimatorR = null;
+  private PhotonPoseEstimator poseEstimatorAKU = null;
+  private PhotonPoseEstimator poseEstimatorN = null;
 
   private List<Matrix<N3, N1>> curStdDevs = new ArrayList<Matrix<N3, N1>>();
 
@@ -46,15 +46,15 @@ public class Vision extends SubsystemBase {
     curStdDevs.add(Constants.kSingleTagStdDevs);
     this.io = io;
 
-    poseEstimatorL =
+    poseEstimatorAKU =
         new PhotonPoseEstimator(
-            fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.robot2Camera1);
-    poseEstimatorR =
+            fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.robot2CameraAKU);
+    poseEstimatorN =
         new PhotonPoseEstimator(
-            fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.robot2Camera2);
+            fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.robot2CameraN);
 
-    poseEstimatorL.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-    poseEstimatorR.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+    poseEstimatorAKU.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+    poseEstimatorN.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
   }
 
   @Override
@@ -71,10 +71,10 @@ public class Vision extends SubsystemBase {
     PhotonPoseEstimator poseEstimator;
     if (index == 0) {
       pipelineResults = io.getPipelineL();
-      poseEstimator = poseEstimatorL;
+      poseEstimator = poseEstimatorAKU;
     } else {
       pipelineResults = io.getPipelineR();
-      poseEstimator = poseEstimatorR;
+      poseEstimator = poseEstimatorN;
     }
 
     for (var change : pipelineResults) {

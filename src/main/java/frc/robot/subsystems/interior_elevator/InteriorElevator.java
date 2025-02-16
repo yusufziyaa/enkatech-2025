@@ -9,6 +9,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class InteriorElevator extends SubsystemBase {
   /** Creates a new InteriorElevator. */
   InteriorElevatorIO io;
+
+  InteriorElevatorIOInputsAutoLogged inputs = new InteriorElevatorIOInputsAutoLogged();
+
   public InteriorElevator(InteriorElevatorIO io) {
     this.io = io;
   }
@@ -16,9 +19,10 @@ public class InteriorElevator extends SubsystemBase {
   public void runPosition(double position) {
     io.runPosition(position);
   }
-  
+
   @Override
   public void periodic() {
+    io.updateInputs(inputs);
     // This method will be called once per scheduler run
   }
 }

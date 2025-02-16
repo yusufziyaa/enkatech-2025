@@ -6,8 +6,15 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 
 public class VisionIOPhoton implements VisionIO {
-  PhotonCamera cameraL = new PhotonCamera("camera_left");
-  PhotonCamera cameraR = new PhotonCamera("camera_right");
+  PhotonCamera cameraL;
+  PhotonCamera cameraR;
+  String limelight;
+
+  public VisionIOPhoton(String camera_1_name, String camera_2_name, String limelight_name) {
+    cameraL = new PhotonCamera(camera_1_name);
+    cameraR = new PhotonCamera(camera_2_name);
+    limelight = limelight_name;
+  }
 
   // TODO: not tested yet
   public VisionIOPhoton() {}
@@ -28,7 +35,24 @@ public class VisionIOPhoton implements VisionIO {
   }
 
   @Override
+  public List<PhotonPipelineResult> getPipelineR() {
+    return cameraR.getAllUnreadResults();
+  }
+
+  @SuppressWarnings("removal")
+  @Override
+  public PhotonPipelineResult getLatestResultL() {
+    return cameraL.getLatestResult();
+  }
+
+  @SuppressWarnings("removal")
+  @Override
+  public PhotonPipelineResult getLatestResultR() {
+    return cameraR.getLatestResult();
+  }
+
+  @Override
   public double getLimelightYaw(int targetID) {
-    return LimelightHelpers.getTX("limelight");
+    return LimelightHelpers.getTX(limelight);
   }
 }

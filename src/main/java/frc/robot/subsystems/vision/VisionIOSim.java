@@ -3,8 +3,6 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import java.util.List;
@@ -45,11 +43,9 @@ public class VisionIOSim implements VisionIO {
 
     simL = new PhotonCameraSim(cameraL, properties);
     simR = new PhotonCameraSim(cameraR, properties);
-    simF = new PhotonCameraSim(cameraF, properties);
 
-    visionSystemSim.addCamera(simL, Constants.robot2Camera1);
-    visionSystemSim.addCamera(simR, Constants.robot2Camera2);
-    visionSystemSim.addCamera(simF, new Transform3d(0.5, 0, 0.5, new Rotation3d()));
+    visionSystemSim.addCamera(simL, Constants.robot2CameraAKU);
+    visionSystemSim.addCamera(simR, Constants.robot2CameraN);
 
     // sim.enableProcessedStream(true);
     // sim.enableRawStream(true);
