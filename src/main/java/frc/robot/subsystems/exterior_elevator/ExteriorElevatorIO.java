@@ -13,6 +13,14 @@ public interface ExteriorElevatorIO {
     public boolean isAlive = false;
     public double appliedVoltage = 0;
     public double appliedAmps = 0;
+
+    public double slaveAppliedVoltage = 0;
+    public double slaveAppliedAmps = 0;
+
+    public boolean slaveIsConnected = false;
+    public double slaveSpeed = 0;
+    public boolean slaveIsAlive = false;
+
   }
 
   public default void updateInputs(ExteriorElevatorIOInputs inputs) {}

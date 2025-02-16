@@ -13,6 +13,9 @@ public interface ShooterIO {
     public boolean isAlive = false;
     public double appliedVoltage = 0;
     public double appliedAmps = 0;
+
+    public boolean sensor1 = false;
+    public boolean sensor2 = false;
   }
 
   public default void updateInputs(ShooterIOInputs inputs) {}

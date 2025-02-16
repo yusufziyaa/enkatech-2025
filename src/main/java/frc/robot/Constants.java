@@ -33,7 +33,7 @@ import edu.wpi.first.wpilibj.RobotBase;
  */
 public final class Constants {
   public static final Mode simMode = Mode.SIM;
-  public static final Mode currentMode = RobotBase.isReal()?Mode.REAL:Mode.SIM;
+  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : Mode.SIM;
 
   // kameranın robota göre konumu
   // TODO: fix camera position
@@ -79,6 +79,11 @@ public final class Constants {
 
   public static int ExteriorElevatorCANID_AKU = 0;
   public static int ExteriorElevatorCANID_N = 0;
+
+  public static int MZ80_1_ID = 8;
+  public static int MZ80_2_ID = 9;
+  public static double shooterAdjustingVoltage = 0.5;
+  public static double shootingVoltage = 3;
 
   public static enum APPROACH_TYPE {
     LOWER,

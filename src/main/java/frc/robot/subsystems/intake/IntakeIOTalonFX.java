@@ -1,22 +1,24 @@
-package frc.robot.subsystems.exterior_elevator;
+package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 
-public class ExteriorElevatorIOTalonFX implements ExteriorElevatorIO {
+public class IntakeIOTalonFX implements IntakeIO {
   TalonFX m_motor;
-  TalonFX m_slave;
+
   MotionMagicTorqueCurrentFOC request = new MotionMagicTorqueCurrentFOC(0);
 
-  public ExteriorElevatorIOTalonFX(int CANID, int CANIDSlave) {
-    m_motor = new TalonFX(CANID, "canivore");
-    m_slave = new TalonFX(CANIDSlave, "canivore");
+  @Override
+  public void runToPosition(double pos) {
+    m_motor.setControl(request.withPosition(pos));
+  }
 
-    m_slave.setControl(new Follower(CANIDSlave, true));
+  public IntakeIOTalonFX(int CANID) {
+    m_motor = new TalonFX(CANID, "canivore");
 
     MotionMagicConfigs configs =
         new MotionMagicConfigs()
@@ -25,37 +27,20 @@ public class ExteriorElevatorIOTalonFX implements ExteriorElevatorIO {
 
     Slot0Configs cSlot0Configs =
         new Slot0Configs()
-            .withGravityType(GravityTypeValue.Elevator_Static)
-            .withKG(0)
             .withKP(0)
             .withKD(0);
 
     m_motor.getConfigurator().apply(configs);
     m_motor.getConfigurator().apply(cSlot0Configs);
-
-    m_slave.getConfigurator().apply(configs);
-    m_slave.getConfigurator().apply(cSlot0Configs);
-
   }
 
   @Override
-  public void getToPosition(double pos) {
-    m_motor.setControl(request.withPosition(pos));
-  }
-
-  @Override
-  public void updateInputs(ExteriorElevatorIOInputs inputs) {
+  public void updateInputs(IntakeIOInputs inputs) {
     inputs.isAlive = m_motor.isAlive();
     inputs.isConnected = m_motor.isConnected();
     inputs.speed = m_motor.get();
     inputs.position = m_motor.getPosition().getValueAsDouble();
     inputs.appliedAmps = m_motor.getTorqueCurrent().getValueAsDouble();
     inputs.appliedVoltage = m_motor.getMotorVoltage().getValueAsDouble();
-
-    inputs.slaveAppliedAmps = m_slave.getTorqueCurrent().getValueAsDouble();
-    inputs.slaveAppliedVoltage = m_slave.getMotorVoltage().getValueAsDouble();
-    inputs.slaveIsAlive = m_slave.isAlive();
-    inputs.slaveIsConnected = m_slave.isConnected();
-    inputs.slaveSpeed = m_slave.get();
   }
 }

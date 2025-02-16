@@ -102,8 +102,8 @@ public class RobotContainer {
             new InteriorElevator(new InteriorElevatorIOTalonFX(Constants.InteriorElevatorCANID));
         exteriorElevator =
             new ExteriorElevator(
-                new ExteriorElevatorIOTalonFX(Constants.ExteriorElevatorCANID_AKU),
-                new ExteriorElevatorIOTalonFX(Constants.ExteriorElevatorCANID_N));
+                new ExteriorElevatorIOTalonFX(
+                    Constants.ExteriorElevatorCANID_AKU, Constants.ExteriorElevatorCANID_N));
         break;
 
       case SIM:
