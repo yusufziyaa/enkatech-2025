@@ -4,8 +4,8 @@
 
 package frc.robot.subsystems.gripper;
 
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.littletonrobotics.junction.Logger;
 
 public class Gripper extends SubsystemBase {
   /** Creates a new Gripper. */
@@ -20,6 +20,7 @@ public class Gripper extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs(inputs);
+    Logger.processInputs(getName(), inputs);
     // This method will be called once per scheduler run
   }
 }

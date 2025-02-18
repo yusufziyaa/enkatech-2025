@@ -3,9 +3,7 @@ package frc.robot.subsystems.intake;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.GravityTypeValue;
 
 public class IntakeIOTalonFX implements IntakeIO {
   TalonFX m_motor;
@@ -25,10 +23,7 @@ public class IntakeIOTalonFX implements IntakeIO {
             .withMotionMagicAcceleration(0.1)
             .withMotionMagicCruiseVelocity(0.2);
 
-    Slot0Configs cSlot0Configs =
-        new Slot0Configs()
-            .withKP(0)
-            .withKD(0);
+    Slot0Configs cSlot0Configs = new Slot0Configs().withKP(0).withKD(0);
 
     m_motor.getConfigurator().apply(configs);
     m_motor.getConfigurator().apply(cSlot0Configs);

@@ -20,7 +20,6 @@ public interface ExteriorElevatorIO {
     public boolean slaveIsConnected = false;
     public double slaveSpeed = 0;
     public boolean slaveIsAlive = false;
-
   }
 
   public default void updateInputs(ExteriorElevatorIOInputs inputs) {}

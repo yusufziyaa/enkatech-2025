@@ -74,11 +74,11 @@ public final class Constants {
   public static int ShooterCANID = 31;
   public static int GripperCANID = 35;
 
-  public static int ArmCANID = 0;
-  public static int InteriorElevatorCANID = 0;
+  public static int ArmCANID = 32;
+  public static int InteriorElevatorCANID = 38;
 
-  public static int ExteriorElevatorCANID_AKU = 0;
-  public static int ExteriorElevatorCANID_N = 0;
+  public static int ExteriorElevatorCANID_AKU = 36;
+  public static int ExteriorElevatorCANID_N = 37;
 
   public static int MZ80_1_ID = 8;
   public static int MZ80_2_ID = 9;

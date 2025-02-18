@@ -2,7 +2,6 @@ package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 

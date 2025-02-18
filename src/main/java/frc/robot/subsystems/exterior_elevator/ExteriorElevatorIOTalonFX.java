@@ -18,16 +18,18 @@ public class ExteriorElevatorIOTalonFX implements ExteriorElevatorIO {
 
     m_slave.setControl(new Follower(CANIDSlave, true));
 
+    m_motor.setPosition(0);
+
     MotionMagicConfigs configs =
         new MotionMagicConfigs()
-            .withMotionMagicAcceleration(0.1)
-            .withMotionMagicCruiseVelocity(0.2);
+            .withMotionMagicAcceleration(300)
+            .withMotionMagicCruiseVelocity(200);
 
     Slot0Configs cSlot0Configs =
         new Slot0Configs()
             .withGravityType(GravityTypeValue.Elevator_Static)
-            .withKG(0)
-            .withKP(0)
+            .withKG(0.2)
+            .withKP(1)
             .withKD(0);
 
     m_motor.getConfigurator().apply(configs);
@@ -35,7 +37,6 @@ public class ExteriorElevatorIOTalonFX implements ExteriorElevatorIO {
 
     m_slave.getConfigurator().apply(configs);
     m_slave.getConfigurator().apply(cSlot0Configs);
-
   }
 
   @Override

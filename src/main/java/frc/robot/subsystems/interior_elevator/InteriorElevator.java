@@ -5,6 +5,7 @@
 package frc.robot.subsystems.interior_elevator;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.littletonrobotics.junction.Logger;
 
 public class InteriorElevator extends SubsystemBase {
   /** Creates a new InteriorElevator. */
@@ -23,6 +24,7 @@ public class InteriorElevator extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs(inputs);
+    Logger.processInputs(getName(), inputs);
     // This method will be called once per scheduler run
   }
 }

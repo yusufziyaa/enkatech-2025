@@ -1,5 +1,6 @@
 package frc.robot.subsystems.arm;
 
+import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
@@ -16,9 +17,9 @@ public class ArmIOTalonFX implements ArmIO {
         .getConfigurator()
         .apply(
             new MotionMagicConfigs()
-                .withMotionMagicAcceleration(0.1)
-                .withMotionMagicCruiseVelocity(0.5));
-
+                .withMotionMagicAcceleration(2)
+                .withMotionMagicCruiseVelocity(1));
+    m_motor.setPosition(0.1841408);
     // TODO: tune, use setPosition to overcome Arm_cosine control type. probably no need for ratio
     // tuning because there is no reductory (or maybe there  is??)
     m_motor
@@ -26,9 +27,10 @@ public class ArmIOTalonFX implements ArmIO {
         .apply(
             new Slot0Configs()
                 .withGravityType(GravityTypeValue.Arm_Cosine)
-                .withKG(0)
-                .withKP(0)
-                .withKD(0));
+                .withKG(0.765)
+                .withKP(30)
+                .withKD(0.1));
+    m_motor.getConfigurator().apply(new FeedbackConfigs().withSensorToMechanismRatio(25));
   }
 
   @Override

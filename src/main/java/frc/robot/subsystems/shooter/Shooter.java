@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
+import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
   ShooterIO io;
@@ -39,14 +40,15 @@ public class Shooter extends SubsystemBase {
 
   SequentialCommandGroup shoot(double voltage) {
     return new SequentialCommandGroup(
-      new InstantCommand(()->{
-        io.runVoltage(voltage);
-      }),
-      new WaitCommand(1),
-      new InstantCommand(()->{
-        io.runVoltage(0);
-      })
-    );
+        new InstantCommand(
+            () -> {
+              io.runVoltage(voltage);
+            }),
+        new WaitCommand(1),
+        new InstantCommand(
+            () -> {
+              io.runVoltage(0);
+            }));
   }
 
   public Command ortala() {
@@ -72,6 +74,7 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs(inputs);
+    Logger.processInputs(getName(), inputs);
     // This method will be called once per scheduler run
   }
 }
