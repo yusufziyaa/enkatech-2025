@@ -55,12 +55,10 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhoton;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.util.General;
-import java.util.Optional;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import org.photonvision.EstimatedRobotPose;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -234,7 +232,7 @@ public class RobotContainer {
 
   public void periodic() {
     // Logger.recordOutput()"id", vision.getBestTargetL().fiducialId);
-    Optional<EstimatedRobotPose> robotPoseL = vision.getPoseL();
+    /*Optional<EstimatedRobotPose> robotPoseL = vision.getPoseL();
     if (robotPoseL.isPresent()) {
       drive.addVisionMeasurement(
           robotPoseL.get().estimatedPose.toPose2d(),
@@ -248,6 +246,6 @@ public class RobotContainer {
           robotPoseR.get().estimatedPose.toPose2d(),
           robotPoseR.get().timestampSeconds,
           vision.getEstimationStdDevs(1));
-    }
+    }*/
   }
 }
