@@ -18,6 +18,8 @@ public class Arm extends SubsystemBase {
   ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
   PIDController controller = new PIDController(0.5, 0, 0);
 
+  public Arm() {}
+
   public Arm(ArmIO io) {
     this.io = io;
   }
@@ -79,16 +81,30 @@ public class Arm extends SubsystemBase {
   }
 
   public Command getToNull() {
-    return new InstantCommand(()->{
-      io.getToAngle(0);
-    }
-    );
+    return new InstantCommand(
+        () -> {
+          io.getToAngle(0);
+        });
+  }
+
+  public Command waitTillNull() {
+    return new FunctionalCommand(
+        () -> {
+          io.getToAngle(0);
+        },
+        () -> {},
+        (Boolean cons) -> {},
+        () -> {
+          return inputs.position < 0.1;
+        },
+        this);
   }
 
   public Command runVoltageZero() {
-    return new InstantCommand(()->{
-      io.runVoltage(0);
-    });
+    return new InstantCommand(
+        () -> {
+          io.runVoltage(0);
+        });
   }
 
   public Command getToL2L3() {

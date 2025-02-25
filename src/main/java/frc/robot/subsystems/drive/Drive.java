@@ -21,7 +21,6 @@ import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
@@ -49,7 +48,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
-import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.ironmaple.simulation.drivesims.COTS;
@@ -72,7 +70,7 @@ public class Drive extends SubsystemBase {
 
   // PathPlanner config constants
   private static final double ROBOT_MASS_KG = 45.5;
-  private static final double ROBOT_MOI = 1;
+  private static final double ROBOT_MOI = 6.883;
   private static final double WHEEL_COF = 1.2;
   private static final RobotConfig PP_CONFIG =
       new RobotConfig(
@@ -140,12 +138,10 @@ public class Drive extends SubsystemBase {
         this::setPose,
         this::getChassisSpeeds,
         this::runVelocity,
-        new PPHolonomicDriveController(
-            new PIDConstants(0.01, 12, 0), new PIDConstants(100, 0, 0.5)),
+        new PPHolonomicDriveController(new PIDConstants(5, 0, 0.0), new PIDConstants(5, 0, 0.0)),
         PP_CONFIG,
         () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
         this);
-    Pathfinding.setPathfinder(new LocalADStarAK());
     PathPlannerLogging.setLogActivePathCallback(
         (activePath) -> {
           Logger.recordOutput(

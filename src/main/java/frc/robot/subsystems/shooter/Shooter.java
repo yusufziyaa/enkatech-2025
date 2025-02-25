@@ -18,6 +18,8 @@ public class Shooter extends SubsystemBase {
   ShooterIO io;
   ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
 
+  public Shooter() {}
+
   public Shooter(ShooterIO io) {
     this.io = io;
   }

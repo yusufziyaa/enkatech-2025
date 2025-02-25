@@ -9,52 +9,49 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.interior_elevator.InteriorElevator;
 
 public class HangarPosition implements Position {
-    Intake intake;
-    ExteriorElevator exterior;
-    InteriorElevator interior;
-    Arm arm;
-    public HangarPosition(Intake intake,Arm arm,InteriorElevator interiorElevator,ExteriorElevator exteriorElevator) {
-        this.intake = intake;
-        this.exterior = exteriorElevator;
-        this.interior = interiorElevator;
-        this.arm = arm;
-    }
+  Intake intake;
+  ExteriorElevator exterior;
+  InteriorElevator interior;
+  Arm arm;
 
-    @Override
-    public Command getToZero() {
-        return new SequentialCommandGroup(
-            exterior.getToGround(),
-            arm.getToZero()
-        );  
-    }
+  public HangarPosition(
+      Intake intake,
+      Arm arm,
+      InteriorElevator interiorElevator,
+      ExteriorElevator exteriorElevator) {
+    this.intake = intake;
+    this.exterior = exteriorElevator;
+    this.interior = interiorElevator;
+    this.arm = arm;
+  }
 
-    @Override
-    public Command getToL2() {
-        return new SequentialCommandGroup(
-            exterior.getToL2(),
-            arm.getToL2L3()
-        );  
-    }
+  @Override
+  public Command getToZero() {
+    return new SequentialCommandGroup(exterior.getToGround(), arm.getToZero());
+  }
 
-    @Override
-    public Command getToL3() {
-        return new SequentialCommandGroup(
-            exterior.getToL3(),
-            arm.getToL2L3()
-        );
-    }
+  @Override
+  public Command getToL2() {
+    return new SequentialCommandGroup(exterior.getToL2(), arm.getToL2L3());
+  }
 
-    @Override
-    public Command getToHangar() {
-        return new InstantCommand(()->{});
-    }
+  @Override
+  public Command getToL3() {
+    return new SequentialCommandGroup(exterior.getToL3(), arm.getToL2L3());
+  }
 
-    @Override
-    public Command getToL4() {
-        return new SequentialCommandGroup(
-            exterior.getToL4(),
-            arm.getToL4()
-        );
-    }
+  @Override
+  public Command getToHangar() {
+    return new InstantCommand(() -> {});
+  }
 
+  @Override
+  public Command getToL4() {
+    return new SequentialCommandGroup(exterior.getToL4(), arm.getToL4());
+  }
+
+  @Override
+  public Command getToGround() {
+    return new SequentialCommandGroup(interior.getToLow(), arm.runVoltageZero());
+  }
 }

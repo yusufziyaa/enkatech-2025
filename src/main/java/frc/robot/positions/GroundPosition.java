@@ -10,52 +10,62 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.interior_elevator.InteriorElevator;
 
 public class GroundPosition implements Position {
-    Intake intake;
-    ExteriorElevator exterior;
-    InteriorElevator interior;
-    Arm arm;
-    public GroundPosition(Intake intake,Arm arm,InteriorElevator interiorElevator,ExteriorElevator exteriorElevator) {
-        this.intake = intake;
-        this.exterior = exteriorElevator;
-        this.interior = interiorElevator;
-        this.arm = arm;
-    }
+  Intake intake;
+  ExteriorElevator exterior;
+  InteriorElevator interior;
+  Arm arm;
 
-    @Override
-    public Command getToZero() {
-        return new SequentialCommandGroup(
-            new ParallelCommandGroup(arm.getToNull(),new WaitCommand(0.5)),
-            interior.getToHigh(),
-            arm.getToZero()
-        );
-    }
+  public GroundPosition(
+      Intake intake,
+      Arm arm,
+      InteriorElevator interiorElevator,
+      ExteriorElevator exteriorElevator) {
+    this.intake = intake;
+    this.exterior = exteriorElevator;
+    this.interior = interiorElevator;
+    this.arm = arm;
+  }
 
-    @Override
-    public Command getToHangar() {
-        return new SequentialCommandGroup(
-            new ParallelCommandGroup(arm.getToNull(),new WaitCommand(0.5)),
-            interior.getToHigh(),
-            arm.hangar()
-        );
-    }
+  @Override
+  public Command getToZero() {
+    return new SequentialCommandGroup(
+        new ParallelCommandGroup(arm.getToNull(), new WaitCommand(0.5)),
+        interior.getToHigh(),
+        arm.getToZero());
+  }
 
-    @Override
-    public Command getToL2() {
-        return new SequentialCommandGroup(
-            new ParallelCommandGroup(arm.getToNull(),new WaitCommand(0.5)),
-            interior.getToHigh(),
-            arm.getToL2L3(),
-            exterior.getToL2()
-        );
-    }
+  @Override
+  public Command getToHangar() {
+    return new SequentialCommandGroup(
+        new ParallelCommandGroup(arm.getToNull(), new WaitCommand(0.5)),
+        interior.getToHigh(),
+        arm.hangar());
+  }
 
-    @Override
-    public Command getToL3() {
-        return new SequentialCommandGroup(
-            new ParallelCommandGroup(arm.getToNull(),new WaitCommand(0.5)),
-            interior.getToHigh(),
-            arm.getToL2L3(),
-            exterior.getToL3()
-        );
-    }
+  @Override
+  public Command getToL2() {
+    return new SequentialCommandGroup(
+        new ParallelCommandGroup(arm.getToNull(), new WaitCommand(0.5)),
+        interior.getToHigh(),
+        arm.getToL2L3(),
+        exterior.getToL2());
+  }
+
+  @Override
+  public Command getToL3() {
+    return new SequentialCommandGroup(
+        new ParallelCommandGroup(arm.getToNull(), new WaitCommand(0.5)),
+        interior.getToHigh(),
+        arm.getToL2L3(),
+        exterior.getToL3());
+  }
+
+  @Override
+  public Command getToL4() {
+    return new SequentialCommandGroup(
+        new ParallelCommandGroup(arm.getToNull(), new WaitCommand(0.5)),
+        exterior.getToL4(),
+        interior.getToHigh(),
+        arm.getToL4());
+  }
 }

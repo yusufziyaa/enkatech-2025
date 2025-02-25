@@ -40,6 +40,19 @@ public class InteriorElevator extends SubsystemBase {
         });
   }
 
+  public Command waitTillLow() {
+    return new FunctionalCommand(
+        () -> {
+          io.getToPosition(0);
+        },
+        () -> {},
+        (Boolean cons) -> {},
+        () -> {
+          return inputs.position < 3;
+        },
+        this);
+  }
+
   @Override
   public void periodic() {
     io.updateInputs(inputs);

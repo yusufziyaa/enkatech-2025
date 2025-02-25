@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.Vision;
 import java.util.Arrays;
@@ -64,11 +63,11 @@ public class AutoCommands {
 
   // private static final PIDController drivePID = new PIDController(0.1, 0, 0);
 
-  private static final PathConstraints oldconst =
+  private static final PathConstraints constraints =
       new PathConstraints(
-          3.79, 5, Units.degreesToRadians(540), Units.degreesToRadians(720), 12.6, false);
+          3.79, 5.0, Units.degreesToRadians(540), Units.degreesToRadians(720), 12.6, false);
 
-  private static final PathConstraints constraints = new PathConstraints(0.05, 0.03, 0.05, 0.03);
+  private static final PathConstraints newconst = new PathConstraints(0.05, 0.03, 0.05, 0.03);
 
   public static List<Reef> reefs =
       Arrays.asList(
@@ -108,12 +107,8 @@ public class AutoCommands {
               targetPose.getX(),
               targetPose.getY(),
               new Rotation2d(Math.PI + targetPose.getRotation().getRadians()));
-    return AutoBuilder.pathfindToPose(targetPoseNew, constraints, 0)
-        .andThen(
-            new InstantCommand(
-                () -> {
-                  drive.stop();
-                }));
+    System.out.println("nigga");
+    return AutoBuilder.pathfindToPose(targetPoseNew, constraints);
   }
 
   public static final Command getToStationA(Drive drive) {

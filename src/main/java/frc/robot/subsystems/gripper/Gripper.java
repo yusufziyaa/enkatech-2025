@@ -15,6 +15,8 @@ public class Gripper extends SubsystemBase {
 
   GripperIOInputsAutoLogged inputs = new GripperIOInputsAutoLogged();
 
+  public Gripper() {}
+
   public Gripper(GripperIO io) {
     this.io = io;
   }

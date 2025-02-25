@@ -24,7 +24,9 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.commands.DriverScoreCommands;
 import frc.robot.commands.Otonom;
 import frc.robot.generated.TunerConstants;
+import frc.robot.positions.Controller;
 import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.ArmIOSim;
 import frc.robot.subsystems.arm.ArmIOTalonFX;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -34,14 +36,19 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.exterior_elevator.ExteriorElevator;
+import frc.robot.subsystems.exterior_elevator.ExteriorElevatorIOSim;
 import frc.robot.subsystems.exterior_elevator.ExteriorElevatorIOTalonFX;
 import frc.robot.subsystems.gripper.Gripper;
+import frc.robot.subsystems.gripper.GripperIOSim;
 import frc.robot.subsystems.gripper.GripperIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.subsystems.interior_elevator.InteriorElevator;
+import frc.robot.subsystems.interior_elevator.InteriorElevatorIOSim;
 import frc.robot.subsystems.interior_elevator.InteriorElevatorIOTalonFX;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterIOSim;
 import frc.robot.subsystems.shooter.ShooterIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
@@ -82,6 +89,8 @@ public class RobotContainer {
   private InteriorElevator interiorElevator;
   private ExteriorElevator exteriorElevator;
   private Intake intake;
+
+  private Controller positionController;
 
   public RobotContainer() {
 
@@ -128,6 +137,13 @@ public class RobotContainer {
 
         vision = new Vision(new VisionIOSim());
 
+        shooter = new Shooter(new ShooterIOSim());
+        gripper = new Gripper(new GripperIOSim());
+        arm = new Arm(new ArmIOSim());
+        intake = new Intake(new IntakeIOSim());
+        interiorElevator = new InteriorElevator(new InteriorElevatorIOSim());
+        exteriorElevator = new ExteriorElevator(new ExteriorElevatorIOSim());
+
         SimulatedArena.getInstance().addDriveTrainSimulation(sim);
 
         break;
@@ -147,6 +163,8 @@ public class RobotContainer {
     }
     drive.setPose(Constants.initialPose);
 
+    positionController = new Controller(exteriorElevator, interiorElevator, arm, intake);
+
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
     // Configure the button bindings
@@ -157,9 +175,9 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -controller.getLeftY() * 0.5,
-            () -> -controller.getLeftX() * 0.5,
-            () -> -controller.getRightX() * 0.5));
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> -controller.getRightX()));
     controller.a().onTrue(new Otonom(interiorElevator, exteriorElevator, intake, arm));
     controller.b().onTrue(DriverScoreCommands.zeroToL3(intake, arm, exteriorElevator));
     controller.povUp().onTrue(interiorElevator.getToHigh());
@@ -191,7 +209,7 @@ public class RobotContainer {
     // return ElevatorCommands.adjustTo(elevator, relativePose);
     // FIXME: when the autonomous command ends, robot sometimes keeps going at a random velocity
     // continiously
-    return shooter.runAtVoltage(5);
+    return AutoCommands.getPathfindingCommand(drive, new Pose2d(6, 6, new Rotation2d()), false);
     // return new AutoCycle(drive, vision, elevator);
   }
 
