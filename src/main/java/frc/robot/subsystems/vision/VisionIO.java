@@ -4,11 +4,15 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import java.util.List;
 import org.littletonrobotics.junction.AutoLog;
+import org.photonvision.PhotonCamera;
 import org.photonvision.common.hardware.VisionLEDMode;
 import org.photonvision.targeting.PhotonPipelineResult;
 
 public interface VisionIO {
   public Transform3d robot2Camera = new Transform3d();
+
+  public PhotonCamera cameraL = new PhotonCamera("camera1");
+  public PhotonCamera cameraR = new PhotonCamera("camera2");
 
   default void setRobotPose(Pose2d pose) {}
 

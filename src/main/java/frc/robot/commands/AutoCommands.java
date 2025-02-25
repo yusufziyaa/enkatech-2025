@@ -64,9 +64,11 @@ public class AutoCommands {
 
   // private static final PIDController drivePID = new PIDController(0.1, 0, 0);
 
-  private static final PathConstraints constraints =
+  private static final PathConstraints oldconst =
       new PathConstraints(
           3.79, 5, Units.degreesToRadians(540), Units.degreesToRadians(720), 12.6, false);
+
+  private static final PathConstraints constraints = new PathConstraints(0.05, 0.03, 0.05, 0.03);
 
   public static List<Reef> reefs =
       Arrays.asList(

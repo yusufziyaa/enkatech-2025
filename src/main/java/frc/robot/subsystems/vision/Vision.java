@@ -14,7 +14,6 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Robot;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,8 +33,8 @@ public class Vision extends SubsystemBase {
 
   private final VisionInputsAutoLogged inputs = new VisionInputsAutoLogged();
   private AprilTagFieldLayout fieldLayout = Constants.fieldLayout;
-  private PhotonPoseEstimator poseEstimatorAKU = null;
-  private PhotonPoseEstimator poseEstimatorN = null;
+  private PhotonPoseEstimator poseEstimatorL = null;
+  private PhotonPoseEstimator poseEstimatorR = null;
 
   private List<Matrix<N3, N1>> curStdDevs = new ArrayList<Matrix<N3, N1>>();
 
@@ -46,15 +45,15 @@ public class Vision extends SubsystemBase {
     curStdDevs.add(Constants.kSingleTagStdDevs);
     this.io = io;
 
-    poseEstimatorAKU =
+    poseEstimatorL =
         new PhotonPoseEstimator(
-            fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.robot2CameraAKU);
-    poseEstimatorN =
+            fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.robot2CameraL);
+    poseEstimatorR =
         new PhotonPoseEstimator(
-            fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.robot2CameraN);
+            fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, Constants.robot2CameraR);
 
-    poseEstimatorAKU.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-    poseEstimatorN.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+    poseEstimatorL.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+    poseEstimatorR.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
   }
 
   @Override
@@ -64,28 +63,28 @@ public class Vision extends SubsystemBase {
     Logger.processInputs("Vision/AutoLogged", inputs);
   }
 
-  public Optional<EstimatedRobotPose> getEstimatedGlobalPose(int index) {
-    Optional<EstimatedRobotPose> visionEst = Optional.empty();
+  public Optional<EstimatedRobotPose> getPoseL() {
+    return getEstimatedGlobalPose(0, poseEstimatorL, io.getPipelineL());
+  }
 
-    List<PhotonPipelineResult> pipelineResults;
-    PhotonPoseEstimator poseEstimator;
-    if (index == 0) {
-      pipelineResults = io.getPipelineL();
-      poseEstimator = poseEstimatorAKU;
-    } else {
-      pipelineResults = io.getPipelineR();
-      poseEstimator = poseEstimatorN;
-    }
+  public Optional<EstimatedRobotPose> getPoseR() {
+    return getEstimatedGlobalPose(1, poseEstimatorR, io.getPipelineR());
+  }
+
+  public Optional<EstimatedRobotPose> getEstimatedGlobalPose(
+      int index, PhotonPoseEstimator poseEstimator, List<PhotonPipelineResult> pipelineResults) {
+    Optional<EstimatedRobotPose> visionEst = Optional.empty();
 
     for (var change : pipelineResults) {
       // if (!change.hasTargets() || change.getBestTarget().objDetectConf)
       visionEst = poseEstimator.update(change);
+
       updateEstimationStdDevs(visionEst, change.getTargets(), poseEstimator, index);
       //
 
-      if (Robot.isSimulation() && visionEst.isPresent()) {
+      if (visionEst.isPresent()) {
         Logger.recordOutput("Vision/PoseEstimate" + index, visionEst.get().estimatedPose);
-      } else if (Robot.isSimulation()) {
+      } else {
         Logger.recordOutput(
             "Vision/PoseEstimate" + index, new Pose3d(-1, -1, -1, new Rotation3d()));
       }
@@ -172,8 +171,7 @@ public class Vision extends SubsystemBase {
         // Decrease std devs if multiple targets are visible
         if (numTags > 2) estStdDevs = Constants.kMultiTagStdDevs;
         // Increase std devs based on (average) distance
-        if (numTags < 3 || minDist > 3)
-          estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+        if (numTags < 2 || minDist > 3) estStdDevs = VecBuilder.fill(minDist, minDist, minDist);
         else {
           estStdDevs = estStdDevs.times((minDist * minDist / 30));
         }
@@ -200,15 +198,5 @@ public class Vision extends SubsystemBase {
 
   public void simulationPeriodic(Pose2d pose) {
     io.setRobotPose(pose);
-
-    PhotonTrackedTarget target = getTarget(18);
-    if (target == null) Logger.recordOutput("Odometry/BestTarget", (double) 0);
-    else
-      Logger.recordOutput(
-          "Odometry/BestTarget",
-          target.getDetectedCorners().get(0).y
-              - target.getDetectedCorners().get(3).y
-              - target.getDetectedCorners().get(1).y
-              + target.getDetectedCorners().get(2).y);
   }
 }

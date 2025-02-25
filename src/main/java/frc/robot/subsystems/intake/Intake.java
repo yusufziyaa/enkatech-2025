@@ -24,7 +24,7 @@ public class Intake extends SubsystemBase {
   public Command adjustToCenter() {
     return new InstantCommand(
         () -> {
-          io.runToPosition(deltaPerRotation * 2);
+          io.runToPosition(-18.3);
         },
         this);
   }
@@ -32,7 +32,7 @@ public class Intake extends SubsystemBase {
   public Command adjustToLeft() {
     return new InstantCommand(
         () -> {
-          io.runToPosition(deltaPerRotation * 4);
+          io.runToPosition(-36.6);
         },
         this);
   }

@@ -6,8 +6,8 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 
 public class VisionIOPhoton implements VisionIO {
-  PhotonCamera cameraL;
-  PhotonCamera cameraR;
+  public PhotonCamera cameraL;
+  public PhotonCamera cameraR;
   String limelight;
 
   public VisionIOPhoton(String camera_1_name, String camera_2_name, String limelight_name) {

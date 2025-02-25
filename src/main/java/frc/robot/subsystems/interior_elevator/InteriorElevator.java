@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems.interior_elevator;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
@@ -17,8 +20,24 @@ public class InteriorElevator extends SubsystemBase {
     this.io = io;
   }
 
-  public void runPosition(double position) {
-    io.runPosition(position);
+  public Command getToHigh() {
+    return new FunctionalCommand(
+        () -> {
+          io.getToPosition(113);
+        },
+        () -> {},
+        (Boolean cons) -> {},
+        () -> {
+          return inputs.position > 111;
+        },
+        this);
+  }
+
+  public Command getToLow() {
+    return new InstantCommand(
+        () -> {
+          io.getToPosition(0); // essentially 0
+        });
   }
 
   @Override

@@ -3,14 +3,14 @@ package frc.robot.subsystems.interior_elevator;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 
 public class InteriorElevatorIOTalonFX implements InteriorElevatorIO {
   TalonFX m_motor;
-  MotionMagicTorqueCurrentFOC request = new MotionMagicTorqueCurrentFOC(0);
+  MotionMagicVoltage request = new MotionMagicVoltage(0);
 
   public InteriorElevatorIOTalonFX(int CANID) {
     m_motor = new TalonFX(CANID, "canivore");
@@ -38,7 +38,7 @@ public class InteriorElevatorIOTalonFX implements InteriorElevatorIO {
   }
 
   @Override
-  public void runPosition(double position) {
+  public void getToPosition(double position) {
     m_motor.setControl(request.withPosition(position));
   }
 

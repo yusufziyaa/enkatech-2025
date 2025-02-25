@@ -37,10 +37,10 @@ public final class Constants {
 
   // kameranın robota göre konumu
   // TODO: fix camera position
-  public static final Transform3d robot2CameraAKU =
-      new Transform3d(0.5, 0, 0.5, new Rotation3d(0, 0, Math.toRadians(0)));
-  public static final Transform3d robot2CameraN =
-      new Transform3d(-0.5, 0, 0.5, new Rotation3d(0, 0, Math.toRadians(180)));
+  public static final Transform3d robot2CameraL =
+      new Transform3d(0.305, 0, 0.2425, new Rotation3d(0, Math.toRadians(-5), Math.toRadians(0)));
+  public static final Transform3d robot2CameraR =
+      new Transform3d(0.305, 0, -0.2425, new Rotation3d(0, Math.toRadians(-5), Math.toRadians(0)));
 
   public static final Pose2d initialPose = new Pose2d(3, 3, new Rotation2d());
 
@@ -83,7 +83,9 @@ public final class Constants {
   public static int MZ80_1_ID = 8;
   public static int MZ80_2_ID = 9;
   public static double shooterAdjustingVoltage = 0.5;
-  public static double shootingVoltage = 3;
+  public static double shootingVoltage = 2;
+
+  public static int IntakeCANID = 8;
 
   public static enum APPROACH_TYPE {
     LOWER,

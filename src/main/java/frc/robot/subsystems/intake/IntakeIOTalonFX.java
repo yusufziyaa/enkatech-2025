@@ -2,13 +2,13 @@ package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 public class IntakeIOTalonFX implements IntakeIO {
   TalonFX m_motor;
 
-  MotionMagicTorqueCurrentFOC request = new MotionMagicTorqueCurrentFOC(0);
+  MotionMagicVoltage request = new MotionMagicVoltage(0);
 
   @Override
   public void runToPosition(double pos) {
@@ -19,14 +19,13 @@ public class IntakeIOTalonFX implements IntakeIO {
     m_motor = new TalonFX(CANID, "canivore");
 
     MotionMagicConfigs configs =
-        new MotionMagicConfigs()
-            .withMotionMagicAcceleration(0.1)
-            .withMotionMagicCruiseVelocity(0.2);
+        new MotionMagicConfigs().withMotionMagicAcceleration(10).withMotionMagicCruiseVelocity(20);
 
-    Slot0Configs cSlot0Configs = new Slot0Configs().withKP(0).withKD(0);
+    Slot0Configs cSlot0Configs = new Slot0Configs().withKP(5).withKD(0);
 
     m_motor.getConfigurator().apply(configs);
     m_motor.getConfigurator().apply(cSlot0Configs);
+    m_motor.setPosition(0);
   }
 
   @Override

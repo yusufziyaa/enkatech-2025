@@ -3,7 +3,7 @@ package frc.robot.subsystems.interior_elevator;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface InteriorElevatorIO {
-  public default void runPosition(double position) {}
+  public default void getToPosition(double position) {}
 
   @AutoLog
   public static class InteriorElevatorIOInputs {

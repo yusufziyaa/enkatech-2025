@@ -3,20 +3,20 @@ package frc.robot.subsystems.exterior_elevator;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 
 public class ExteriorElevatorIOTalonFX implements ExteriorElevatorIO {
   TalonFX m_motor;
   TalonFX m_slave;
-  MotionMagicTorqueCurrentFOC request = new MotionMagicTorqueCurrentFOC(0);
+  MotionMagicVoltage request = new MotionMagicVoltage(0);
 
   public ExteriorElevatorIOTalonFX(int CANID, int CANIDSlave) {
     m_motor = new TalonFX(CANID, "canivore");
     m_slave = new TalonFX(CANIDSlave, "canivore");
 
-    m_slave.setControl(new Follower(CANIDSlave, true));
+    m_slave.setControl(new Follower(CANID, true));
 
     m_motor.setPosition(0);
 
