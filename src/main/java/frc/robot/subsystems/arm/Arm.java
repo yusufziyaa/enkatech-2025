@@ -78,6 +78,19 @@ public class Arm extends SubsystemBase {
         this);
   }
 
+  public Command getToNull() {
+    return new InstantCommand(()->{
+      io.getToAngle(0);
+    }
+    );
+  }
+
+  public Command runVoltageZero() {
+    return new InstantCommand(()->{
+      io.runVoltage(0);
+    });
+  }
+
   public Command getToL2L3() {
     return new FunctionalCommand(
         () -> {
