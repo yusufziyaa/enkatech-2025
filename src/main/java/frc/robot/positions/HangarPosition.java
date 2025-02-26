@@ -7,6 +7,7 @@ import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.exterior_elevator.ExteriorElevator;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.interior_elevator.InteriorElevator;
+import org.littletonrobotics.junction.Logger;
 
 public class HangarPosition implements Position {
   Intake intake;
@@ -27,7 +28,8 @@ public class HangarPosition implements Position {
 
   @Override
   public Command getToZero() {
-    return new SequentialCommandGroup(exterior.getToGround(), arm.getToZero());
+    Logger.recordOutput("denemeeee", 123);
+    return new SequentialCommandGroup(exterior.getToGround(), arm.instantZero());
   }
 
   @Override
@@ -42,7 +44,10 @@ public class HangarPosition implements Position {
 
   @Override
   public Command getToHangar() {
-    return new InstantCommand(() -> {});
+    return new InstantCommand(
+        () -> {
+          arm.instantHangar2();
+        });
   }
 
   @Override

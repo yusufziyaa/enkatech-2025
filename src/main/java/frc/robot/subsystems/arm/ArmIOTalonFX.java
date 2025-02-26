@@ -19,8 +19,8 @@ public class ArmIOTalonFX implements ArmIO {
         .getConfigurator()
         .apply(
             new MotionMagicConfigs()
-                .withMotionMagicAcceleration(0.5)
-                .withMotionMagicCruiseVelocity(0.5));
+                .withMotionMagicAcceleration(0.8)
+                .withMotionMagicCruiseVelocity(0.8));
     m_motor.setPosition(0.230);
     // TODO: tune, use setPosition to overcome Arm_cosine control type. probably no need for ratio
     // tuning because there is no reductory (or maybe there  is??)

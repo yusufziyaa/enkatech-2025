@@ -5,8 +5,10 @@
 package frc.robot.subsystems.gripper;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.shooter.Shooter;
 import org.littletonrobotics.junction.Logger;
 
 public class Gripper extends SubsystemBase {
@@ -21,11 +23,31 @@ public class Gripper extends SubsystemBase {
     this.io = io;
   }
 
+  public void setVoltage(double v) {
+    io.runVoltage(v);
+  }
+
   public Command runAtVoltage(double v) {
     return new InstantCommand(
         () -> {
           io.runVoltage(v);
         });
+  }
+
+  public Command gripTillSeen(Shooter shooter) {
+    return new FunctionalCommand(
+        () -> {},
+        () -> {
+          setVoltage(7);
+        },
+        (Boolean cons) -> {
+          setVoltage(0);
+        },
+        () -> {
+          if (shooter.getSensor1() && shooter.getSensor2()) return true;
+          return false;
+        },
+        this);
   }
 
   @Override

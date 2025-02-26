@@ -14,17 +14,14 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.AutoCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.DriverScoreCommands;
-import frc.robot.commands.Otonom;
 import frc.robot.generated.TunerConstants;
-import frc.robot.positions.Controller;
+import frc.robot.positions.MechanismController;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIOSim;
 import frc.robot.subsystems.arm.ArmIOTalonFX;
@@ -74,7 +71,7 @@ public class RobotContainer {
   // private final CommandXboxController controller = new
   // CommandXboxController(0);
   private final CommandXboxController controller = new CommandXboxController(0);
-  private final CommandXboxController operator = new CommandXboxController(1);
+  // private final CommandXboxController operator = new CommandXboxController(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -88,7 +85,7 @@ public class RobotContainer {
   private ExteriorElevator exteriorElevator;
   private Intake intake;
 
-  private Controller positionController;
+  private MechanismController positionController;
 
   public RobotContainer() {
 
@@ -161,7 +158,7 @@ public class RobotContainer {
     }
     drive.setPose(Constants.initialPose);
 
-    positionController = new Controller(exteriorElevator, interiorElevator, arm, intake);
+    positionController = new MechanismController(intake, exteriorElevator, interiorElevator, arm);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -176,30 +173,45 @@ public class RobotContainer {
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
-    controller.a().onTrue(new Otonom(interiorElevator, exteriorElevator, intake, arm));
-    controller.b().onTrue(DriverScoreCommands.zeroToL3(intake, arm, exteriorElevator));
-    controller.povUp().onTrue(interiorElevator.getToHigh());
-    controller.povDown().onTrue(interiorElevator.getToLow());
+
     controller
         .x()
         .onTrue(DriverScoreCommands.retreatL4(exteriorElevator, interiorElevator, arm, intake));
 
     controller
-        .y()
+        .rightBumper()
         .onTrue(DriverScoreCommands.Hangar(interiorElevator, exteriorElevator, intake, arm));
 
-    controller.leftBumper().onTrue(DriverScoreCommands.zeroToL2(intake, arm, exteriorElevator));
+    controller.a().onTrue(DriverScoreCommands.zeroToL2(intake, arm, exteriorElevator));
+    controller.b().onTrue(DriverScoreCommands.zeroToL3(intake, arm, exteriorElevator));
+    controller.y().onTrue(DriverScoreCommands.zeroToL4(intake, arm, exteriorElevator));
 
-    controller.rightBumper().onTrue(gripper.runAtVoltage(9)).onFalse(gripper.runAtVoltage(0));
+    controller.povUp().onTrue(DriverScoreCommands.startToZero(arm, interiorElevator));
+
+    controller
+        .leftBumper()
+        .onTrue(DriverScoreCommands.zeroToGround(intake, exteriorElevator, arm, interiorElevator));
+
+    // controller.rightBumper().onTrue(gripper.runAtVoltage(9)).onFalse(gripper.runAtVoltage(0));
 
     controller.povRight().onTrue(shooter.shootRight());
     controller.povLeft().onTrue(shooter.shootLeft());
 
-    controller.button(7).onTrue(intake.adjustToCenter());
     controller
-        .button(8)
+        .axisMagnitudeGreaterThan(3, 0.1)
+        .onTrue(gripper.runAtVoltage(7))
+        .onFalse(gripper.runAtVoltage(0));
+
+    controller.povDown().onTrue(shooter.ortala());
+
+    controller
+        .button(7)
         .onTrue(
-            AutoCommands.getPathfindingCommand(drive, new Pose2d(15, 4, new Rotation2d()), false));
+            new InstantCommand(
+                () -> {
+                  intake.toggleDesired();
+                }));
+    controller.button(8).onTrue(gripper.gripTillSeen(shooter));
   }
 
   public Command getAutonomousCommand() {
@@ -207,7 +219,7 @@ public class RobotContainer {
     // return ElevatorCommands.adjustTo(elevator, relativePose);
     // FIXME: when the autonomous command ends, robot sometimes keeps going at a random velocity
     // continiously
-    return AutoCommands.getPathfindingCommand(drive, new Pose2d(6, 6, new Rotation2d()), false);
+    return autoChooser.get();
     // return new AutoCycle(drive, vision, elevator);
   }
 

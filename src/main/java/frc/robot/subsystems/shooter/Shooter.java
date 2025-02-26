@@ -24,6 +24,14 @@ public class Shooter extends SubsystemBase {
     this.io = io;
   }
 
+  public boolean getSensor1() {
+    return inputs.sensor1;
+  }
+
+  public boolean getSensor2() {
+    return inputs.sensor2;
+  }
+
   public Command runAtVoltage(double nVoltage) {
     return new RunCommand(
         () -> {
@@ -58,9 +66,9 @@ public class Shooter extends SubsystemBase {
         () -> {},
         () -> {
           if (inputs.sensor1 && !inputs.sensor2) {
-            io.runVoltage(Constants.shooterAdjustingVoltage);
-          } else if (inputs.sensor2 && !inputs.sensor1) {
             io.runVoltage(-Constants.shooterAdjustingVoltage);
+          } else if (inputs.sensor2 && !inputs.sensor1) {
+            io.runVoltage(Constants.shooterAdjustingVoltage);
           }
         },
         (Boolean supplied) -> {
@@ -68,6 +76,7 @@ public class Shooter extends SubsystemBase {
         },
         () -> {
           if (inputs.sensor1 && inputs.sensor2) return true;
+          if (!inputs.sensor1 && !inputs.sensor2) return true;
           return false;
         },
         this);

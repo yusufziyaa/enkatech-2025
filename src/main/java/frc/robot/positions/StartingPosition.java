@@ -45,7 +45,7 @@ public class StartingPosition implements Position {
 
   @Override
   public Command getToHangar() {
-    return new SequentialCommandGroup(arm.asansorHareket(), interior.getToHigh(), arm.hangar());
+    return new SequentialCommandGroup(arm.asansorHareket(), interior.getToHigh(), arm.hangar2());
   }
 
   @Override

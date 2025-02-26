@@ -107,7 +107,6 @@ public class AutoCommands {
               targetPose.getX(),
               targetPose.getY(),
               new Rotation2d(Math.PI + targetPose.getRotation().getRadians()));
-    System.out.println("nigga");
     return AutoBuilder.pathfindToPose(targetPoseNew, constraints);
   }
 

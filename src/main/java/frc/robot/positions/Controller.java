@@ -15,11 +15,11 @@ public class Controller {
 
   Position currentPosition;
 
-  Position groundPosition;
-  Position zeroPosition;
-  Position L2L3Position;
-  Position HangarPosition;
-  Position L4Position;
+  public Position groundPosition;
+  public Position zeroPosition;
+  public Position L2L3Position;
+  public Position HangarPosition;
+  public Position L4Position;
 
   public Controller(ExteriorElevator exterior, InteriorElevator interior, Arm arm, Intake intake) {
     this.exteriorElevator = exterior;
@@ -39,35 +39,41 @@ public class Controller {
   public Command getToGround() {
     System.out.println(currentPosition.getClass().getCanonicalName() + " ground");
     Command toExecute = currentPosition.getToGround();
-    currentPosition = groundPosition;
+    this.currentPosition = groundPosition;
     return toExecute;
   }
 
   public Command getToZero() {
     System.out.println(currentPosition.getClass().getCanonicalName() + " zero");
     Command toExecute = currentPosition.getToZero();
-    currentPosition = zeroPosition;
+    this.currentPosition = zeroPosition;
     return toExecute;
   }
 
   public Command getToL2() {
     System.out.println(currentPosition.getClass().getCanonicalName() + " l2");
     Command toExecute = currentPosition.getToL2();
-    currentPosition = L2L3Position;
+    this.currentPosition = L2L3Position;
     return toExecute;
   }
 
   public Command getToL3() {
     System.out.println(currentPosition.getClass().getCanonicalName() + " l3");
     Command toExecute = currentPosition.getToL3();
-    currentPosition = L2L3Position;
+    this.currentPosition = L2L3Position;
     return toExecute;
   }
 
   public Command getToL4() {
     System.out.println(currentPosition.getClass().getCanonicalName() + " l4");
     Command toExecute = currentPosition.getToL4();
-    currentPosition = L4Position;
+    this.currentPosition = L4Position;
+    return toExecute;
+  }
+
+  public Command getToHangar() {
+    Command toExecute = currentPosition.getToHangar();
+    this.currentPosition = HangarPosition;
     return toExecute;
   }
 }

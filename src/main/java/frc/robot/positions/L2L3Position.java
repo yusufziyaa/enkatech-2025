@@ -41,7 +41,7 @@ public class L2L3Position implements Position {
 
   @Override
   public Command getToHangar() {
-    return new SequentialCommandGroup(exterior.getToGround(), arm.hangar());
+    return new SequentialCommandGroup(exterior.getToGround(), arm.hangar2());
   }
 
   @Override

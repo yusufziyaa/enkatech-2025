@@ -16,4 +16,8 @@ public interface InteriorElevatorIO {
   }
 
   public default void updateInputs(InteriorElevatorIOInputs inputs) {}
+
+  public default double getPosition() {
+    return 0;
+  }
 }

@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.interior_elevator;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -18,6 +19,10 @@ public class InteriorElevator extends SubsystemBase {
 
   public InteriorElevator(InteriorElevatorIO io) {
     this.io = io;
+  }
+
+  public double getPosition() {
+    return inputs.position;
   }
 
   public Command getToHigh() {
@@ -57,6 +62,8 @@ public class InteriorElevator extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs(getName(), inputs);
+
+    SmartDashboard.putNumber("InteriorPosition", inputs.position);
     // This method will be called once per scheduler run
   }
 }

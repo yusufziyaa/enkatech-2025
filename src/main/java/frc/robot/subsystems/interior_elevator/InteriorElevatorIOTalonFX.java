@@ -17,8 +17,8 @@ public class InteriorElevatorIOTalonFX implements InteriorElevatorIO {
 
     MotionMagicConfigs configs =
         new MotionMagicConfigs()
-            .withMotionMagicAcceleration(200)
-            .withMotionMagicCruiseVelocity(150);
+            .withMotionMagicAcceleration(150)
+            .withMotionMagicCruiseVelocity(300);
 
     Slot0Configs cSlot0Configs =
         new Slot0Configs()
@@ -35,6 +35,11 @@ public class InteriorElevatorIOTalonFX implements InteriorElevatorIO {
         .apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
 
     m_motor.setPosition(0);
+  }
+
+  @Override
+  public double getPosition() {
+    return m_motor.get();
   }
 
   @Override

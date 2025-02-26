@@ -21,6 +21,28 @@ public class Intake extends SubsystemBase {
     this.io = io;
   }
 
+  double desired = -18.3;
+
+  public void setDesiredToLeft() {
+    desired = -36.6;
+  }
+
+  public void setDesiredToRight() {
+    desired = 0;
+  }
+
+  public void toggleDesired() {
+    if (desired == 0) desired = -36.6;
+    else desired = 0;
+  }
+
+  public Command changeToDesired() {
+    return new InstantCommand(
+        () -> {
+          io.runToPosition(desired);
+        });
+  }
+
   public Command adjustToCenter() {
     return new InstantCommand(
         () -> {

@@ -39,7 +39,7 @@ public class GroundPosition implements Position {
     return new SequentialCommandGroup(
         new ParallelCommandGroup(arm.getToNull(), new WaitCommand(0.5)),
         interior.getToHigh(),
-        arm.hangar());
+        arm.hangar2());
   }
 
   @Override

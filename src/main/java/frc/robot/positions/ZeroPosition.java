@@ -44,7 +44,11 @@ public class ZeroPosition implements Position {
 
   @Override
   public Command getToHangar() {
-    return new SequentialCommandGroup(arm.hangar());
+    return new InstantCommand(
+        () -> {
+          arm.instantHangar2();
+        });
+    // return new SequentialCommandGroup(arm.instantHangar2());
   }
 
   @Override

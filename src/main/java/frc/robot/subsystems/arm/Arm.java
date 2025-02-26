@@ -31,6 +31,13 @@ public class Arm extends SubsystemBase {
         });
   }
 
+  public Command instantHangar2() {
+    return new InstantCommand(
+        () -> {
+          io.getToAngle(-0.025);
+        });
+  }
+
   public Command asansorHareket() {
     return new FunctionalCommand(
         () -> {
@@ -42,6 +49,13 @@ public class Arm extends SubsystemBase {
           return Math.abs(inputs.position - 0.2) < 0.03;
         },
         this);
+  }
+
+  public Command start() {
+    return new InstantCommand(
+        () -> {
+          io.getToAngle(0.23);
+        });
   }
 
   public Command hangar2() {
@@ -60,9 +74,16 @@ public class Arm extends SubsystemBase {
   public Command getToL4() {
     return new InstantCommand(
         () -> {
-          io.getToAngle(0.33);
+          io.getToAngle(0.30);
         },
         this);
+  }
+
+  public Command instantZero() {
+    return new InstantCommand(
+        () -> {
+          io.getToAngle(-0.15);
+        });
   }
 
   public Command getToZero() {
@@ -75,7 +96,7 @@ public class Arm extends SubsystemBase {
           io.runVoltage(0);
         },
         () -> {
-          return inputs.position < -0.03;
+          return inputs.position < -0.08;
         },
         this);
   }
@@ -95,7 +116,7 @@ public class Arm extends SubsystemBase {
         () -> {},
         (Boolean cons) -> {},
         () -> {
-          return inputs.position < 0.1;
+          return Math.abs(inputs.position) < 0.1;
         },
         this);
   }
