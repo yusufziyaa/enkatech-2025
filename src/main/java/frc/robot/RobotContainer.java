@@ -14,10 +14,12 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.AutoCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.DriverScoreCommands;
 import frc.robot.generated.TunerConstants;
@@ -52,6 +54,7 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhoton;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.util.General;
+import frc.robot.util.LimelightHelpers;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
@@ -86,6 +89,8 @@ public class RobotContainer {
   private Intake intake;
 
   private MechanismController positionController;
+  private SlewRateLimiter xLimiter = new SlewRateLimiter(4);
+  private SlewRateLimiter yLimiter = new SlewRateLimiter(4);
 
   public RobotContainer() {
 
@@ -170,8 +175,8 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
+            () -> -yLimiter.calculate(controller.getLeftY()),
+            () -> -xLimiter.calculate(controller.getLeftX()),
             () -> -controller.getRightX()));
 
     controller
@@ -194,23 +199,30 @@ public class RobotContainer {
 
     // controller.rightBumper().onTrue(gripper.runAtVoltage(9)).onFalse(gripper.runAtVoltage(0));
 
-    controller.povRight().onTrue(shooter.shootRight());
-    controller.povLeft().onTrue(shooter.shootLeft());
-
     controller
-        .axisMagnitudeGreaterThan(3, 0.1)
-        .onTrue(gripper.runAtVoltage(7))
-        .onFalse(gripper.runAtVoltage(0));
-
-    controller.povDown().onTrue(shooter.ortala());
-
-    controller
-        .button(7)
+        .povRight()
         .onTrue(
             new InstantCommand(
                 () -> {
-                  intake.toggleDesired();
+                  intake.setDesiredToRight();
                 }));
+    controller
+        .povLeft()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  intake.setDesiredToLeft();
+                }));
+
+    controller
+        .axisMagnitudeGreaterThan(3, 0.1)
+        .onTrue(gripper.runAtVoltage(9))
+        .onFalse(gripper.runAtVoltage(0));
+
+    controller.button(7).onTrue(AutoCommands.alignToReef(vision, drive));
+
+    controller.povDown().onTrue(shooter.ortala());
+
     controller.button(8).onTrue(gripper.gripTillSeen(shooter));
   }
 
@@ -219,6 +231,9 @@ public class RobotContainer {
     // return ElevatorCommands.adjustTo(elevator, relativePose);
     // FIXME: when the autonomous command ends, robot sometimes keeps going at a random velocity
     // continiously
+
+    // ÇOK ÖNEMLİ, PATHPLANNER HOT RELOAD KAPAT
+
     return autoChooser.get();
     // return new AutoCycle(drive, vision, elevator);
   }
@@ -243,6 +258,9 @@ public class RobotContainer {
   }
 
   public void periodic() {
+    Logger.recordOutput("limelighttx", LimelightHelpers.getTX("limelight"));
+    Logger.recordOutput(
+        "limelight-transform", LimelightHelpers.getTargetPose3d_RobotSpace("limelight"));
     // Logger.recordOutput()"id", vision.getBestTargetL().fiducialId);
     /*Optional<EstimatedRobotPose> robotPoseL = vision.getPoseL();
     if (robotPoseL.isPresent()) {

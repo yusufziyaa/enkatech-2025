@@ -22,7 +22,7 @@ public class InteriorElevator extends SubsystemBase {
   }
 
   public double getPosition() {
-    return inputs.position;
+    return io.getPosition();
   }
 
   public Command getToHigh() {

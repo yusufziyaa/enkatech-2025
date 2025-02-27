@@ -22,7 +22,7 @@ public class DriverScoreCommands {
   public static SequentialCommandGroup Hangar(
       InteriorElevator interior, ExteriorElevator exterior, Intake intake, Arm arm) {
     return new SequentialCommandGroup(
-        exterior.getToGround(), intake.adjustToCenter(), arm.hangar2());
+        exterior.getToGround(), intake.adjustToCenter(), arm.hangar(), interior.getToLow());
   }
 
   public static SequentialCommandGroup scoreL3(

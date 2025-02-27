@@ -5,7 +5,9 @@ import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -14,8 +16,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.util.LimelightHelpers;
 import java.util.Arrays;
 import java.util.List;
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class AutoCommands {
@@ -130,6 +134,74 @@ public class AutoCommands {
     return getTo;
   }
 
+  static PIDController pid;
+  static PIDController pidX;
+  static PIDController pidY;
+
+  public static Command alignToReef(Vision vision, Drive drive) {
+    pid = new PIDController(1, 0, 0);
+    pidX = new PIDController(0.001, 0, 0);
+    pidY = new PIDController(0.01, 0, 0);
+    return new FunctionalCommand(
+        () -> {},
+        () -> {
+          Pose3d tag2Limelight = LimelightHelpers.getTargetPose3d_RobotSpace("limelight");
+          Logger.recordOutput("limelighttransform", tag2Limelight);
+          ChassisSpeeds speeds =
+              new ChassisSpeeds(
+                  -pidX.calculate(tag2Limelight.getX() * 100),
+                  0 * pidY.calculate(tag2Limelight.getY()),
+                  pid.calculate(tag2Limelight.getRotation().getY()));
+
+          Logger.recordOutput("speeds", speeds);
+          drive.runVelocity(speeds);
+        },
+        (Boolean cons) -> {
+          ChassisSpeeds speeds = new ChassisSpeeds(0, 0, 0);
+          drive.runVelocity(speeds);
+        },
+        () -> {
+          double tx = LimelightHelpers.getTX("limelight");
+          if (LimelightHelpers.getTX("limelight") == 0) return true;
+          return false;
+        },
+        vision,
+        drive);
+  }
+
+  static PIDController drivePIDX;
+  static PIDController drivePIDY;
+  static PIDController angularPID;
+
+  public static Command alignToReefMultiCam(Vision vision, Drive drive) {
+    drivePIDX = new PIDController(0.05, 0.1, 0);
+    drivePIDY = new PIDController(0.05, 0.1, 0);
+    angularPID = new PIDController(2, 0, 0);
+    return new FunctionalCommand(
+        () -> {},
+        () -> {
+          PhotonTrackedTarget target = vision.getBestTargetL();
+          if (target == null) return;
+          Transform3d camera2Target = target.getBestCameraToTarget();
+          Logger.recordOutput("degs", camera2Target.getRotation().getZ());
+          ChassisSpeeds speeds =
+              new ChassisSpeeds(
+                  -drivePIDX.calculate(camera2Target.getX() - 0.36),
+                  -drivePIDY.calculate(camera2Target.getY() + 0.11),
+                  0 * -angularPID.calculate(camera2Target.getRotation().getZ() + 2.74));
+          drive.runVelocity(speeds);
+        },
+        (Boolean cons) -> {
+          ChassisSpeeds speeds = new ChassisSpeeds(0, 0, 0);
+          drive.runVelocity(speeds);
+        },
+        () -> {
+          return vision.getBestTargetL() == null;
+        },
+        vision,
+        drive);
+  }
+
   public static Command alignToCurrentReef(Vision vision, Drive drive) {
     Reef reef;
     reef = getNearest(drive.getPose(), reefs);
@@ -137,15 +209,13 @@ public class AutoCommands {
         new FunctionalCommand(
             () -> {},
             () -> {
-              double targetYaw = vision.getLimelightYaw(reef.getID());
-              double angularSpeed =
-                  alignTurnPID.calculate(
-                      drive.rawGyroRotation.getDegrees() - reef.pose.getRotation().getDegrees());
+              double targetYaw = vision.getBiggestTarget().yaw;
+              double angularSpeed = alignTurnPID.calculate(targetYaw);
               double ySpeed = alignDrivePID.calculate(targetYaw);
 
               // TODO: try real gyro and incorporate turning to the right angle if possible
 
-              ChassisSpeeds speeds = new ChassisSpeeds(0, ySpeed, 0);
+              ChassisSpeeds speeds = new ChassisSpeeds(0, ySpeed, angularSpeed);
               drive.runVelocity(speeds);
             },
             drive::stopConsumer,

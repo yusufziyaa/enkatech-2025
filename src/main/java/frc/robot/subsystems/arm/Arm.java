@@ -5,10 +5,15 @@
 package frc.robot.subsystems.arm;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.exterior_elevator.ExteriorElevator;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.interior_elevator.InteriorElevator;
 import org.littletonrobotics.junction.Logger;
 
 public class Arm extends SubsystemBase {
@@ -69,6 +74,33 @@ public class Arm extends SubsystemBase {
           return Math.abs(inputs.position + 0.025) < 0.03;
         },
         this);
+  }
+
+  public Command retreatCommand(
+      InteriorElevator interior, Intake intake, ExteriorElevator exterior) {
+
+    // new SequentialCommandGroup()
+
+    SmartDashboard.putNumber("armpos2", io.getPosition());
+    SmartDashboard.putNumber("asansor2", interior.getPosition());
+    if (io.getPosition() > 0.2 && interior.getPosition() < 5) {
+      SmartDashboard.putNumber("command", 1);
+      return new SequentialCommandGroup(
+          exterior.getToGround(),
+          asansorHareket(),
+          intake.adjustToCenter(),
+          interior.getToHigh(),
+          getToZero());
+    } else if (interior.getPosition() < 5) {
+      SmartDashboard.putNumber("command", 2);
+
+      return new SequentialCommandGroup(
+          exterior.getToGround(), intake.adjustToCenter(), interior.getToHigh(), getToZero());
+    } else {
+      SmartDashboard.putNumber("command", 3);
+      return new SequentialCommandGroup(
+          exterior.getToGround(), intake.adjustToCenter(), getToZero());
+    }
   }
 
   public Command getToL4() {
@@ -147,6 +179,8 @@ public class Arm extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs(getName(), inputs);
+
+    SmartDashboard.putNumber("armpos", io.getPosition());
     // This method will be called once per scheduler run
   }
 }

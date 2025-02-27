@@ -39,7 +39,7 @@ public class InteriorElevatorIOTalonFX implements InteriorElevatorIO {
 
   @Override
   public double getPosition() {
-    return m_motor.get();
+    return m_motor.getPosition().getValueAsDouble();
   }
 
   @Override

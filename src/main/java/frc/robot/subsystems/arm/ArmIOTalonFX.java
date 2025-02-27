@@ -29,7 +29,7 @@ public class ArmIOTalonFX implements ArmIO {
         .apply(
             new Slot0Configs()
                 .withGravityType(GravityTypeValue.Arm_Cosine)
-                .withKG(1.33)
+                .withKG(1.5)
                 .withKP(12)
                 .withKD(0)
                 .withKS(0.54980));
@@ -43,6 +43,11 @@ public class ArmIOTalonFX implements ArmIO {
 
   public void runVoltage(double v) {
     m_motor.setControl(voltage.withOutput(v));
+  }
+
+  @Override
+  public double getPosition() {
+    return m_motor.getPosition().getValueAsDouble();
   }
 
   @Override
