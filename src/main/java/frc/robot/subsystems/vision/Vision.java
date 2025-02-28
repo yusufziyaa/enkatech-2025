@@ -67,6 +67,8 @@ public class Vision extends SubsystemBase {
     Logger.recordOutput(
         "limelight-transform", LimelightHelpers.getTargetPose3d_RobotSpace("limelight"));
     Logger.recordOutput("limelight-tx", LimelightHelpers.getTX("limelight"));
+
+    Logger.recordOutput("txsim", io.getLimelightYaw());
   }
 
   public Optional<EstimatedRobotPose> getPoseL() {
@@ -128,6 +130,10 @@ public class Vision extends SubsystemBase {
     PhotonPipelineResult res = io.getLatestResultR();
     if (!res.hasTargets()) return null;
     return res.getBestTarget();
+  }
+
+  public int getLimelightID() {
+    return io.getLimelightID();
   }
 
   // FIXME: BIG PROBLEM
@@ -194,8 +200,8 @@ public class Vision extends SubsystemBase {
     return null;
   }
 
-  public double getLimelightYaw(int targetID) {
-    return io.getLimelightYaw(targetID);
+  public double getLimelightYaw() {
+    return io.getLimelightYaw();
   }
 
   public Matrix<N3, N1> getEstimationStdDevs(int index) {

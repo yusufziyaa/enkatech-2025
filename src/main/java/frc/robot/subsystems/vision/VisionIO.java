@@ -34,7 +34,11 @@ public interface VisionIO {
     return null;
   }
 
-  default double getLimelightYaw(int targetID) {
+  default double getLimelightYaw() {
+    return 0;
+  }
+
+  default Integer getLimelightID() {
     return 0;
   }
 

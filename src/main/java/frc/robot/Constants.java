@@ -42,7 +42,7 @@ public final class Constants {
   public static final Transform3d robot2CameraR =
       new Transform3d(0.305, 0, -0.2425, new Rotation3d(0, Math.toRadians(-5), Math.toRadians(0)));
 
-  public static final Pose2d initialPose = new Pose2d(3, 3, new Rotation2d());
+  public static final Pose2d initialPose = new Pose2d(3, 3, new Rotation2d(Math.PI));
 
   public static final AprilTagFieldLayout fieldLayout =
       AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);

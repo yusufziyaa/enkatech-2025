@@ -182,8 +182,9 @@ public class AutoCommands {
 
   public static Command alignToReef(Vision vision, Drive drive) {
 
-    Rotation2d reefrotation = getReefRotation(LimelightHelpers.getFiducialID("limelight"));
-    pid = new PIDController(0.05, 0, 0);
+    Rotation2d reefrotation = getReefRotation(vision.getLimelightID());
+    System.out.println(reefrotation);
+    pid = new PIDController(0.1, 0, 0);
     pidX = new PIDController(0.03, 0, 0);
     pidY = new PIDController(0.03, 0, 0);
     return new FunctionalCommand(
@@ -191,23 +192,30 @@ public class AutoCommands {
         () -> {
           // Pose3d tag2Limelight = LimelightHelpers.getTargetPose3d_RobotSpace("limelight");
           Pose3d tag2Robot = LimelightHelpers.getTargetPose3d_CameraSpace("limelight");
+
+          double turningError =
+              reefrotation.getDegrees() - drive.getPose().getRotation().getDegrees() - 180;
+          System.out.println(turningError);
+          if (turningError > 180) turningError -= 360;
+          if (turningError < -180) turningError += 360;
+          System.out.println(turningError);
           // Logger.recordOutput("limelighttransform", tag2Limelight);
           ChassisSpeeds speeds =
               new ChassisSpeeds(
                   -pidX.calculate(tag2Robot.getZ() - 0.2),
                   pidY.calculate(tag2Robot.getX()),
-                  pid.calculate(LimelightHelpers.getTX("limelight")));
-
+                  -pid.calculate(turningError));
+          // hope this works (no reason not to, just doesnt)
           Logger.recordOutput("speeds", speeds);
           drive.runVelocity(speeds);
         },
         (Boolean cons) -> {
           ChassisSpeeds speeds = new ChassisSpeeds(0, 0, 0);
-          drive.runVelocity(speeds);
+          // drive.runVelocity(speeds);
         },
         () -> {
           double tx = LimelightHelpers.getTX("limelight");
-          if (LimelightHelpers.getTX("limelight") == 0) return true;
+          if (LimelightHelpers.getTX("limelight") == 0) return false;
           return false;
         },
         vision,
@@ -265,7 +273,7 @@ public class AutoCommands {
             },
             drive::stopConsumer,
             () -> {
-              if (vision.getLimelightYaw(reef.getID()) < 1) {
+              if (vision.getLimelightYaw() < 1) {
                 return true;
               }
               return false;

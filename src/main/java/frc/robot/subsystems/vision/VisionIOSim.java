@@ -3,6 +3,8 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import java.util.List;
@@ -37,15 +39,17 @@ public class VisionIOSim implements VisionIO {
     properties.setLatencyStdDevMs(5);
 
     properties.setFPS(30);
-    properties.setCalibration(640, 480, Rotation2d.fromDegrees(100));
+    properties.setCalibration(640, 480, Rotation2d.fromDegrees(75));
 
     // camera = new PhotonCamera("camera");
 
-    simL = new PhotonCameraSim(cameraL, properties);
-    simR = new PhotonCameraSim(cameraR, properties);
+    // simL = new PhotonCameraSim(cameraL, properties);
+    // simR = new PhotonCameraSim(cameraR, properties);
+    simF = new PhotonCameraSim(cameraF, properties);
 
-    visionSystemSim.addCamera(simL, Constants.robot2CameraL);
-    visionSystemSim.addCamera(simR, Constants.robot2CameraR);
+    // visionSystemSim.addCamera(simL, Constants.robot2CameraL);
+    // visionSystemSim.addCamera(simR, Constants.robot2CameraR);
+    visionSystemSim.addCamera(simF, new Transform3d(0, 0.1, 0.4, new Rotation3d()));
 
     // sim.enableProcessedStream(true);
     // sim.enableRawStream(true);
@@ -64,15 +68,13 @@ public class VisionIOSim implements VisionIO {
     // Logger.recordOutput("FieldSimulation/VisionField", visionSystemSim.getDebugField());
   }
 
+  // behaves like tx
   @SuppressWarnings("removal")
   @Override
-  public double getLimelightYaw(int targetID) {
-    for (PhotonTrackedTarget target : cameraF.getLatestResult().getTargets()) {
-      if (target.getFiducialId() == targetID) {
-        return target.getYaw();
-      }
-    }
-    return 0;
+  public double getLimelightYaw() {
+    PhotonTrackedTarget t = cameraF.getLatestResult().getBestTarget();
+    if (t != null) return t.getYaw();
+    else return 0;
   }
 
   @Override
@@ -98,6 +100,14 @@ public class VisionIOSim implements VisionIO {
   @Override
   public PhotonPipelineResult getLatestResultL() {
     return cameraL.getLatestResult();
+  }
+
+  @SuppressWarnings("removal")
+  @Override
+  public Integer getLimelightID() {
+    PhotonTrackedTarget t = cameraF.getLatestResult().getBestTarget();
+    if (t == null) return 0;
+    return t.fiducialId;
   }
 
   @SuppressWarnings("removal")

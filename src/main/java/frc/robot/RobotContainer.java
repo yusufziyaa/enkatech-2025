@@ -249,7 +249,8 @@ public class RobotContainer {
 
     // ÇOK ÖNEMLİ, PATHPLANNER HOT RELOAD KAPAT
 
-    return autoChooser.get();
+    // return autoChooser.get();
+    return AutoCommands.alignToReef(vision, drive);
     // return new AutoCycle(drive, vision, elevator);
   }
 

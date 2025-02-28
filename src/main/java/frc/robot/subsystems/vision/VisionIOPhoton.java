@@ -52,7 +52,12 @@ public class VisionIOPhoton implements VisionIO {
   }
 
   @Override
-  public double getLimelightYaw(int targetID) {
+  public Integer getLimelightID() {
+    return (int) LimelightHelpers.getFiducialID("limelight");
+  }
+
+  @Override
+  public double getLimelightYaw() {
     return LimelightHelpers.getTX(limelight);
   }
 }
