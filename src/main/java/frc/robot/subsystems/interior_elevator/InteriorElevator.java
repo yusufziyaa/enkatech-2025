@@ -28,7 +28,7 @@ public class InteriorElevator extends SubsystemBase {
   public Command getToHigh() {
     return new FunctionalCommand(
         () -> {
-          io.getToPosition(113);
+          io.getToPosition(115);
         },
         () -> {},
         (Boolean cons) -> {},

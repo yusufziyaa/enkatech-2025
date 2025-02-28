@@ -45,18 +45,22 @@ public class DriverScoreCommands {
         intake.adjustToRight());
   }
 
-  public static SequentialCommandGroup zeroToL3(Intake intake, Arm arm, ExteriorElevator exterior) {
+  public static SequentialCommandGroup zeroToL3(
+      InteriorElevator interior, Intake intake, Arm arm, ExteriorElevator exterior) {
     return new SequentialCommandGroup(
-        exterior.getToL3(), arm.getToL2L3(), intake.changeToDesired());
+        interior.getToHigh(), exterior.getToL3(), arm.getToL2L3(), intake.changeToDesired());
   }
 
-  public static SequentialCommandGroup zeroToL2(Intake intake, Arm arm, ExteriorElevator exterior) {
+  public static SequentialCommandGroup zeroToL2(
+      InteriorElevator interior, Intake intake, Arm arm, ExteriorElevator exterior) {
     return new SequentialCommandGroup(
-        exterior.getToL2(), arm.getToL2L3(), intake.changeToDesired());
+        interior.getToHigh(), exterior.getToL2(), arm.getToL2L3(), intake.changeToDesired());
   }
 
-  public static SequentialCommandGroup zeroToL4(Intake intake, Arm arm, ExteriorElevator exterior) {
-    return new SequentialCommandGroup(exterior.getToL4(), arm.getToL4(), intake.changeToDesired());
+  public static SequentialCommandGroup zeroToL4(
+      InteriorElevator interior, Intake intake, Arm arm, ExteriorElevator exterior) {
+    return new SequentialCommandGroup(
+        interior.getToHigh(), exterior.getToL4(), arm.getToL4(), intake.changeToDesired());
   }
 
   public static SequentialCommandGroup zeroToStart(
@@ -67,7 +71,7 @@ public class DriverScoreCommands {
 
   public static SequentialCommandGroup zeroToGround(
       Intake intake, ExteriorElevator exterior, Arm arm, InteriorElevator interior) {
-    return new SequentialCommandGroup(interior.getToLow());
+    return new SequentialCommandGroup(exterior.getToGround(), arm.getToZero(), interior.getToLow());
   }
 
   public static SequentialCommandGroup startToZero(Arm arm, InteriorElevator interior) {

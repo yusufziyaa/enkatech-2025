@@ -38,7 +38,7 @@ public class Gripper extends SubsystemBase {
     return new FunctionalCommand(
         () -> {},
         () -> {
-          setVoltage(7);
+          setVoltage(8);
         },
         (Boolean cons) -> {
           setVoltage(0);

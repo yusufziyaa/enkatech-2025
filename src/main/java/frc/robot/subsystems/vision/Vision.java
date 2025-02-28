@@ -14,6 +14,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.util.LimelightHelpers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -61,6 +62,11 @@ public class Vision extends SubsystemBase {
     if (io != null) io.updateInputs(inputs);
 
     Logger.processInputs("Vision/AutoLogged", inputs);
+
+    Logger.recordOutput("odometry", LimelightHelpers.getBotPose_wpiBlue("limelight"));
+    Logger.recordOutput(
+        "limelight-transform", LimelightHelpers.getTargetPose3d_RobotSpace("limelight"));
+    Logger.recordOutput("limelight-tx", LimelightHelpers.getTX("limelight"));
   }
 
   public Optional<EstimatedRobotPose> getPoseL() {

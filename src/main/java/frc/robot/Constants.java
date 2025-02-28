@@ -83,7 +83,7 @@ public final class Constants {
   public static int MZ80_1_ID = 8;
   public static int MZ80_2_ID = 9;
   public static double shooterAdjustingVoltage = 1;
-  public static double shootingVoltage = 2;
+  public static double shootingVoltage = 5;
 
   public static int IntakeCANID = 8;
 

@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
+import frc.robot.subsystems.exterior_elevator.ExteriorElevator;
+import frc.robot.subsystems.intake.Intake;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
@@ -40,15 +42,26 @@ public class Shooter extends SubsystemBase {
         this);
   }
 
+  public void runVoltage(double v) {
+    io.runVoltage(v);
+  }
+
   public SequentialCommandGroup shootRight() {
-    return shoot(Constants.shootingVoltage);
+    return shoot(2);
   }
 
   public SequentialCommandGroup shootLeft() {
-    return shoot(-Constants.shootingVoltage);
+    return shoot(-2);
   }
 
-  SequentialCommandGroup shoot(double voltage) {
+  public Command shootInCorrectAngle(Intake intake, ExteriorElevator exteriorElevator) {
+    return shoot(
+        Constants.shootingVoltage
+            * (intake.getDesired() == 0 ? 1 : -1)
+            * (exteriorElevator.getState() == 3 ? -1 : 1));
+  }
+
+  public SequentialCommandGroup shoot(double voltage) {
     return new SequentialCommandGroup(
         new InstantCommand(
             () -> {

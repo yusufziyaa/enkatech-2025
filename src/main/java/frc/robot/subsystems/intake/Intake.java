@@ -7,6 +7,7 @@ package frc.robot.subsystems.intake;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.shooter.Shooter;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
@@ -21,7 +22,11 @@ public class Intake extends SubsystemBase {
     this.io = io;
   }
 
-  double desired = -18.3;
+  double desired = 0;
+
+  public double getDesired() {
+    return desired;
+  }
 
   public void setDesiredToLeft() {
     desired = -36.6;
@@ -65,6 +70,12 @@ public class Intake extends SubsystemBase {
           io.runToPosition(0);
         },
         this);
+  }
+
+  public Command shootInCorrectAngle(double adj, Shooter shooter) {
+    double d = adj * (desired == 0 ? 1 : -1);
+    if (d == 1) return shooter.shootLeft();
+    else return shooter.shootRight();
   }
 
   @Override

@@ -106,7 +106,7 @@ public class Arm extends SubsystemBase {
   public Command getToL4() {
     return new InstantCommand(
         () -> {
-          io.getToAngle(0.30);
+          io.getToAngle(0.32);
         },
         this);
   }
@@ -128,7 +128,7 @@ public class Arm extends SubsystemBase {
           io.runVoltage(0);
         },
         () -> {
-          return inputs.position < -0.08;
+          return inputs.position < 0;
         },
         this);
   }

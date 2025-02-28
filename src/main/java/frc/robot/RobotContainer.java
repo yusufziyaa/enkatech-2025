@@ -18,10 +18,13 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.DriverScoreCommands;
+import frc.robot.commands.ShootDirectionCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.positions.MechanismController;
 import frc.robot.subsystems.arm.Arm;
@@ -187,9 +190,15 @@ public class RobotContainer {
         .rightBumper()
         .onTrue(DriverScoreCommands.Hangar(interiorElevator, exteriorElevator, intake, arm));
 
-    controller.a().onTrue(DriverScoreCommands.zeroToL2(intake, arm, exteriorElevator));
-    controller.b().onTrue(DriverScoreCommands.zeroToL3(intake, arm, exteriorElevator));
-    controller.y().onTrue(DriverScoreCommands.zeroToL4(intake, arm, exteriorElevator));
+    controller
+        .a()
+        .onTrue(DriverScoreCommands.zeroToL2(interiorElevator, intake, arm, exteriorElevator));
+    controller
+        .b()
+        .onTrue(DriverScoreCommands.zeroToL3(interiorElevator, intake, arm, exteriorElevator));
+    controller
+        .y()
+        .onTrue(DriverScoreCommands.zeroToL4(interiorElevator, intake, arm, exteriorElevator));
 
     controller.povUp().onTrue(DriverScoreCommands.startToZero(arm, interiorElevator));
 
@@ -216,14 +225,20 @@ public class RobotContainer {
 
     controller
         .axisMagnitudeGreaterThan(3, 0.1)
-        .onTrue(gripper.runAtVoltage(9))
+        .onTrue(gripper.runAtVoltage(7))
         .onFalse(gripper.runAtVoltage(0));
+    controller
+        .axisMagnitudeGreaterThan(2, 0.1)
+        .onTrue(
+            new ParallelRaceGroup(
+                new ShootDirectionCommand(shooter, intake, exteriorElevator),
+                new WaitCommand(0.5)));
 
     controller.button(7).onTrue(AutoCommands.alignToReef(vision, drive));
 
     controller.povDown().onTrue(shooter.ortala());
 
-    controller.button(8).onTrue(gripper.gripTillSeen(shooter));
+    controller.button(8).onTrue(AutoCommands.turnToReef(vision, drive));
   }
 
   public Command getAutonomousCommand() {
@@ -259,8 +274,14 @@ public class RobotContainer {
 
   public void periodic() {
     Logger.recordOutput("limelighttx", LimelightHelpers.getTX("limelight"));
-    Logger.recordOutput(
-        "limelight-transform", LimelightHelpers.getTargetPose3d_RobotSpace("limelight"));
+
+    /*LimelightHelpers.SetRobotOrientation(
+        "limelight", drive.getPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+    LimelightHelpers.PoseEstimate mt2 =
+        LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+    if (mt2 != null && mt2.tagCount != 0) {
+      drive.addVisionMeasurement(mt2.pose, mt2.timestampSeconds, VecBuilder.fill(.7, .7, 999999));
+    }*/
     // Logger.recordOutput()"id", vision.getBestTargetL().fiducialId);
     /*Optional<EstimatedRobotPose> robotPoseL = vision.getPoseL();
     if (robotPoseL.isPresent()) {
