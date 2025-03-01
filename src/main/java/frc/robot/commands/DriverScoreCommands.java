@@ -80,8 +80,8 @@ public class DriverScoreCommands {
 
   public static Command retreatL4(
       ExteriorElevator exterior, InteriorElevator interior, Arm arm, Intake intake) {
-    return new ParallelCommandGroup(
-        intake.adjustToCenter(), interior.getToHigh(), arm.getToZero(), exterior.getToGround());
+    return new SequentialCommandGroup(
+        intake.waitTillCenter(), interior.getToHigh(), arm.getToZero(), exterior.getToGround());
   }
 
   public static Command gripperControl(Gripper gripper, DoubleSupplier voltage) {

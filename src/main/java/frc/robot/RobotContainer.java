@@ -24,6 +24,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.DriverScoreCommands;
+import frc.robot.commands.ScoreL2;
+import frc.robot.commands.ScoreL4Command;
 import frc.robot.commands.ShootDirectionCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.positions.MechanismController;
@@ -190,15 +192,25 @@ public class RobotContainer {
         .rightBumper()
         .onTrue(DriverScoreCommands.Hangar(interiorElevator, exteriorElevator, intake, arm));
 
+    // controller
+    //    .a()
+    //    .onTrue(DriverScoreCommands.zeroToL2(interiorElevator, intake, arm, exteriorElevator));
     controller
         .a()
-        .onTrue(DriverScoreCommands.zeroToL2(interiorElevator, intake, arm, exteriorElevator));
+        .onTrue(
+            new ScoreL2(intake, exteriorElevator, interiorElevator, arm, shooter, vision, drive));
     controller
         .b()
         .onTrue(DriverScoreCommands.zeroToL3(interiorElevator, intake, arm, exteriorElevator));
+    // controller
+    //    .y()
+    //    .onTrue(DriverScoreCommands.zeroToL4(interiorElevator, intake, arm, exteriorElevator));
+
     controller
         .y()
-        .onTrue(DriverScoreCommands.zeroToL4(interiorElevator, intake, arm, exteriorElevator));
+        .onTrue(
+            new ScoreL4Command(
+                vision, drive, interiorElevator, exteriorElevator, arm, intake, shooter));
 
     controller.povUp().onTrue(DriverScoreCommands.startToZero(arm, interiorElevator));
 
@@ -234,7 +246,7 @@ public class RobotContainer {
                 new ShootDirectionCommand(shooter, intake, exteriorElevator),
                 new WaitCommand(0.5)));
 
-    controller.button(7).onTrue(AutoCommands.alignToReef(vision, drive));
+    controller.button(7).onTrue(AutoCommands.alignL4(vision, drive));
 
     controller.povDown().onTrue(shooter.ortala());
 
@@ -249,8 +261,8 @@ public class RobotContainer {
 
     // ÇOK ÖNEMLİ, PATHPLANNER HOT RELOAD KAPAT
 
-    // return autoChooser.get();
-    return AutoCommands.alignToReef(vision, drive);
+    return autoChooser.get();
+    /// return AutoCommands.alignToReef(vision, drive);
     // return new AutoCycle(drive, vision, elevator);
   }
 

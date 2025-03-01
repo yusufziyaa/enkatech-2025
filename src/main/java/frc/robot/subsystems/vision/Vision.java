@@ -69,6 +69,12 @@ public class Vision extends SubsystemBase {
     Logger.recordOutput("limelight-tx", LimelightHelpers.getTX("limelight"));
 
     Logger.recordOutput("txsim", io.getLimelightYaw());
+
+    Pose3d target2robot = LimelightHelpers.getTargetPose3d_CameraSpace("limelight");
+    Logger.recordOutput(
+        "uzaklik",
+        Math.sqrt(
+            target2robot.getY() * target2robot.getY() + target2robot.getZ() * target2robot.getZ()));
   }
 
   public Optional<EstimatedRobotPose> getPoseL() {
