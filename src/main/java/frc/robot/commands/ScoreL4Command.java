@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.arm.Arm;
@@ -30,8 +31,9 @@ public class ScoreL4Command extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        AutoCommands.alignL4(vision, drive),
-        DriverScoreCommands.zeroToL4(interior, intake, arm, exterior),
-        new WaitCommand(0.5));
+        new ParallelCommandGroup(
+            AutoCommands.alignL4(vision, drive),
+            DriverScoreCommands.zeroToL4(interior, intake, arm, exterior, shooter)),
+        new WaitCommand(1));
   }
 }

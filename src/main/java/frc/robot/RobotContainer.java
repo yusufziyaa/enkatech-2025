@@ -24,7 +24,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.DriverScoreCommands;
+import frc.robot.commands.GetCoral;
 import frc.robot.commands.ScoreL2;
+import frc.robot.commands.ScoreL3Command;
 import frc.robot.commands.ScoreL4Command;
 import frc.robot.commands.ShootDirectionCommand;
 import frc.robot.generated.TunerConstants;
@@ -54,6 +56,8 @@ import frc.robot.subsystems.interior_elevator.InteriorElevatorIOTalonFX;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterIOSim;
 import frc.robot.subsystems.shooter.ShooterIOTalonFX;
+import frc.robot.subsystems.tirmanma.Tirmanma;
+import frc.robot.subsystems.tirmanma.TirmanmaIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhoton;
@@ -79,7 +83,7 @@ public class RobotContainer {
   // private final CommandXboxController controller = new
   // CommandXboxController(0);
   private final CommandXboxController controller = new CommandXboxController(0);
-  // private final CommandXboxController operator = new CommandXboxController(1);
+  private final CommandXboxController operator = new CommandXboxController(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -92,6 +96,7 @@ public class RobotContainer {
   private InteriorElevator interiorElevator;
   private ExteriorElevator exteriorElevator;
   private Intake intake;
+  private Tirmanma tirmanma;
 
   private MechanismController positionController;
   private SlewRateLimiter xLimiter = new SlewRateLimiter(4);
@@ -126,6 +131,8 @@ public class RobotContainer {
             new ExteriorElevator(
                 new ExteriorElevatorIOTalonFX(
                     Constants.ExteriorElevatorCANID_AKU, Constants.ExteriorElevatorCANID_N));
+
+        tirmanma = new Tirmanma(new TirmanmaIOTalonFX(Constants.TirmanmaCANID));
         break;
 
       case SIM:
@@ -201,7 +208,9 @@ public class RobotContainer {
             new ScoreL2(intake, exteriorElevator, interiorElevator, arm, shooter, vision, drive));
     controller
         .b()
-        .onTrue(DriverScoreCommands.zeroToL3(interiorElevator, intake, arm, exteriorElevator));
+        .onTrue(
+            new ScoreL3Command(
+                vision, drive, interiorElevator, exteriorElevator, arm, intake, shooter));
     // controller
     //    .y()
     //    .onTrue(DriverScoreCommands.zeroToL4(interiorElevator, intake, arm, exteriorElevator));
@@ -235,10 +244,7 @@ public class RobotContainer {
                   intake.setDesiredToLeft();
                 }));
 
-    controller
-        .axisMagnitudeGreaterThan(3, 0.1)
-        .onTrue(gripper.runAtVoltage(7))
-        .onFalse(gripper.runAtVoltage(0));
+    controller.axisMagnitudeGreaterThan(3, 0.1).whileTrue(new GetCoral(gripper, shooter));
     controller
         .axisMagnitudeGreaterThan(2, 0.1)
         .onTrue(
@@ -246,11 +252,16 @@ public class RobotContainer {
                 new ShootDirectionCommand(shooter, intake, exteriorElevator),
                 new WaitCommand(0.5)));
 
-    controller.button(7).onTrue(AutoCommands.alignL4(vision, drive));
+    controller
+        .button(7)
+        .onTrue(DriverScoreCommands.HangarYukari(interiorElevator, exteriorElevator, intake, arm));
 
     controller.povDown().onTrue(shooter.ortala());
 
-    controller.button(8).onTrue(AutoCommands.turnToReef(vision, drive));
+    controller.button(8).onTrue(AutoCommands.alignL2L3(vision, drive));
+
+    operator.povUp().onTrue(tirmanma.runVoltage(5)).onFalse(tirmanma.runVoltage(0));
+    operator.povDown().onTrue(tirmanma.runVoltage(-5)).onFalse(tirmanma.runVoltage(0));
   }
 
   public Command getAutonomousCommand() {

@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.exterior_elevator.ExteriorElevator;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.vision.Vision;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
@@ -27,11 +28,11 @@ public class Shooter extends SubsystemBase {
   }
 
   public boolean getSensor1() {
-    return inputs.sensor1;
+    return !inputs.sensor1;
   }
 
   public boolean getSensor2() {
-    return inputs.sensor2;
+    return !inputs.sensor2;
   }
 
   public Command runAtVoltage(double nVoltage) {
@@ -54,11 +55,29 @@ public class Shooter extends SubsystemBase {
     return shoot(-2);
   }
 
-  public Command shootInCorrectAngle(Intake intake, ExteriorElevator exteriorElevator) {
+  public Command shootInCorrectAngle(
+      Vision vision, Intake intake, ExteriorElevator exteriorElevator) {
     return shoot(
         Constants.shootingVoltage
             * (intake.getDesired() == 0 ? 1 : -1)
-            * (exteriorElevator.getState() == 3 ? -1 : 1));
+            * (exteriorElevator.getState() == 3 ? -1 : 1)
+            * (vision.getOrient() ? 1 : 0));
+  }
+
+  public Command backup(Intake intake, ExteriorElevator exteriorElevator) {
+    return new SequentialCommandGroup(
+        new InstantCommand(
+            () -> {
+              io.runVoltage(
+                  -Constants.shooterBackupVoltage
+                      * (intake.getDesired() == 0 ? 1 : -1)
+                      * (exteriorElevator.getState() == 3 ? -1 : 1));
+            }),
+        new WaitCommand(0.2),
+        new InstantCommand(
+            () -> {
+              io.runVoltage(0);
+            }));
   }
 
   public SequentialCommandGroup shoot(double voltage) {
@@ -74,13 +93,38 @@ public class Shooter extends SubsystemBase {
             }));
   }
 
-  public Command ortala() {
+  public Command waitToOrtala() {
     return new FunctionalCommand(
         () -> {},
         () -> {
-          if (inputs.sensor1 && !inputs.sensor2) {
+          if (getSensor1() && !getSensor2()) io.runVoltage(-Constants.shooterAdjustingVoltage);
+          else if (!getSensor1() && getSensor2()) io.runVoltage(Constants.shooterAdjustingVoltage);
+        },
+        (Boolean cons) -> {
+          io.runVoltage(0);
+        },
+        () -> {
+          if (getSensor1() && getSensor2()) return true;
+          return false;
+        },
+        this);
+  }
+
+  Boolean ciktimi = false;
+
+  public Command ortala() {
+    return new FunctionalCommand(
+        () -> {
+          ciktimi = false;
+        },
+        () -> {
+          if (getSensor1() && !getSensor2()) {
+            ciktimi = true;
             io.runVoltage(-Constants.shooterAdjustingVoltage);
-          } else if (inputs.sensor2 && !inputs.sensor1) {
+          } else if (getSensor2() && !getSensor1()) {
+            ciktimi = true;
+            io.runVoltage(Constants.shooterAdjustingVoltage);
+          } else if (!ciktimi) {
             io.runVoltage(Constants.shooterAdjustingVoltage);
           }
         },
@@ -88,8 +132,8 @@ public class Shooter extends SubsystemBase {
           io.runVoltage(0);
         },
         () -> {
-          if (inputs.sensor1 && inputs.sensor2) return true;
-          if (!inputs.sensor1 && !inputs.sensor2) return true;
+          if (getSensor1() && getSensor2() && ciktimi) return true;
+          if (!getSensor1() && !getSensor2() && ciktimi) return true;
           return false;
         },
         this);

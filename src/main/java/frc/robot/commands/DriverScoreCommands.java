@@ -9,6 +9,7 @@ import frc.robot.subsystems.exterior_elevator.ExteriorElevator;
 import frc.robot.subsystems.gripper.Gripper;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.interior_elevator.InteriorElevator;
+import frc.robot.subsystems.shooter.Shooter;
 import java.util.function.DoubleSupplier;
 
 public class DriverScoreCommands {
@@ -23,6 +24,12 @@ public class DriverScoreCommands {
       InteriorElevator interior, ExteriorElevator exterior, Intake intake, Arm arm) {
     return new SequentialCommandGroup(
         exterior.getToGround(), intake.adjustToCenter(), arm.hangar(), interior.getToLow());
+  }
+
+  public static SequentialCommandGroup HangarYukari(
+      InteriorElevator interior, ExteriorElevator exterior, Intake intake, Arm arm) {
+    return new SequentialCommandGroup(
+        exterior.getToGround(), intake.adjustToCenter(), arm.hangar2(), interior.getToHigh());
   }
 
   public static SequentialCommandGroup scoreL3(
@@ -48,19 +55,31 @@ public class DriverScoreCommands {
   public static SequentialCommandGroup zeroToL3(
       InteriorElevator interior, Intake intake, Arm arm, ExteriorElevator exterior) {
     return new SequentialCommandGroup(
-        interior.getToHigh(), exterior.getToL3(), arm.getToL2L3(), intake.changeToDesired());
+        exterior.getToNoHit(),
+        interior.getToHigh(),
+        new ParallelCommandGroup(arm.getToL2L3(), intake.waitTillDesired()));
   }
 
   public static SequentialCommandGroup zeroToL2(
       InteriorElevator interior, Intake intake, Arm arm, ExteriorElevator exterior) {
     return new SequentialCommandGroup(
-        interior.getToHigh(), exterior.getToL2(), arm.getToL2L3(), intake.changeToDesired());
+        interior.getToHigh(),
+        exterior.getToL2(),
+        new ParallelCommandGroup(intake.waitTillDesired(), arm.getToL2L3()));
   }
 
   public static SequentialCommandGroup zeroToL4(
-      InteriorElevator interior, Intake intake, Arm arm, ExteriorElevator exterior) {
+      InteriorElevator interior,
+      Intake intake,
+      Arm arm,
+      ExteriorElevator exterior,
+      Shooter shooter) {
     return new SequentialCommandGroup(
-        interior.getToHigh(), exterior.getToL4(), arm.getToL4(), intake.changeToDesired());
+        interior.getToHigh(),
+        exterior.getToL4(),
+        arm.getToL4(),
+        shooter.backup(intake, exterior),
+        intake.changeToDesired());
   }
 
   public static SequentialCommandGroup zeroToStart(
@@ -80,7 +99,7 @@ public class DriverScoreCommands {
 
   public static Command retreatL4(
       ExteriorElevator exterior, InteriorElevator interior, Arm arm, Intake intake) {
-    return new SequentialCommandGroup(
+    return new ParallelCommandGroup(
         intake.waitTillCenter(), interior.getToHigh(), arm.getToZero(), exterior.getToGround());
   }
 

@@ -17,22 +17,23 @@ import frc.robot.subsystems.vision.Vision;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class ScoreL2 extends SequentialCommandGroup {
-  /** Creates a new ScoreL2L3. */
-  public ScoreL2(
-      Intake intake,
-      ExteriorElevator exterior,
-      InteriorElevator interior,
-      Arm arm,
-      Shooter shooter,
+public class ScoreL3Command extends SequentialCommandGroup {
+  /** Creates a new ScoreL3Command. */
+  public ScoreL3Command(
       Vision vision,
-      Drive drive) {
+      Drive drive,
+      InteriorElevator interior,
+      ExteriorElevator exterior,
+      Arm arm,
+      Intake intake,
+      Shooter shooter) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
         new ParallelCommandGroup(
-            DriverScoreCommands.zeroToL2(interior, intake, arm, exterior),
+            DriverScoreCommands.zeroToL3(interior, intake, arm, exterior),
             AutoCommands.alignL2L3(vision, drive)),
+        exterior.getToL3(),
         shooter.shootInCorrectAngle(vision, intake, exterior));
   }
 }

@@ -32,7 +32,7 @@ public class Arm extends SubsystemBase {
   public Command hangar() {
     return new InstantCommand(
         () -> {
-          io.getToAngle(0.2);
+          io.getToAngle(0.15);
         });
   }
 
@@ -66,7 +66,7 @@ public class Arm extends SubsystemBase {
   public Command hangar2() {
     return new FunctionalCommand(
         () -> {
-          io.getToAngle(-0.025);
+          io.getToAngle(-0.027);
         },
         () -> {},
         (Boolean cons) -> {},

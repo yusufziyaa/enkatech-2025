@@ -49,6 +49,19 @@ public class Intake extends SubsystemBase {
         });
   }
 
+  public Command waitTillDesired() {
+    return new FunctionalCommand(
+        () -> {
+          io.runToPosition(desired);
+        },
+        () -> {},
+        (Boolean cons) -> {},
+        () -> {
+          return Math.abs(inputs.position - desired) < 0.1;
+        },
+        this);
+  }
+
   public Command waitTillCenter() {
     return new FunctionalCommand(
         () -> {

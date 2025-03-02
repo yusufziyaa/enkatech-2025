@@ -5,6 +5,7 @@
 package frc.robot.subsystems.exterior_elevator;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.intake.Intake;
@@ -43,11 +44,31 @@ public class ExteriorElevator extends SubsystemBase {
         });
   }
 
+  public Command getToNoHit() {
+    return new InstantCommand(
+        () -> {
+          io.getToPosition(20);
+        });
+  }
+
   public Command getToL3() {
     return new InstantCommand(
         () -> {
           state = 2;
           io.getToPosition(83);
+        });
+  }
+
+  public Command waitTillL3() {
+    return new FunctionalCommand(
+        () -> {
+          state = 2;
+          io.getToPosition(83);
+        },
+        () -> {},
+        (Boolean cons) -> {},
+        () -> {
+          return Math.abs(inputs.position - 83) < 1;
         });
   }
 

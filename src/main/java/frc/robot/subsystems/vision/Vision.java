@@ -12,6 +12,8 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.LimelightHelpers;
@@ -140,6 +142,19 @@ public class Vision extends SubsystemBase {
 
   public int getLimelightID() {
     return io.getLimelightID();
+  }
+
+  public Boolean orient = false;
+
+  public Command setOrient(Boolean b) {
+    return new InstantCommand(
+        () -> {
+          orient = b;
+        });
+  }
+
+  public boolean getOrient() {
+    return orient;
   }
 
   // FIXME: BIG PROBLEM

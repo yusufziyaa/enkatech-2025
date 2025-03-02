@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LimelightHelpers;
@@ -218,58 +219,68 @@ public class AutoCommands {
     pid = new PIDController(0.02, 0, 0);
     pidX = new PIDController(0.6, 0, 0);
     pidY = new PIDController(0.1, 0, 0);
-    return new FunctionalCommand(
-        () -> {},
-        () -> {
-          // Pose3d tag2Limelight = LimelightHelpers.getTargetPose3d_RobotSpace("limelight");
-          Rotation2d reefrotation =
-              getReefRotation((int) LimelightHelpers.getFiducialID("limelight"));
-          Pose3d tag2Robot = LimelightHelpers.getTargetPose3d_CameraSpace("limelight");
-          // System.out.println(reefrotation.getDegrees());
-          // System.out.println(drive.getPose().getRotation().getDegrees());
-          double turningError = reefrotation.getDegrees() - drive.getRawGyroRotation().getDegrees();
-          if (turningError > 180) turningError -= 360;
-          if (turningError < -180) turningError += 360;
-          Logger.recordOutput("errorangle", turningError);
-          // Logger.recordOutput("transform-l", tag2Robot);
-          // Logger.recordOutput("reefrotaton", reefrotation.getDegrees());
-          // Logger.recordOutput("limelighttransform", tag2Limelight);
-          double saghareket = pidY.calculate(LimelightHelpers.getTX("limelight") + 3.5);
-          double uzaklik =
-              Math.sqrt(tag2Robot.getY() * tag2Robot.getY() + tag2Robot.getZ() * tag2Robot.getZ());
-          if (Math.abs(uzaklik - dUzaklik) < 0.01) {
-            uzaklik = dUzaklik;
-          }
-          if (Math.abs(saghareket) > 0.3) saghareket = 0.3 * Math.signum(saghareket);
-          Logger.recordOutput("uzaklik", uzaklik);
-          if (Math.abs(saghareket) < 0.05) saghareket = 0;
-          ChassisSpeeds speeds =
-              new ChassisSpeeds(
-                  -pidX.calculate(uzaklik - dUzaklik), saghareket, -pid.calculate(turningError));
-          // hope this works (no reason not to, just doesnt)
-          Logger.recordOutput("speeds", speeds);
-          drive.runVelocity(speeds);
-        },
-        (Boolean cons) -> {
-          ChassisSpeeds speeds = new ChassisSpeeds(0, 0, 0);
-          // drive.runVelocity(speeds);
-        },
-        () -> {
-          Pose3d tag2Robot = LimelightHelpers.getTargetPose3d_CameraSpace("limelight");
-          double uzaklik =
-              Math.sqrt(tag2Robot.getY() * tag2Robot.getY() + tag2Robot.getZ() * tag2Robot.getZ());
-          Rotation2d reefrotation = getReefRotation(LimelightHelpers.getFiducialID("limelight"));
-          double turningError = reefrotation.getDegrees() - drive.getRawGyroRotation().getDegrees();
-          if (turningError > 180) turningError -= 360;
-          if (turningError < -180) turningError += 360;
-          if ((Math.abs(uzaklik - dUzaklik) < 0.05 || uzaklik < 0.6)
-              && Math.abs(turningError) < 1
-              && (LimelightHelpers.getTX("limelight") + 3.5) < 1) return true;
-          if (LimelightHelpers.getFiducialID("limelight") == -1) return true;
-          return false;
-        },
-        vision,
-        drive);
+    return new SequentialCommandGroup(
+        vision.setOrient(false),
+        new FunctionalCommand(
+            () -> {},
+            () -> {
+              if (LimelightHelpers.getFiducialID("limelight") == -1) return;
+              vision.orient = true;
+              // Pose3d tag2Limelight = LimelightHelpers.getTargetPose3d_RobotSpace("limelight");
+              Rotation2d reefrotation =
+                  getReefRotation((int) LimelightHelpers.getFiducialID("limelight"));
+              Pose3d tag2Robot = LimelightHelpers.getTargetPose3d_CameraSpace("limelight");
+              // System.out.println(reefrotation.getDegrees());
+              // System.out.println(drive.getPose().getRotation().getDegrees());
+              double turningError =
+                  reefrotation.getDegrees() - drive.getRawGyroRotation().getDegrees();
+              if (turningError > 180) turningError -= 360;
+              if (turningError < -180) turningError += 360;
+              Logger.recordOutput("errorangle", turningError);
+              // Logger.recordOutput("transform-l", tag2Robot);
+              // Logger.recordOutput("reefrotaton", reefrotation.getDegrees());
+              // Logger.recordOutput("limelighttransform", tag2Limelight);
+              double saghareket = pidY.calculate(LimelightHelpers.getTX("limelight") + 3.5);
+              double uzaklik =
+                  Math.sqrt(
+                      tag2Robot.getY() * tag2Robot.getY() + tag2Robot.getZ() * tag2Robot.getZ());
+              double ileriHareket = 0;
+              if (uzaklik < dUzaklik) {
+                ileriHareket = uzaklik - dUzaklik;
+              } else ileriHareket = 0.5;
+              if (Math.abs(saghareket) > 0.3) saghareket = 0.3 * Math.signum(saghareket);
+              Logger.recordOutput("uzaklik", uzaklik);
+              if (Math.abs(saghareket) < 0.05) saghareket = 0;
+              ChassisSpeeds speeds =
+                  new ChassisSpeeds(
+                      -pidX.calculate(ileriHareket), saghareket, -pid.calculate(turningError));
+              // hope this works (no reason not to, just doesnt)
+              Logger.recordOutput("speeds", speeds);
+              drive.runVelocity(speeds);
+            },
+            (Boolean cons) -> {
+              ChassisSpeeds speeds = new ChassisSpeeds(0, 0, 0);
+              drive.runVelocity(speeds);
+            },
+            () -> {
+              Pose3d tag2Robot = LimelightHelpers.getTargetPose3d_CameraSpace("limelight");
+              double uzaklik =
+                  Math.sqrt(
+                      tag2Robot.getY() * tag2Robot.getY() + tag2Robot.getZ() * tag2Robot.getZ());
+              Rotation2d reefrotation =
+                  getReefRotation(LimelightHelpers.getFiducialID("limelight"));
+              double turningError =
+                  reefrotation.getDegrees() - drive.getRawGyroRotation().getDegrees();
+              if (turningError > 180) turningError -= 360;
+              if (turningError < -180) turningError += 360;
+              if ((Math.abs(uzaklik - dUzaklik) < 0.05 || uzaklik < 0.6)
+                  && Math.abs(turningError) < 1
+                  && (LimelightHelpers.getTX("limelight") + 3.5) < 1) return true;
+              if (LimelightHelpers.getFiducialID("limelight") == -1) return true;
+              return false;
+            },
+            vision,
+            drive));
   }
 
   static PIDController drivePIDX;
