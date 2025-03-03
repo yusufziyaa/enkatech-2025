@@ -19,8 +19,6 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.DriveCommands;
@@ -29,7 +27,6 @@ import frc.robot.commands.GetCoral;
 import frc.robot.commands.ScoreL2;
 import frc.robot.commands.ScoreL3Command;
 import frc.robot.commands.ScoreL4Command;
-import frc.robot.commands.ShootDirectionCommand;
 import frc.robot.commands.TopCikarCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.positions.MechanismController;
@@ -223,7 +220,8 @@ public class RobotContainer {
 
     controller
         .rightBumper()
-        .onTrue(DriverScoreCommands.Hangar(interiorElevator, exteriorElevator, intake, arm)); //asagi
+        .onTrue(
+            DriverScoreCommands.Hangar(interiorElevator, exteriorElevator, intake, arm)); // asagi
 
     // controller
     //    .a()
@@ -291,19 +289,45 @@ public class RobotContainer {
     operator.povUp().onTrue(tirmanma.runAtVoltage(5)).onFalse(tirmanma.runAtVoltage(0));
     operator.povDown().onTrue(tirmanma.runAtVoltage(-5)).onFalse(tirmanma.runAtVoltage(0));
 
-    operator.povLeft().onTrue(new InstantCommand(()->{intake.setDesiredToLeft();}));
-    operator.povRight().onTrue(new InstantCommand(()->{intake.setDesiredToRight();}));
+    operator
+        .povLeft()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  intake.setDesiredToLeft();
+                }));
+    operator
+        .povRight()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  intake.setDesiredToRight();
+                }));
 
-    operator.x().onTrue(DriverScoreCommands.retreatL4(exteriorElevator, interiorElevator, arm, intake));
-    operator.a().onTrue(DriverScoreCommands.zeroToL2(interiorElevator, intake, arm, exteriorElevator));
-    operator.b().onTrue(DriverScoreCommands.zeroToL3(interiorElevator, intake, arm, exteriorElevator));
-    operator.y().onTrue(DriverScoreCommands.zeroToL4(interiorElevator, intake, arm, exteriorElevator, shooter));
+    operator
+        .x()
+        .onTrue(DriverScoreCommands.retreatL4(exteriorElevator, interiorElevator, arm, intake));
+    operator
+        .a()
+        .onTrue(DriverScoreCommands.zeroToL2(interiorElevator, intake, arm, exteriorElevator));
+    operator
+        .b()
+        .onTrue(DriverScoreCommands.zeroToL3(interiorElevator, intake, arm, exteriorElevator));
+    operator
+        .y()
+        .onTrue(
+            DriverScoreCommands.zeroToL4(interiorElevator, intake, arm, exteriorElevator, shooter));
 
     operator.button(7).onTrue(shooter.shootLeft());
     operator.button(8).onTrue(shooter.shootRight());
 
-    operator.axisMagnitudeGreaterThan(2, 0.1).onTrue(gripper.runAtVoltage(8)).onFalse(gripper.runAtVoltage(0));
-    operator.axisMagnitudeGreaterThan(3, 0.1).onTrue(shooter.shootInCorrectAngle(intake, exteriorElevator));
+    operator
+        .axisMagnitudeGreaterThan(2, 0.1)
+        .onTrue(gripper.runAtVoltage(8))
+        .onFalse(gripper.runAtVoltage(0));
+    operator
+        .axisMagnitudeGreaterThan(3, 0.1)
+        .onTrue(shooter.shootInCorrectAngle(intake, exteriorElevator));
 
     operator.leftBumper().onTrue(gripper.runAtVoltage(-8)).onFalse(gripper.runAtVoltage(0));
     operator.rightBumper().onTrue(intake.adjustToCenter());
