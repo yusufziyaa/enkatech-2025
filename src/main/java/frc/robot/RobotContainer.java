@@ -59,6 +59,7 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterIOSim;
 import frc.robot.subsystems.shooter.ShooterIOTalonFX;
 import frc.robot.subsystems.tirmanma.Tirmanma;
+import frc.robot.subsystems.tirmanma.TirmanmaIOSim;
 import frc.robot.subsystems.tirmanma.TirmanmaIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
@@ -158,6 +159,8 @@ public class RobotContainer {
         interiorElevator = new InteriorElevator(new InteriorElevatorIOSim());
         exteriorElevator = new ExteriorElevator(new ExteriorElevatorIOSim());
 
+        tirmanma = new Tirmanma(new TirmanmaIOSim());
+
         SimulatedArena.getInstance().addDriveTrainSimulation(sim);
 
         break;
@@ -220,7 +223,7 @@ public class RobotContainer {
 
     controller
         .rightBumper()
-        .onTrue(DriverScoreCommands.Hangar(interiorElevator, exteriorElevator, intake, arm));
+        .onTrue(DriverScoreCommands.Hangar(interiorElevator, exteriorElevator, intake, arm)); //asagi
 
     // controller
     //    .a()
@@ -270,14 +273,11 @@ public class RobotContainer {
     controller.axisMagnitudeGreaterThan(3, 0.1).whileTrue(new GetCoral(gripper, shooter));
     controller
         .axisMagnitudeGreaterThan(2, 0.1)
-        .onTrue(
-            new ParallelRaceGroup(
-                new ShootDirectionCommand(shooter, intake, exteriorElevator),
-                new WaitCommand(0.5)));
+        .onTrue(DriverScoreCommands.HangarYukari(interiorElevator, exteriorElevator, intake, arm));
 
     controller
         .button(7)
-        .onTrue(DriverScoreCommands.HangarYukari(interiorElevator, exteriorElevator, intake, arm));
+        .onTrue(DriverScoreCommands.zeroToStart(intake, arm, exteriorElevator, interiorElevator));
 
     controller.povDown().onTrue(shooter.ortala());
 
@@ -290,6 +290,23 @@ public class RobotContainer {
 
     operator.povUp().onTrue(tirmanma.runAtVoltage(5)).onFalse(tirmanma.runAtVoltage(0));
     operator.povDown().onTrue(tirmanma.runAtVoltage(-5)).onFalse(tirmanma.runAtVoltage(0));
+
+    operator.povLeft().onTrue(new InstantCommand(()->{intake.setDesiredToLeft();}));
+    operator.povRight().onTrue(new InstantCommand(()->{intake.setDesiredToRight();}));
+
+    operator.x().onTrue(DriverScoreCommands.retreatL4(exteriorElevator, interiorElevator, arm, intake));
+    operator.a().onTrue(DriverScoreCommands.zeroToL2(interiorElevator, intake, arm, exteriorElevator));
+    operator.b().onTrue(DriverScoreCommands.zeroToL3(interiorElevator, intake, arm, exteriorElevator));
+    operator.y().onTrue(DriverScoreCommands.zeroToL4(interiorElevator, intake, arm, exteriorElevator, shooter));
+
+    operator.button(7).onTrue(shooter.shootLeft());
+    operator.button(8).onTrue(shooter.shootRight());
+
+    operator.axisMagnitudeGreaterThan(2, 0.1).onTrue(gripper.runAtVoltage(8)).onFalse(gripper.runAtVoltage(0));
+    operator.axisMagnitudeGreaterThan(3, 0.1).onTrue(shooter.shootInCorrectAngle(intake, exteriorElevator));
+
+    operator.leftBumper().onTrue(gripper.runAtVoltage(-8)).onFalse(gripper.runAtVoltage(0));
+    operator.rightBumper().onTrue(intake.adjustToCenter());
   }
 
   public Command getAutonomousCommand() {
@@ -300,8 +317,8 @@ public class RobotContainer {
 
     // ÇOK ÖNEMLİ, PATHPLANNER HOT RELOAD KAPAT
 
-    return autoChooser.get();
-    /// return AutoCommands.alignToReef(vision, drive);
+    // return autoChooser.get();
+    return AutoCommands.alignL4(vision, drive);
     // return new AutoCycle(drive, vision, elevator);
   }
 

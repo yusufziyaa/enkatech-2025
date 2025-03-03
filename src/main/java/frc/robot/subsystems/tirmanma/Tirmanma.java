@@ -18,6 +18,8 @@ public class Tirmanma extends SubsystemBase {
     this.io = io;
   }
 
+  public Tirmanma() {}
+
   public Command runAtVoltage(double nVoltage) {
     return new InstantCommand(
         () -> {

@@ -130,6 +130,13 @@ public class AutoCommands {
         : reefIDSRed;
   }
 
+  public static double getModuloRotation(double rawYaw) {
+    double modified = (Math.abs(rawYaw) % (360)) * Math.signum(rawYaw);
+    if (modified < -180) modified += 360;
+    if (modified > 180) modified -= 360;
+    return modified;
+  }
+
   public static Command getPathfindingCommand(
       Drive drive, Pose2d targetPose, boolean invertRotation) {
     // FIXME
@@ -237,7 +244,8 @@ public class AutoCommands {
               // System.out.println(reefrotation.getDegrees());
               // System.out.println(drive.getPose().getRotation().getDegrees());
               double turningError =
-                  reefrotation.getDegrees() - drive.getRawGyroRotation().getDegrees();
+                  reefrotation.getDegrees()
+                      - getModuloRotation(drive.getRawGyroRotation().getDegrees());
               if (turningError > 180) turningError -= 360;
               if (turningError < -180) turningError += 360;
               Logger.recordOutput("errorangle", turningError);
@@ -274,7 +282,8 @@ public class AutoCommands {
               Rotation2d reefrotation =
                   getReefRotation(LimelightHelpers.getFiducialID("limelight"));
               double turningError =
-                  reefrotation.getDegrees() - drive.getRawGyroRotation().getDegrees();
+                  reefrotation.getDegrees()
+                      - getModuloRotation(drive.getRawGyroRotation().getDegrees());
               if (turningError > 180) turningError -= 360;
               if (turningError < -180) turningError += 360;
               if ((Math.abs(uzaklik - dUzaklik) < 0.05 || uzaklik < 0.6)

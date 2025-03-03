@@ -36,7 +36,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public Command runAtVoltage(double nVoltage) {
-    return new RunCommand(
+    return new InstantCommand(
         () -> {
           io.runVoltage(nVoltage);
         },
