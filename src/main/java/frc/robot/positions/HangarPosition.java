@@ -28,7 +28,6 @@ public class HangarPosition implements Position {
 
   @Override
   public Command getToZero() {
-    Logger.recordOutput("denemeeee", 123);
     return new SequentialCommandGroup(exterior.getToGround(), arm.instantZero());
   }
 

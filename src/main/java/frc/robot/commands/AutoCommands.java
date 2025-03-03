@@ -258,7 +258,7 @@ public class AutoCommands {
                       tag2Robot.getY() * tag2Robot.getY() + tag2Robot.getZ() * tag2Robot.getZ());
               double ileriHareket = 0;
               if (uzaklik < dUzaklik) {
-                ileriHareket = uzaklik - dUzaklik;
+                ileriHareket = (uzaklik - dUzaklik)*2;
               } else ileriHareket = 1;
               if (Math.abs(saghareket) > 0.3) saghareket = 0.3 * Math.signum(saghareket);
               Logger.recordOutput("uzaklik", uzaklik);
@@ -286,7 +286,7 @@ public class AutoCommands {
                       - getModuloRotation(drive.getRawGyroRotation().getDegrees());
               if (turningError > 180) turningError -= 360;
               if (turningError < -180) turningError += 360;
-              if ((Math.abs(uzaklik - dUzaklik) < 0.05 || uzaklik < 0.6)
+              if ((Math.abs(uzaklik - dUzaklik) < 0.02 || uzaklik < 0.6)
                   && Math.abs(turningError) < 1
                   && (LimelightHelpers.getTX("limelight") + 3.5) < 1) return true;
               if (LimelightHelpers.getFiducialID("limelight") == -1) return true;
