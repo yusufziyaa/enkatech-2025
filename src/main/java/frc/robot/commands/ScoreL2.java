@@ -32,7 +32,8 @@ public class ScoreL2 extends SequentialCommandGroup {
     addCommands(
         new ParallelCommandGroup(
             DriverScoreCommands.zeroToL2(interior, intake, arm, exterior),
-            AutoCommands.alignL2L3(vision, drive)),
-        shooter.shootInCorrectAngle(vision, intake, exterior));
+            AutoCommands.alignFree(vision, drive)),
+        AutoCommands.alignL2L3(vision, drive),
+        shooter.shootInCorrectAngle(intake, exterior));
   }
 }

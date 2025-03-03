@@ -5,6 +5,7 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -14,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.exterior_elevator.ExteriorElevator;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.vision.Vision;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
@@ -55,13 +55,21 @@ public class Shooter extends SubsystemBase {
     return shoot(-2);
   }
 
-  public Command shootInCorrectAngle(
-      Vision vision, Intake intake, ExteriorElevator exteriorElevator) {
-    return shoot(
-        Constants.shootingVoltage
-            * (intake.getDesired() == 0 ? 1 : -1)
-            * (exteriorElevator.getState() == 3 ? -1 : 1)
-            * (vision.getOrient() ? 1 : 0));
+  public Command shootInCorrectAngle(Intake intake, ExteriorElevator exteriorElevator) {
+    return new ConditionalCommand(
+        new ConditionalCommand(
+            shoot(Constants.shootingVoltage * -1),
+            shoot(Constants.shootingVoltage),
+            () -> intake.getDesired() == 0),
+        new ConditionalCommand(
+            shoot(Constants.shootingVoltage),
+            shoot(-Constants.shootingVoltage),
+            () -> intake.getDesired() == 0),
+        () -> exteriorElevator.getState() == 3);
+    /*return shoot(
+    Constants.shootingVoltage
+        * (intake.getDesired() == 0 ? 1 : -1)
+        * (exteriorElevator.getState() == 3 ? -1 : 1));*/
   }
 
   public Command backup(Intake intake, ExteriorElevator exteriorElevator) {
@@ -86,7 +94,7 @@ public class Shooter extends SubsystemBase {
             () -> {
               io.runVoltage(voltage);
             }),
-        new WaitCommand(1),
+        new WaitCommand(0.3),
         new InstantCommand(
             () -> {
               io.runVoltage(0);

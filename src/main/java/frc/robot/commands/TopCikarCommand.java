@@ -4,37 +4,32 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.exterior_elevator.ExteriorElevator;
+import frc.robot.subsystems.gripper.Gripper;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.interior_elevator.InteriorElevator;
-import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.Vision;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class ScoreL3Command extends SequentialCommandGroup {
-  /** Creates a new ScoreL3Command. */
-  public ScoreL3Command(
-      Vision vision,
+public class TopCikarCommand extends SequentialCommandGroup {
+  /** Creates a new TopCikarCommand. */
+  public TopCikarCommand(
       Drive drive,
+      Vision vision,
       InteriorElevator interior,
-      ExteriorElevator exterior,
       Arm arm,
       Intake intake,
-      Shooter shooter) {
+      ExteriorElevator exterior,
+      Gripper gripper) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new ParallelCommandGroup(
-            DriverScoreCommands.zeroToL3(interior, intake, arm, exterior),
-            AutoCommands.alignFree(vision, drive)),
-        AutoCommands.alignL2L3(vision, drive),
-        // exterior.waitTillL3(),
-        shooter.shootInCorrectAngle(intake, exterior));
+        DriverScoreCommands.zeroToTop(interior, intake, arm, exterior, gripper),
+        AutoCommands.alignToReef(vision, drive, 0.65));
   }
 }

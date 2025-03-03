@@ -106,7 +106,7 @@ public class Arm extends SubsystemBase {
   public Command getToL4() {
     return new InstantCommand(
         () -> {
-          io.getToAngle(0.32);
+          io.getToAngle(0.335);
         },
         this);
   }
@@ -160,17 +160,30 @@ public class Arm extends SubsystemBase {
         });
   }
 
+  public Command getToTop() {
+    return new FunctionalCommand(
+        () -> {
+          io.getToAngle(0.57);
+        },
+        () -> {},
+        (Boolean cons) -> {},
+        () -> {
+          return Math.abs(inputs.position - 0.57) < 0.1;
+        },
+        this);
+  }
+
   public Command getToL2L3() {
     return new FunctionalCommand(
         () -> {
-          io.getToAngle(0.63);
+          io.getToAngle(0.7);
         },
         () -> {},
         (Boolean cons) -> {
           io.runVoltage(0);
         },
         () -> {
-          return inputs.position > 0.50;
+          return inputs.position > 0.6;
         },
         this);
   }

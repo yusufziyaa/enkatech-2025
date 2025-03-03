@@ -204,8 +204,12 @@ public class AutoCommands {
         vision);
   }
 
+  public static Command alignFree(Vision vision, Drive drive) {
+    return alignToReef(vision, drive, 1);
+  }
+
   public static Command alignL2L3(Vision vision, Drive drive) {
-    return alignToReef(vision, drive, 0.71);
+    return alignToReef(vision, drive, 0.67);
   }
 
   public static Command alignL4(Vision vision, Drive drive) {
@@ -247,7 +251,7 @@ public class AutoCommands {
               double ileriHareket = 0;
               if (uzaklik < dUzaklik) {
                 ileriHareket = uzaklik - dUzaklik;
-              } else ileriHareket = 0.5;
+              } else ileriHareket = 1;
               if (Math.abs(saghareket) > 0.3) saghareket = 0.3 * Math.signum(saghareket);
               Logger.recordOutput("uzaklik", uzaklik);
               if (Math.abs(saghareket) < 0.05) saghareket = 0;

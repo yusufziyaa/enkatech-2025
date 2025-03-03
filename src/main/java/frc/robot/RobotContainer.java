@@ -14,6 +14,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,6 +30,7 @@ import frc.robot.commands.ScoreL2;
 import frc.robot.commands.ScoreL3Command;
 import frc.robot.commands.ScoreL4Command;
 import frc.robot.commands.ShootDirectionCommand;
+import frc.robot.commands.TopCikarCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.positions.MechanismController;
 import frc.robot.subsystems.arm.Arm;
@@ -177,6 +179,27 @@ public class RobotContainer {
 
     positionController = new MechanismController(intake, exteriorElevator, interiorElevator, arm);
 
+    NamedCommands.registerCommand("align-l2l3", AutoCommands.alignL2L3(vision, drive));
+    NamedCommands.registerCommand("align-l4", AutoCommands.alignL4(vision, drive));
+    NamedCommands.registerCommand(
+        "zerotol2", DriverScoreCommands.zeroToL2(interiorElevator, intake, arm, exteriorElevator));
+    NamedCommands.registerCommand(
+        "zerotol3", DriverScoreCommands.zeroToL3(interiorElevator, intake, arm, exteriorElevator));
+    NamedCommands.registerCommand(
+        "zerotol4",
+        DriverScoreCommands.startToL4(arm, intake, exteriorElevator, interiorElevator, shooter));
+    NamedCommands.registerCommand(
+        "retreat", DriverScoreCommands.retreatL4(exteriorElevator, interiorElevator, arm, intake));
+    NamedCommands.registerCommand(
+        "hangar-asagi",
+        DriverScoreCommands.Hangar(interiorElevator, exteriorElevator, intake, arm));
+    NamedCommands.registerCommand(
+        "hangar-yukari",
+        DriverScoreCommands.HangarYukari(interiorElevator, exteriorElevator, intake, arm));
+    NamedCommands.registerCommand(
+        "shootincorrectangle", shooter.shootInCorrectAngle(intake, exteriorElevator));
+    NamedCommands.registerCommand("adjusttocenter", intake.waitTillCenter());
+
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
     // Configure the button bindings
@@ -258,10 +281,15 @@ public class RobotContainer {
 
     controller.povDown().onTrue(shooter.ortala());
 
-    controller.button(8).onTrue(AutoCommands.alignL2L3(vision, drive));
+    controller
+        .button(8)
+        .onTrue(
+            new TopCikarCommand(
+                drive, vision, interiorElevator, arm, intake, exteriorElevator, gripper))
+        .onFalse(gripper.runAtVoltage(0));
 
-    operator.povUp().onTrue(tirmanma.runVoltage(5)).onFalse(tirmanma.runVoltage(0));
-    operator.povDown().onTrue(tirmanma.runVoltage(-5)).onFalse(tirmanma.runVoltage(0));
+    operator.povUp().onTrue(tirmanma.runAtVoltage(5)).onFalse(tirmanma.runAtVoltage(0));
+    operator.povDown().onTrue(tirmanma.runAtVoltage(-5)).onFalse(tirmanma.runAtVoltage(0));
   }
 
   public Command getAutonomousCommand() {

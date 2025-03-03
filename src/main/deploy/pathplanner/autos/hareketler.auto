@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "İlk Yaklasma"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "align-l4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Az Geri"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ikinci atis"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "align-l4"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

@@ -12,19 +12,28 @@ public class Tirmanma extends SubsystemBase {
   /** Creates a new Tirmanma. */
   TirmanmaIO io;
 
+  TirmanmaIOInputsAutoLogged inputs = new TirmanmaIOInputsAutoLogged();
+
   public Tirmanma(TirmanmaIO io) {
     this.io = io;
   }
 
-  public Command runVoltage(double v) {
+  public Command runAtVoltage(double nVoltage) {
     return new InstantCommand(
         () -> {
-          io.runVoltage(v);
-        });
+          io.runVoltage(nVoltage);
+        },
+        this);
+  }
+
+  public void runVoltage(double v) {
+    io.runVoltage(v);
   }
 
   @Override
   public void periodic() {
+    io.updateInputs(inputs);
+    org.littletonrobotics.junction.Logger.processInputs(getName(), inputs);
     // This method will be called once per scheduler run
   }
 }
