@@ -28,8 +28,6 @@ public class TopCikarCommand extends SequentialCommandGroup {
       Gripper gripper) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(
-        DriverScoreCommands.zeroToTop(interior, intake, arm, exterior, gripper),
-        AutoCommands.alignToReef(vision, drive, 0.65));
+    addCommands(DriverScoreCommands.zeroToTop(interior, intake, arm, exterior, gripper));
   }
 }

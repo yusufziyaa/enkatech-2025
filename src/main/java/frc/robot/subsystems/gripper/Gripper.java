@@ -36,12 +36,28 @@ public class Gripper extends SubsystemBase {
         });
   }
 
+  public Command gripPP(Shooter shooter) {
+    return new FunctionalCommand(
+        () -> {
+          setVoltage(10);
+        },
+        () -> {},
+        (Boolean cons) -> {
+          setVoltage(0);
+        },
+        () -> {
+          if (shooter.getSensor1() && shooter.getSensor2()) return true;
+          return false;
+        },
+        this);
+  }
+
   public Command gripTillSeen(Shooter shooter) {
     return new SequentialCommandGroup(
         new FunctionalCommand(
             () -> {},
             () -> {
-              setVoltage(9);
+              setVoltage(10);
             },
             (Boolean cons) -> {
               setVoltage(0);

@@ -100,7 +100,8 @@ public class AutoCommands {
       Arrays.asList(
           new Reef(new Pose2d(3.78, 2.83, new Rotation2d(Units.degreesToRadians(-120))), 17, 8),
           new Reef(new Pose2d(3.14, 4.02, new Rotation2d(Units.degreesToRadians(180))), 18, 7),
-          new Reef(new Pose2d(3.81, 5.21, new Rotation2d(Units.degreesToRadians(120))), 19, 6),
+          new Reef(
+              new Pose2d(3.81, 5.21, new Rotation2d(Units.degreesToRadians(120))), 19, 6), // 120
           new Reef(new Pose2d(5.21, 5.21, new Rotation2d(Units.degreesToRadians(60))), 20, 11),
           new Reef(new Pose2d(5.88, 4.02, new Rotation2d(Units.degreesToRadians(0))), 21, 10),
           new Reef(new Pose2d(5.16, 2.82, new Rotation2d(Units.degreesToRadians(-60))), 22, 9));
@@ -253,16 +254,20 @@ public class AutoCommands {
               // Logger.recordOutput("reefrotaton", reefrotation.getDegrees());
               // Logger.recordOutput("limelighttransform", tag2Limelight);
               double saghareket = pidY.calculate(LimelightHelpers.getTX("limelight") + 3.5);
+
               double uzaklik =
                   Math.sqrt(
                       tag2Robot.getY() * tag2Robot.getY() + tag2Robot.getZ() * tag2Robot.getZ());
+
               double ileriHareket = 0;
               if (uzaklik < dUzaklik) {
-                ileriHareket = (uzaklik - dUzaklik)*2;
-              } else ileriHareket = 1;
-              if (Math.abs(saghareket) > 0.3) saghareket = 0.3 * Math.signum(saghareket);
+                ileriHareket = uzaklik - dUzaklik;
+              } else ileriHareket = 0.5;
+
+              if (Math.abs(saghareket) > 0.3) saghareket = 0.25 * Math.signum(saghareket);
               Logger.recordOutput("uzaklik", uzaklik);
               if (Math.abs(saghareket) < 0.05) saghareket = 0;
+
               ChassisSpeeds speeds =
                   new ChassisSpeeds(
                       -pidX.calculate(ileriHareket), saghareket, -pid.calculate(turningError));
@@ -286,7 +291,7 @@ public class AutoCommands {
                       - getModuloRotation(drive.getRawGyroRotation().getDegrees());
               if (turningError > 180) turningError -= 360;
               if (turningError < -180) turningError += 360;
-              if ((Math.abs(uzaklik - dUzaklik) < 0.02 || uzaklik < 0.6)
+              if ((Math.abs(uzaklik - dUzaklik) < 0.05 || uzaklik < 0.57)
                   && Math.abs(turningError) < 1
                   && (LimelightHelpers.getTX("limelight") + 3.5) < 1) return true;
               if (LimelightHelpers.getFiducialID("limelight") == -1) return true;

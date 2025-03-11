@@ -80,7 +80,7 @@ public class Shooter extends SubsystemBase {
                       * (intake.getDesired() == 0 ? 1 : -1)
                       * (exteriorElevator.getState() == 3 ? -1 : 1));
             }),
-        new WaitCommand(0.2),
+        new WaitCommand(0.5),
         new InstantCommand(
             () -> {
               io.runVoltage(0);
@@ -112,6 +112,7 @@ public class Shooter extends SubsystemBase {
         },
         () -> {
           if (getSensor1() && getSensor2()) return true;
+          if (!getSensor1() && !getSensor2()) return true;
           return false;
         },
         this);
@@ -140,7 +141,7 @@ public class Shooter extends SubsystemBase {
         },
         () -> {
           if (getSensor1() && getSensor2() && ciktimi) return true;
-          if (!getSensor1() && !getSensor2() && ciktimi) return true;
+          if (!getSensor1() && !getSensor2()) return true;
           return false;
         },
         this);

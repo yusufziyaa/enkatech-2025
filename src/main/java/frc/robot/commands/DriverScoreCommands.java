@@ -30,7 +30,7 @@ public class DriverScoreCommands {
   public static SequentialCommandGroup HangarYukari(
       InteriorElevator interior, ExteriorElevator exterior, Intake intake, Arm arm) {
     return new SequentialCommandGroup(
-        exterior.getToGround(), intake.adjustToCenter(), arm.hangar2(), interior.getToHigh());
+        exterior.getToGround(), intake.adjustToCenter(), arm.hangar2(), interior.getToHangar());
   }
 
   public static SequentialCommandGroup scoreL3(

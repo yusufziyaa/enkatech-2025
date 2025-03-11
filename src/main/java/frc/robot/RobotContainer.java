@@ -24,7 +24,6 @@ import frc.robot.commands.AutoCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.DriverScoreCommands;
 import frc.robot.commands.GetCoral;
-import frc.robot.commands.ScoreL2;
 import frc.robot.commands.ScoreL3Command;
 import frc.robot.commands.ScoreL4Command;
 import frc.robot.commands.TopCikarCommand;
@@ -199,6 +198,9 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "shootincorrectangle", shooter.shootInCorrectAngle(intake, exteriorElevator));
     NamedCommands.registerCommand("adjusttocenter", intake.waitTillCenter());
+    NamedCommands.registerCommand("ortala", shooter.waitToOrtala());
+    NamedCommands.registerCommand("backup", shooter.backup(intake, exteriorElevator));
+    NamedCommands.registerCommand("griptillseen", gripper.gripPP(shooter));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -229,7 +231,8 @@ public class RobotContainer {
     controller
         .a()
         .onTrue(
-            new ScoreL2(intake, exteriorElevator, interiorElevator, arm, shooter, vision, drive));
+            new ScoreL3Command(
+                vision, drive, interiorElevator, exteriorElevator, arm, intake, shooter));
     controller
         .b()
         .onTrue(
@@ -241,7 +244,7 @@ public class RobotContainer {
 
     controller
         .y()
-        .onTrue(
+        .whileTrue(
             new ScoreL4Command(
                 vision, drive, interiorElevator, exteriorElevator, arm, intake, shooter));
 
@@ -286,8 +289,8 @@ public class RobotContainer {
                 drive, vision, interiorElevator, arm, intake, exteriorElevator, gripper))
         .onFalse(gripper.runAtVoltage(0));
 
-    operator.povUp().onTrue(tirmanma.runAtVoltage(5)).onFalse(tirmanma.runAtVoltage(0));
-    operator.povDown().onTrue(tirmanma.runAtVoltage(-5)).onFalse(tirmanma.runAtVoltage(0));
+    operator.povUp().onTrue(tirmanma.runAtVoltage(10)).onFalse(tirmanma.runAtVoltage(0));
+    operator.povDown().onTrue(tirmanma.runAtVoltage(-10)).onFalse(tirmanma.runAtVoltage(0));
 
     operator
         .povLeft()
@@ -318,8 +321,8 @@ public class RobotContainer {
         .onTrue(
             DriverScoreCommands.zeroToL4(interiorElevator, intake, arm, exteriorElevator, shooter));
 
-    operator.button(7).onTrue(shooter.shootLeft());
-    operator.button(8).onTrue(shooter.shootRight());
+    operator.button(7).onTrue(intake.adjustToLeft());
+    operator.button(8).onTrue(intake.adjustToRight());
 
     operator
         .axisMagnitudeGreaterThan(2, 0.1)
@@ -341,8 +344,8 @@ public class RobotContainer {
 
     // ÇOK ÖNEMLİ, PATHPLANNER HOT RELOAD KAPAT
 
-    // return autoChooser.get();
-    return AutoCommands.alignL4(vision, drive);
+    return autoChooser.get();
+    // return AutoCommands.alignL4(vision, drive);
     // return new AutoCycle(drive, vision, elevator);
   }
 

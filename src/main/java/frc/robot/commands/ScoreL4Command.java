@@ -38,7 +38,8 @@ public class ScoreL4Command extends SequentialCommandGroup {
                 new ParallelCommandGroup(
                     AutoCommands.alignL4(vision, drive),
                     DriverScoreCommands.zeroToL4(interior, intake, arm, exterior, shooter)),
-                shooter.shootInCorrectAngle(intake, exterior)),
+                shooter.shootInCorrectAngle(intake, exterior),
+                intake.adjustToCenter()),
             new InstantCommand(() -> {}),
             () -> {
               return LimelightHelpers.getFiducialID("limelight") != -1;

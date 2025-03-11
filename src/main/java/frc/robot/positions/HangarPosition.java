@@ -7,7 +7,6 @@ import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.exterior_elevator.ExteriorElevator;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.interior_elevator.InteriorElevator;
-import org.littletonrobotics.junction.Logger;
 
 public class HangarPosition implements Position {
   Intake intake;

@@ -106,8 +106,9 @@ public class Arm extends SubsystemBase {
   public Command getToL4() {
     return new InstantCommand(
         () -> {
-          double getto = SmartDashboard.getNumber("ArmL4Setpoint", 0.335);
-          System.out.println(getto);
+          // double getto = SmartDashboard.getNumber("ArmL4Setpoint", 0.335);
+          // System.out.println(getto);
+          double getto = 0.295;
           io.getToAngle(getto);
         },
         this);
