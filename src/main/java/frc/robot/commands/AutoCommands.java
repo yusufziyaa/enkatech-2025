@@ -221,7 +221,7 @@ public class AutoCommands {
   }
 
   public static Command alignL4(Vision vision, Drive drive) {
-    return alignToReef(vision, drive, 0.30);
+    return alignToReef(vision, drive, 0.2);
   }
 
   public static Command alignToReef(Vision vision, Drive drive, double dUzaklik) {
@@ -230,7 +230,7 @@ public class AutoCommands {
     // System.out.println(reefrotation);
     pid = new PIDController(0.02, 0, 0);
     pidX = new PIDController(0.6, 0, 0);
-    pidY = new PIDController(0.1, 0, 0);
+    pidY = new PIDController(0.08, 0, 0);
     return new SequentialCommandGroup(
         vision.setOrient(false),
         new FunctionalCommand(
@@ -253,20 +253,20 @@ public class AutoCommands {
               // Logger.recordOutput("transform-l", tag2Robot);
               // Logger.recordOutput("reefrotaton", reefrotation.getDegrees());
               // Logger.recordOutput("limelighttransform", tag2Limelight);
-              double saghareket = pidY.calculate(LimelightHelpers.getTX("limelight") + 3.5);
 
               double uzaklik =
                   Math.sqrt(
                       tag2Robot.getY() * tag2Robot.getY() + tag2Robot.getZ() * tag2Robot.getZ());
+              double saghareket = uzaklik * pidY.calculate(LimelightHelpers.getTX("limelight") + 3);
 
               double ileriHareket = 0;
               if (uzaklik < dUzaklik) {
                 ileriHareket = uzaklik - dUzaklik;
-              } else ileriHareket = 0.5;
+              } else ileriHareket = 0.8;
 
               if (Math.abs(saghareket) > 0.3) saghareket = 0.25 * Math.signum(saghareket);
               Logger.recordOutput("uzaklik", uzaklik);
-              if (Math.abs(saghareket) < 0.05) saghareket = 0;
+              if (Math.abs(saghareket) < 0.01) saghareket = 0;
 
               ChassisSpeeds speeds =
                   new ChassisSpeeds(
@@ -291,7 +291,7 @@ public class AutoCommands {
                       - getModuloRotation(drive.getRawGyroRotation().getDegrees());
               if (turningError > 180) turningError -= 360;
               if (turningError < -180) turningError += 360;
-              if ((Math.abs(uzaklik - dUzaklik) < 0.05 || uzaklik < 0.57)
+              if ((Math.abs(uzaklik - dUzaklik) < 0.05 || uzaklik < 0.3)
                   && Math.abs(turningError) < 1
                   && (LimelightHelpers.getTX("limelight") + 3.5) < 1) return true;
               if (LimelightHelpers.getFiducialID("limelight") == -1) return true;

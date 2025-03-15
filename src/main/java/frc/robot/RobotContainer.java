@@ -280,7 +280,7 @@ public class RobotContainer {
         .button(7)
         .onTrue(DriverScoreCommands.zeroToStart(intake, arm, exteriorElevator, interiorElevator));
 
-    controller.povDown().onTrue(shooter.ortala());
+    controller.povDown().whileTrue(AutoCommands.alignL4(vision, drive));
 
     controller
         .button(8)

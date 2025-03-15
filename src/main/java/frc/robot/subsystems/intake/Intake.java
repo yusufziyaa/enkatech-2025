@@ -23,6 +23,13 @@ public class Intake extends SubsystemBase {
     this.io = io;
   }
 
+  // l2 için 10.2, 32 sol ve sağ
+  // l3 için 10.5, 31 sol ve sağ
+
+  // shooting için 3v
+
+  // arm için 0.647 l2 l3, zaten destek olacak
+
   double desired = 0;
 
   public double getDesired() {

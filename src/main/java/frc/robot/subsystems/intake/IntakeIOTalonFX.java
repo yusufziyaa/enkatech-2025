@@ -19,9 +19,9 @@ public class IntakeIOTalonFX implements IntakeIO {
     m_motor = new TalonFX(CANID, "canivore");
 
     MotionMagicConfigs configs =
-        new MotionMagicConfigs().withMotionMagicAcceleration(20).withMotionMagicCruiseVelocity(20);
+        new MotionMagicConfigs().withMotionMagicAcceleration(90).withMotionMagicCruiseVelocity(40);
 
-    Slot0Configs cSlot0Configs = new Slot0Configs().withKP(5).withKD(0);
+    Slot0Configs cSlot0Configs = new Slot0Configs().withKP(0.9).withKS(0.6);
 
     m_motor.getConfigurator().apply(configs);
     m_motor.getConfigurator().apply(cSlot0Configs);
