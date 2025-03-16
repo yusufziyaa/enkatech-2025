@@ -93,6 +93,14 @@ public class ExteriorElevator extends SubsystemBase {
         });
   }
 
+  public Command NL4() {
+    return new FunctionalCommand(()->{
+      io.getToPosition(93);
+    }, ()->{}, (Boolean cons)->{}, ()->{
+      return Math.abs(inputs.speed)<1;
+    }, this);
+  }
+
   public Command shootInCorrectAngle(Shooter shooter, Intake intake) {
     if (state == 3) {
       return intake.shootInCorrectAngle(1, shooter);

@@ -191,6 +191,22 @@ public class Arm extends SubsystemBase {
         this);
   }
 
+  public Command NL4() {
+    return new FunctionalCommand(()->{
+      io.getToAngle(0.29);
+    }, ()->{}, (Boolean cons)->{}, ()->{
+      return Math.abs(inputs.speed)<0.1;
+    }, this);
+  }
+
+  public Command NL2L3() {
+    return new FunctionalCommand(()->{
+      io.getToAngle(0.6);
+    }, ()->{}, (Boolean cons)->{}, ()->{
+      return Math.abs(inputs.speed)<0.1;
+    }, this);
+  }
+
   @Override
   public void periodic() {
     io.updateInputs(inputs);

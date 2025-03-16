@@ -37,16 +37,16 @@ public class Intake extends SubsystemBase {
   }
 
   public void setDesiredToLeft() {
-    desired = -36.6;
+    desired = -1;
   }
 
   public void setDesiredToRight() {
-    desired = 0;
+    desired = 1;
   }
 
   public void toggleDesired() {
-    if (desired == 0) desired = -36.6;
-    else desired = 0;
+    if (desired == 1) desired = -1;
+    else desired = -1;
   }
 
   public Command changeToDesired() {
@@ -104,6 +104,20 @@ public class Intake extends SubsystemBase {
           io.runToPosition(0);
         },
         this);
+  }
+
+  public Command DesiredL4() {
+    return new InstantCommand(()->{
+      if (desired==1) io.runToPosition(-10.5);
+      else io.runToPosition(10.5);
+    },this);
+  }
+
+  public Command DesiredL2L3() {
+    return new InstantCommand(()->{
+      if (desired==1) io.runToPosition(31);
+      else io.runToPosition(10.5);
+    });
   }
 
   public Command shootInCorrectAngle(double adj, Shooter shooter) {
