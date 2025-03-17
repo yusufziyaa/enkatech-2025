@@ -55,7 +55,7 @@ public class ExteriorElevator extends SubsystemBase {
     return new InstantCommand(
         () -> {
           state = 2;
-          io.getToPosition(83);
+          io.getToPosition(65);
         });
   }
 
@@ -76,7 +76,7 @@ public class ExteriorElevator extends SubsystemBase {
     return new InstantCommand(
         () -> {
           state = 3;
-          io.getToPosition(93);
+          io.getToPosition(96);
         });
   }
 
@@ -94,11 +94,16 @@ public class ExteriorElevator extends SubsystemBase {
   }
 
   public Command NL4() {
-    return new FunctionalCommand(()->{
-      io.getToPosition(93);
-    }, ()->{}, (Boolean cons)->{}, ()->{
-      return Math.abs(inputs.speed)<1;
-    }, this);
+    return new FunctionalCommand(
+        () -> {
+          io.getToPosition(96);
+        },
+        () -> {},
+        (Boolean cons) -> {},
+        () -> {
+          return Math.abs(inputs.speed) < 1;
+        },
+        this);
   }
 
   public Command shootInCorrectAngle(Shooter shooter, Intake intake) {

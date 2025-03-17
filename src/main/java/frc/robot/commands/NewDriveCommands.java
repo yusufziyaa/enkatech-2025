@@ -9,30 +9,29 @@ import frc.robot.subsystems.intake.Intake;
 
 public class NewDriveCommands {
   public static Command Hangar(ExteriorElevator exterior, Arm arm, Intake intake) {
-    return null;
+    return new ParallelCommandGroup(exterior.getToGround(), arm.NHangar(), intake.NZero());
   }
 
   public static Command TersHangar() {
     return null;
   }
 
-  public static Command ScoreL4(ExteriorElevator exterior,Arm arm,Intake intake) {
-    return new SequentialCommandGroup(new ParallelCommandGroup(
-      exterior.NL4(),
-      arm.NL4(),
-      intake.DesiredL4()
-    )/*add shoot */);
+  public static Command ScoreL4(ExteriorElevator exterior, Arm arm, Intake intake) {
+    return new SequentialCommandGroup(
+        new SequentialCommandGroup(exterior.NL4(), arm.NL4(), intake.DesiredL4()) /*add shoot */);
   }
 
-  public static Command ScoreL2() {
-    return null;
+  public static Command ScoreL2(ExteriorElevator exterior, Arm arm, Intake intake) {
+    return new SequentialCommandGroup(
+        new ParallelCommandGroup(exterior.getToGround(), arm.NL2L3(), intake.DesiredL2L3()));
   }
 
-  public static Command ScoreL3() {
-    return null;
+  public static Command ScoreL3(ExteriorElevator exterior, Arm arm, Intake intake) {
+    return new SequentialCommandGroup(
+        new ParallelCommandGroup(exterior.getToL3(), arm.NL2L3(), intake.DesiredL2L3()));
   }
 
-  public static Command Zero() {
-    return null;
+  public static Command Zero(ExteriorElevator exterior, Arm arm, Intake intake) {
+    return new SequentialCommandGroup(intake.NZero(), exterior.getToGround(), arm.getToNull());
   }
 }

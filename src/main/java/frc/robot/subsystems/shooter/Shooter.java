@@ -119,6 +119,29 @@ public class Shooter extends SubsystemBase {
   }
 
   Boolean ciktimi = false;
+  Integer init = -1;
+
+  public Command betterOrtala() {
+    return new FunctionalCommand(
+        () -> {
+          if (getSensor1()) init = -1;
+          else init = 1;
+        },
+        () -> {
+          if (getSensor1()) io.runVoltage(Constants.shooterAdjustingVoltage);
+          if (!getSensor1() && getSensor2()) io.runVoltage(-Constants.shooterAdjustingVoltage);
+        },
+        (Boolean cons) -> {
+          io.runVoltage(0);
+        },
+        () -> {
+          if (init == -1 && !getSensor1()) return true;
+          if (init == 1 && getSensor1()) return true;
+          if (!getSensor1() && !getSensor2()) return true;
+          return false;
+        },
+        this);
+  }
 
   public Command ortala() {
     return new FunctionalCommand(
@@ -128,10 +151,10 @@ public class Shooter extends SubsystemBase {
         () -> {
           if (getSensor1() && !getSensor2()) {
             ciktimi = true;
-            io.runVoltage(-Constants.shooterAdjustingVoltage);
+            io.runVoltage(Constants.shooterAdjustingVoltage);
           } else if (getSensor2() && !getSensor1()) {
             ciktimi = true;
-            io.runVoltage(Constants.shooterAdjustingVoltage);
+            io.runVoltage(-Constants.shooterAdjustingVoltage);
           } else if (!ciktimi) {
             io.runVoltage(Constants.shooterAdjustingVoltage);
           }

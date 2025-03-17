@@ -30,7 +30,7 @@ public class Intake extends SubsystemBase {
 
   // arm için 0.647 l2 l3, zaten destek olacak
 
-  double desired = 0;
+  double desired = 1;
 
   public double getDesired() {
     return desired;
@@ -90,6 +90,14 @@ public class Intake extends SubsystemBase {
         this);
   }
 
+  public Command NZero() {
+    return new InstantCommand(
+        () -> {
+          io.runToPosition(0);
+        },
+        this);
+  }
+
   public Command adjustToLeft() {
     return new InstantCommand(
         () -> {
@@ -107,17 +115,20 @@ public class Intake extends SubsystemBase {
   }
 
   public Command DesiredL4() {
-    return new InstantCommand(()->{
-      if (desired==1) io.runToPosition(-10.5);
-      else io.runToPosition(10.5);
-    },this);
+    return new InstantCommand(
+        () -> {
+          if (desired == 1) io.runToPosition(-10);
+          else io.runToPosition(10);
+        },
+        this);
   }
 
   public Command DesiredL2L3() {
-    return new InstantCommand(()->{
-      if (desired==1) io.runToPosition(31);
-      else io.runToPosition(10.5);
-    });
+    return new InstantCommand(
+        () -> {
+          if (desired == 1) io.runToPosition(-11.3);
+          else io.runToPosition(13.1);
+        });
   }
 
   public Command shootInCorrectAngle(double adj, Shooter shooter) {

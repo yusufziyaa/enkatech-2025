@@ -19,14 +19,13 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.DriverScoreCommands;
 import frc.robot.commands.GetCoral;
-import frc.robot.commands.ScoreL3Command;
-import frc.robot.commands.ScoreL4Command;
-import frc.robot.commands.TopCikarCommand;
+import frc.robot.commands.NewDriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.positions.MechanismController;
 import frc.robot.subsystems.arm.Arm;
@@ -216,43 +215,29 @@ public class RobotContainer {
             () -> -xLimiter.calculate(controller.getLeftX()),
             () -> -controller.getRightX()));
 
-    controller
-        .x()
-        .onTrue(DriverScoreCommands.retreatL4(exteriorElevator, interiorElevator, arm, intake));
+    controller.x().onTrue(NewDriveCommands.Zero(exteriorElevator, arm, intake));
 
     controller
         .rightBumper()
-        .onTrue(
-            DriverScoreCommands.Hangar(interiorElevator, exteriorElevator, intake, arm)); // asagi
+        .onTrue(NewDriveCommands.Hangar(exteriorElevator, arm, intake)); // asagi
 
     // controller
     //    .a()
     //    .onTrue(DriverScoreCommands.zeroToL2(interiorElevator, intake, arm, exteriorElevator));
-    controller
-        .a()
-        .onTrue(
-            new ScoreL3Command(
-                vision, drive, interiorElevator, exteriorElevator, arm, intake, shooter));
-    controller
-        .b()
-        .onTrue(
-            new ScoreL3Command(
-                vision, drive, interiorElevator, exteriorElevator, arm, intake, shooter));
+    controller.a().onTrue(NewDriveCommands.ScoreL2(exteriorElevator, arm, intake));
+    controller.b().onTrue(NewDriveCommands.ScoreL3(exteriorElevator, arm, intake));
     // controller
     //    .y()
     //    .onTrue(DriverScoreCommands.zeroToL4(interiorElevator, intake, arm, exteriorElevator));
 
-    controller
-        .y()
-        .whileTrue(
-            new ScoreL4Command(
-                vision, drive, interiorElevator, exteriorElevator, arm, intake, shooter));
+    controller.y().whileTrue(NewDriveCommands.ScoreL4(exteriorElevator, arm, intake));
 
-    controller.povUp().onTrue(DriverScoreCommands.startToZero(arm, interiorElevator));
+    // controller.povUp().onTrue(DriverScoreCommands.startToZero(arm, interiorElevator));
 
-    controller
-        .leftBumper()
-        .onTrue(DriverScoreCommands.zeroToGround(intake, exteriorElevator, arm, interiorElevator));
+    // controller
+    //    .leftBumper()
+    //    .onTrue(DriverScoreCommands.zeroToGround(intake, exteriorElevator, arm,
+    // interiorElevator));
 
     // controller.rightBumper().onTrue(gripper.runAtVoltage(9)).onFalse(gripper.runAtVoltage(0));
 
@@ -272,22 +257,18 @@ public class RobotContainer {
                 }));
 
     controller.axisMagnitudeGreaterThan(3, 0.1).whileTrue(new GetCoral(gripper, shooter));
-    controller
-        .axisMagnitudeGreaterThan(2, 0.1)
-        .onTrue(DriverScoreCommands.HangarYukari(interiorElevator, exteriorElevator, intake, arm));
+    // controller
+    //    .axisMagnitudeGreaterThan(2, 0.1)
+    //    .onTrue(DriverScoreCommands.HangarYukari(interiorElevator, exteriorElevator, intake,
+    // arm));
 
-    controller
-        .button(7)
-        .onTrue(DriverScoreCommands.zeroToStart(intake, arm, exteriorElevator, interiorElevator));
+    // controller
+    //    .button(7)
+    //    .onTrue(DriverScoreCommands.zeroToStart(intake, arm, exteriorElevator, interiorElevator));
 
-    controller.povDown().whileTrue(AutoCommands.alignL4(vision, drive));
+    controller.povDown().whileTrue(new SequentialCommandGroup(shooter.ortala()));
 
-    controller
-        .button(8)
-        .onTrue(
-            new TopCikarCommand(
-                drive, vision, interiorElevator, arm, intake, exteriorElevator, gripper))
-        .onFalse(gripper.runAtVoltage(0));
+    controller.button(8).whileTrue(AutoCommands.alignBall(vision, drive));
 
     operator.povUp().onTrue(tirmanma.runAtVoltage(10)).onFalse(tirmanma.runAtVoltage(0));
     operator.povDown().onTrue(tirmanma.runAtVoltage(-10)).onFalse(tirmanma.runAtVoltage(0));

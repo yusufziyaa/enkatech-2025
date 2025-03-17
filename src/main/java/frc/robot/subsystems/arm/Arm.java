@@ -137,11 +137,22 @@ public class Arm extends SubsystemBase {
   }
 
   public Command getToNull() {
-    return new InstantCommand(
+    return new FunctionalCommand(
         () -> {
-          io.getToAngle(0);
-        });
+          io.getToAngle(-0.07);
+        },
+        () -> {},
+        (Boolean cons) -> {
+          io.runVoltage(0);
+        },
+        () -> {
+          return Math.abs(inputs.position + 0.07) < 0.03;
+        },
+        this);
   }
+
+  //TOP ÇIKARMA: 0.52 arm, 0.42 dist, -5V grip
+  // Tırmanma butona basıldıkça istediğimiz konuma ilerleyecek
 
   public Command waitTillNull() {
     return new FunctionalCommand(
@@ -192,19 +203,42 @@ public class Arm extends SubsystemBase {
   }
 
   public Command NL4() {
-    return new FunctionalCommand(()->{
-      io.getToAngle(0.29);
-    }, ()->{}, (Boolean cons)->{}, ()->{
-      return Math.abs(inputs.speed)<0.1;
-    }, this);
+    return new FunctionalCommand(
+        () -> {
+          io.getToAngle(0.27);
+        },
+        () -> {},
+        (Boolean cons) -> {},
+        () -> {
+          return Math.abs(inputs.speed) < 0.1;
+        },
+        this);
+  }
+
+  public Command NHangar() {
+    return new FunctionalCommand(
+        () -> {
+          io.getToAngle(0.03);
+        },
+        () -> {},
+        (Boolean cons) -> {},
+        () -> true,
+        this);
   }
 
   public Command NL2L3() {
-    return new FunctionalCommand(()->{
-      io.getToAngle(0.6);
-    }, ()->{}, (Boolean cons)->{}, ()->{
-      return Math.abs(inputs.speed)<0.1;
-    }, this);
+    return new FunctionalCommand(
+        () -> {
+          io.getToAngle(0.6);
+        },
+        () -> {},
+        (Boolean cons) -> {
+          io.runVoltage(0);
+        },
+        () -> {
+          return Math.abs(inputs.position - 0.6) < 0.03;
+        },
+        this);
   }
 
   @Override

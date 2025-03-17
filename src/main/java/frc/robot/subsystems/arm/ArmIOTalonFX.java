@@ -19,8 +19,8 @@ public class ArmIOTalonFX implements ArmIO {
         .getConfigurator()
         .apply(
             new MotionMagicConfigs()
-                .withMotionMagicAcceleration(0.8)
-                .withMotionMagicCruiseVelocity(0.8));
+                .withMotionMagicAcceleration(2)
+                .withMotionMagicCruiseVelocity(2));
     m_motor.setPosition(-0.13);
     // TODO: tune, use setPosition to overcome Arm_cosine control type. probably no need for ratio
     // tuning because there is no reductory (or maybe there  is??)
@@ -30,7 +30,7 @@ public class ArmIOTalonFX implements ArmIO {
             new Slot0Configs()
                 .withGravityType(GravityTypeValue.Arm_Cosine)
                 .withKG(0.65)
-                .withKP(9)
+                .withKP(70)
                 .withKD(0)
                 .withKS(0));
     m_motor.getConfigurator().apply(new FeedbackConfigs().withSensorToMechanismRatio(45));

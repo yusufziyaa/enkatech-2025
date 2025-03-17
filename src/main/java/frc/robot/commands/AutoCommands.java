@@ -224,6 +224,10 @@ public class AutoCommands {
     return alignToReef(vision, drive, 0.2);
   }
 
+  public static Command alignBall(Vision vision, Drive drive) {
+    return alignToReef(vision, drive, 0.42);
+  }
+
   public static Command alignToReef(Vision vision, Drive drive, double dUzaklik) {
     // System.out.println(LimelightHelpers.getFiducialID("limelight"));
     // Rotation2d reefrotation = angles.get((int) LimelightHelpers.getFiducialID("limelight"));
@@ -260,9 +264,9 @@ public class AutoCommands {
               double saghareket = uzaklik * pidY.calculate(LimelightHelpers.getTX("limelight") + 3);
 
               double ileriHareket = 0;
-              if (uzaklik < dUzaklik) {
-                ileriHareket = uzaklik - dUzaklik;
-              } else ileriHareket = 0.8;
+              if (uzaklik < dUzaklik || Math.abs(uzaklik - dUzaklik) < 0.1) {
+                ileriHareket = (uzaklik - dUzaklik) * 2;
+              } else ileriHareket = 1.2;
 
               if (Math.abs(saghareket) > 0.3) saghareket = 0.25 * Math.signum(saghareket);
               Logger.recordOutput("uzaklik", uzaklik);
@@ -291,7 +295,7 @@ public class AutoCommands {
                       - getModuloRotation(drive.getRawGyroRotation().getDegrees());
               if (turningError > 180) turningError -= 360;
               if (turningError < -180) turningError += 360;
-              if ((Math.abs(uzaklik - dUzaklik) < 0.05 || uzaklik < 0.3)
+              if ((Math.abs(uzaklik - dUzaklik) < 0.01 || uzaklik < 0.22)
                   && Math.abs(turningError) < 1
                   && (LimelightHelpers.getTX("limelight") + 3.5) < 1) return true;
               if (LimelightHelpers.getFiducialID("limelight") == -1) return true;
