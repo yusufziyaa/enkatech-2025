@@ -266,6 +266,9 @@ public class RobotContainer {
     //    .button(7)
     //    .onTrue(DriverScoreCommands.zeroToStart(intake, arm, exteriorElevator, interiorElevator));
 
+    
+    controller.button(7).whileTrue(tirmanma.tirman()).onFalse(tirmanma.runAtVoltage(0));
+
     controller.povDown().whileTrue(new SequentialCommandGroup(shooter.ortala()));
 
     controller.button(8).whileTrue(AutoCommands.alignBall(vision, drive));

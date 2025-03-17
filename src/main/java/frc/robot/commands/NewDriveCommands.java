@@ -34,4 +34,8 @@ public class NewDriveCommands {
   public static Command Zero(ExteriorElevator exterior, Arm arm, Intake intake) {
     return new SequentialCommandGroup(intake.NZero(), exterior.getToGround(), arm.getToNull());
   }
+
+  public static Command TopCikar(ExteriorElevator exterior,Arm arm,Intake intake){
+    return new ParallelCommandGroup(intake.NZero(),exterior.getToGround(),arm.NTop());
+  }
 }

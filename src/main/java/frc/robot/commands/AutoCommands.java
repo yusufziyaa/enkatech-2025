@@ -253,7 +253,6 @@ public class AutoCommands {
                       - getModuloRotation(drive.getRawGyroRotation().getDegrees());
               if (turningError > 180) turningError -= 360;
               if (turningError < -180) turningError += 360;
-              Logger.recordOutput("errorangle", turningError);
               // Logger.recordOutput("transform-l", tag2Robot);
               // Logger.recordOutput("reefrotaton", reefrotation.getDegrees());
               // Logger.recordOutput("limelighttransform", tag2Limelight);
@@ -269,14 +268,12 @@ public class AutoCommands {
               } else ileriHareket = 1.2;
 
               if (Math.abs(saghareket) > 0.3) saghareket = 0.25 * Math.signum(saghareket);
-              Logger.recordOutput("uzaklik", uzaklik);
               if (Math.abs(saghareket) < 0.01) saghareket = 0;
 
               ChassisSpeeds speeds =
                   new ChassisSpeeds(
                       -pidX.calculate(ileriHareket), saghareket, -pid.calculate(turningError));
               // hope this works (no reason not to, just doesnt)
-              Logger.recordOutput("speeds", speeds);
               drive.runVelocity(speeds);
             },
             (Boolean cons) -> {

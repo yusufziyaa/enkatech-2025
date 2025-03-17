@@ -89,6 +89,7 @@ public final class Constants {
   public static int IntakeCANID = 8;
 
   public static int TirmanmaCANID = 40;
+  public static double tirmanmaVoltage = -5;
 
   public static enum APPROACH_TYPE {
     LOWER,

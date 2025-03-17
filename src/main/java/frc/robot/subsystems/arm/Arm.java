@@ -241,6 +241,14 @@ public class Arm extends SubsystemBase {
         this);
   }
 
+  public Command NTop() {
+    return new FunctionalCommand(()->{
+      io.getToAngle(0.52);
+    }, ()->{}, (Boolean cons)->{}, ()->{
+      return Math.abs(inputs.position-0.52)<0.03;
+    }, this);
+  }
+
   @Override
   public void periodic() {
     io.updateInputs(inputs);
