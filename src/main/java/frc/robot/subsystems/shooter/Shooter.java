@@ -59,11 +59,11 @@ public class Shooter extends SubsystemBase {
         new ConditionalCommand(
             shoot(Constants.shootingVoltage * -1),
             shoot(Constants.shootingVoltage),
-            () -> intake.getDesired() == 0),
+            () -> intake.getDesired() == 1),
         new ConditionalCommand(
             shoot(Constants.shootingVoltage),
             shoot(-Constants.shootingVoltage),
-            () -> intake.getDesired() == 0),
+            () -> intake.getDesired() == 1),
         () -> exteriorElevator.getState() == 3);
     /*return shoot(
     Constants.shootingVoltage
@@ -71,20 +71,25 @@ public class Shooter extends SubsystemBase {
         * (exteriorElevator.getState() == 3 ? -1 : 1));*/
   }
 
+  double direction = 1;
+
   public Command backup(Intake intake, ExteriorElevator exteriorElevator) {
-    return new SequentialCommandGroup(
-        new InstantCommand(
-            () -> {
-              io.runVoltage(
-                  -Constants.shooterBackupVoltage
-                      * (intake.getDesired() == 0 ? 1 : -1)
-                      * (exteriorElevator.getState() == 3 ? -1 : 1));
-            }),
-        new WaitCommand(0.5),
-        new InstantCommand(
-            () -> {
-              io.runVoltage(0);
-            }));
+    return new FunctionalCommand(
+        () -> {
+          direction =
+              (intake.getDesired() == 1 ? 1 : -1) * (exteriorElevator.getState() == 3 ? -1 : 1);
+          io.runVoltage(-Constants.shooterBackupVoltage * direction);
+        },
+        () -> {},
+        (Boolean cons) -> {
+          io.runVoltage(0);
+        },
+        () -> {
+          if (!getSensor1() && direction == -1) return true;
+          if (!getSensor2() && direction == 1) return true;
+          return false;
+        },
+        this);
   }
 
   public SequentialCommandGroup shoot(double voltage) {
@@ -141,6 +146,11 @@ public class Shooter extends SubsystemBase {
           return false;
         },
         this);
+  }
+
+  public Command az_ileri() {
+    return new SequentialCommandGroup(
+        runAtVoltage(-Constants.shooterBackupVoltage), new WaitCommand(0.2), runAtVoltage(0));
   }
 
   public Command ortala() {

@@ -35,7 +35,7 @@ public class ScoreL3Command extends SequentialCommandGroup {
     addCommands(
         new ConditionalCommand(
             new SequentialCommandGroup(
-                AutoCommands.alignL2L3(vision, drive),
+                AutoCommands.alignL3(vision, drive),
                 new WaitCommand(0.2),
                 shooter.shootInCorrectAngle(intake, exterior)),
             new InstantCommand(() -> {}),

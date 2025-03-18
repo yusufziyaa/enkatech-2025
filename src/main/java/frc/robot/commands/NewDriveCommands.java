@@ -18,12 +18,17 @@ public class NewDriveCommands {
 
   public static Command ScoreL4(ExteriorElevator exterior, Arm arm, Intake intake) {
     return new SequentialCommandGroup(
-        new SequentialCommandGroup(exterior.NL4(), arm.NL4(), intake.DesiredL4()) /*add shoot */);
+        new ParallelCommandGroup(exterior.NL4(), arm.NL4(), intake.DesiredL4()) /*add shoot */);
   }
 
   public static Command ScoreL2(ExteriorElevator exterior, Arm arm, Intake intake) {
     return new SequentialCommandGroup(
         new ParallelCommandGroup(exterior.getToGround(), arm.NL2L3(), intake.DesiredL2L3()));
+  }
+
+  public static Command ScoreL1(ExteriorElevator exterior, Arm arm, Intake intake) {
+    return new SequentialCommandGroup(
+        new ParallelCommandGroup(exterior.getToGround(), arm.NL2L3(), intake.NZero()));
   }
 
   public static Command ScoreL3(ExteriorElevator exterior, Arm arm, Intake intake) {
@@ -35,7 +40,7 @@ public class NewDriveCommands {
     return new SequentialCommandGroup(intake.NZero(), exterior.getToGround(), arm.getToNull());
   }
 
-  public static Command TopCikar(ExteriorElevator exterior,Arm arm,Intake intake){
-    return new ParallelCommandGroup(intake.NZero(),exterior.getToGround(),arm.NTop());
+  public static Command TopCikar(ExteriorElevator exterior, Arm arm, Intake intake) {
+    return new ParallelCommandGroup(intake.NZero(), exterior.getToGround(), arm.NTop());
   }
 }

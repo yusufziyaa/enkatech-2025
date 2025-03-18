@@ -34,16 +34,21 @@ public class Tirmanma extends SubsystemBase {
     return runToPosition(-300);
   }
 
-  public Command runToPosition(double position){
-    return new FunctionalCommand(()->{
-      
-    }, ()->{
-      if (Math.abs(position-inputs.position)>20) {
-        io.runVoltage(Constants.tirmanmaVoltage);
-      } else io.runVoltage((position-inputs.position)/4);
-    }, (Boolean cons)->{io.runVoltage(0);}, ()->{
-      return Math.abs(position-inputs.position)<5;
-    }, this);
+  public Command runToPosition(double position) {
+    return new FunctionalCommand(
+        () -> {},
+        () -> {
+          if (Math.abs(position - inputs.position) > 20) {
+            io.runVoltage(Constants.tirmanmaVoltage);
+          } else io.runVoltage((position - inputs.position) / 4);
+        },
+        (Boolean cons) -> {
+          io.runVoltage(0);
+        },
+        () -> {
+          return Math.abs(position - inputs.position) < 5;
+        },
+        this);
   }
 
   public void runVoltage(double v) {

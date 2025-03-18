@@ -117,8 +117,8 @@ public class Intake extends SubsystemBase {
   public Command DesiredL4() {
     return new InstantCommand(
         () -> {
-          if (desired == 1) io.runToPosition(-10);
-          else io.runToPosition(10);
+          if (desired == 1) io.runToPosition(-9.2);
+          else io.runToPosition(11.1);
         },
         this);
   }

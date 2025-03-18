@@ -40,14 +40,14 @@ public class ExteriorElevator extends SubsystemBase {
     return new InstantCommand(
         () -> {
           state = 1;
-          io.getToPosition(28);
+          io.getToPosition(16);
         });
   }
 
   public Command getToNoHit() {
     return new InstantCommand(
         () -> {
-          io.getToPosition(20);
+          io.getToPosition(12);
         });
   }
 
@@ -55,7 +55,7 @@ public class ExteriorElevator extends SubsystemBase {
     return new InstantCommand(
         () -> {
           state = 2;
-          io.getToPosition(65);
+          io.getToPosition(39);
         });
   }
 
@@ -63,7 +63,7 @@ public class ExteriorElevator extends SubsystemBase {
     return new FunctionalCommand(
         () -> {
           state = 2;
-          io.getToPosition(83);
+          io.getToPosition(50);
         },
         () -> {},
         (Boolean cons) -> {},
@@ -76,7 +76,7 @@ public class ExteriorElevator extends SubsystemBase {
     return new InstantCommand(
         () -> {
           state = 3;
-          io.getToPosition(96);
+          io.getToPosition(57);
         });
   }
 
@@ -84,7 +84,7 @@ public class ExteriorElevator extends SubsystemBase {
     return new FunctionalCommand(
         () -> {
           state = 3;
-          io.getToPosition(93);
+          io.getToPosition(55);
         },
         () -> {},
         (Boolean cons) -> {},
@@ -96,12 +96,13 @@ public class ExteriorElevator extends SubsystemBase {
   public Command NL4() {
     return new FunctionalCommand(
         () -> {
-          io.getToPosition(96);
+          state = 3;
+          io.getToPosition(57);
         },
         () -> {},
         (Boolean cons) -> {},
         () -> {
-          return Math.abs(inputs.speed) < 1;
+          return Math.abs(inputs.position - 57) < 1;
         },
         this);
   }

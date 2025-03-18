@@ -16,10 +16,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.vision.HangarVision;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LimelightHelpers;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -41,6 +43,23 @@ public class AutoCommands {
           ? this.blueID
           : this.redID;
     }
+  }
+
+  public static class Hangar {
+    Rotation2d rotation;
+    int fiducialID;
+
+    public Hangar(int fiducialID, Rotation2d rotation) {
+      this.rotation = rotation;
+      this.fiducialID = fiducialID;
+    }
+  }
+
+  public static Hangar getHangarbyID(double fiducialID) {
+    for (Hangar hangar : hangarlar) {
+      if (hangar.fiducialID == fiducialID) return hangar;
+    }
+    return null;
   }
 
   public static Reef getNearest(Pose2d pose, List<Reef> reefs) {
@@ -74,28 +93,6 @@ public class AutoCommands {
 
   private static final PathConstraints newconst = new PathConstraints(0.05, 0.03, 0.05, 0.03);
 
-  public static List<Rotation2d> angles =
-      Arrays.asList(
-          new Rotation2d(),
-          new Rotation2d(),
-          new Rotation2d(),
-          new Rotation2d(),
-          new Rotation2d(),
-          new Rotation2d(),
-          new Rotation2d(),
-          new Rotation2d(Units.degreesToRadians(180)),
-          new Rotation2d(),
-          new Rotation2d(),
-          new Rotation2d(),
-          new Rotation2d(),
-          new Rotation2d(),
-          new Rotation2d(),
-          new Rotation2d(),
-          new Rotation2d(),
-          new Rotation2d(),
-          new Rotation2d(),
-          new Rotation2d());
-
   public static List<Reef> reefs =
       Arrays.asList(
           new Reef(new Pose2d(3.78, 2.83, new Rotation2d(Units.degreesToRadians(-120))), 17, 8),
@@ -105,6 +102,13 @@ public class AutoCommands {
           new Reef(new Pose2d(5.21, 5.21, new Rotation2d(Units.degreesToRadians(60))), 20, 11),
           new Reef(new Pose2d(5.88, 4.02, new Rotation2d(Units.degreesToRadians(0))), 21, 10),
           new Reef(new Pose2d(5.16, 2.82, new Rotation2d(Units.degreesToRadians(-60))), 22, 9));
+
+  public static List<Hangar> hangarlar =
+      Arrays.asList(
+          new Hangar(1, new Rotation2d(Units.degreesToRadians(125))),
+          new Hangar(2, new Rotation2d(Units.degreesToRadians(0))),
+          new Hangar(13, new Rotation2d(Units.degreesToRadians(125))),
+          new Hangar(12, new Rotation2d(Units.degreesToRadians(0))));
 
   public static Rotation2d getReefRotation(double id) {
     // System.out.println(id);
@@ -216,16 +220,67 @@ public class AutoCommands {
     return alignToReef(vision, drive, 1);
   }
 
-  public static Command alignL2L3(Vision vision, Drive drive) {
-    return alignToReef(vision, drive, 0.67);
+  public static Command alignL1(Vision vision, Drive drive) {
+    return alignToReef(vision, drive, 0.45);
+  }
+
+  public static Command alignL2(Vision vision, Drive drive) {
+    return alignToReef(vision, drive, 0.3);
+  }
+
+  public static Command alignL3(Vision vision, Drive drive) {
+    return alignToReef(vision, drive, 0.4);
   }
 
   public static Command alignL4(Vision vision, Drive drive) {
-    return alignToReef(vision, drive, 0.2);
+    return alignToReef(vision, drive, 0.19);
   }
 
   public static Command alignBall(Vision vision, Drive drive) {
     return alignToReef(vision, drive, 0.42);
+  }
+
+  public static Command alignToHangar(HangarVision vision, Drive drive) {
+    return new FunctionalCommand(
+        () -> {},
+        () -> {
+          Optional<PhotonTrackedTarget> opt_target = vision.getHangarTarget();
+          if (!opt_target.isPresent()) return;
+          PhotonTrackedTarget target = opt_target.get();
+          if (getHangarbyID(target.getFiducialId()) == null) return;
+          Rotation2d rotation = getHangarbyID(target.fiducialId).rotation;
+
+          double turningError =
+              rotation.getDegrees() - getModuloRotation(drive.getRawGyroRotation().getDegrees());
+          if (turningError > 180) turningError -= 360;
+          if (turningError < -180) turningError += 360;
+
+          Transform3d t3d = target.getBestCameraToTarget();
+
+          double errorX = -(t3d.getX() - 0.71) * 1;
+          double errorY = -(t3d.getY() + 0.2);
+
+          if (Math.abs(errorY) > 0.3) errorY = 0.3 * Math.signum(errorY);
+
+          if (Math.abs(errorX) > 0.15) errorX = 1 * Math.signum(errorX);
+
+          ChassisSpeeds speeds = new ChassisSpeeds(errorX, errorY, turningError * 0.02);
+          drive.runVelocity(speeds);
+        },
+        (Boolean cons) -> {
+          ChassisSpeeds speeds = new ChassisSpeeds(0, 0, 0);
+          drive.runVelocity(speeds);
+        },
+        () -> {
+          Optional<PhotonTrackedTarget> opt_target = vision.getHangarTarget();
+          if (!opt_target.isPresent()) return true;
+          PhotonTrackedTarget t = opt_target.get();
+          Transform3d t3d = t.getBestCameraToTarget();
+          if ((t3d.getX() - 0.72) < 0.02 && Math.abs(t3d.getY() + 0.2) < 0.1) return true;
+          return false;
+        },
+        vision,
+        drive);
   }
 
   public static Command alignToReef(Vision vision, Drive drive, double dUzaklik) {
@@ -260,15 +315,18 @@ public class AutoCommands {
               double uzaklik =
                   Math.sqrt(
                       tag2Robot.getY() * tag2Robot.getY() + tag2Robot.getZ() * tag2Robot.getZ());
-              double saghareket = uzaklik * pidY.calculate(LimelightHelpers.getTX("limelight") + 3);
+              double saghareket = uzaklik * pidY.calculate(LimelightHelpers.getTX("limelight"));
 
               double ileriHareket = 0;
               if (uzaklik < dUzaklik || Math.abs(uzaklik - dUzaklik) < 0.1) {
                 ileriHareket = (uzaklik - dUzaklik) * 2;
               } else ileriHareket = 1.2;
 
-              if (Math.abs(saghareket) > 0.3) saghareket = 0.25 * Math.signum(saghareket);
-              if (Math.abs(saghareket) < 0.01) saghareket = 0;
+              if (Math.abs(saghareket) > 0.3) saghareket = 0.5 * Math.signum(saghareket);
+              if (Math.abs(saghareket) < 0.005) saghareket = 0;
+
+              if ((LimelightHelpers.getTX("limelight")) * Math.signum(turningError) > 20)
+                turningError = 0;
 
               ChassisSpeeds speeds =
                   new ChassisSpeeds(
@@ -292,9 +350,9 @@ public class AutoCommands {
                       - getModuloRotation(drive.getRawGyroRotation().getDegrees());
               if (turningError > 180) turningError -= 360;
               if (turningError < -180) turningError += 360;
-              if ((Math.abs(uzaklik - dUzaklik) < 0.01 || uzaklik < 0.22)
+              if ((Math.abs(uzaklik - dUzaklik) < 0.01 || uzaklik < 0.20)
                   && Math.abs(turningError) < 1
-                  && (LimelightHelpers.getTX("limelight") + 3.5) < 1) return true;
+                  && (LimelightHelpers.getTX("limelight")) < 1) return true;
               if (LimelightHelpers.getFiducialID("limelight") == -1) return true;
               return false;
             },

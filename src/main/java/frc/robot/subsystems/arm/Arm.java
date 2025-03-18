@@ -151,7 +151,7 @@ public class Arm extends SubsystemBase {
         this);
   }
 
-  //TOP ÇIKARMA: 0.52 arm, 0.42 dist, -5V grip
+  // TOP ÇIKARMA: 0.52 arm, 0.42 dist, -5V grip
   // Tırmanma butona basıldıkça istediğimiz konuma ilerleyecek
 
   public Command waitTillNull() {
@@ -210,7 +210,7 @@ public class Arm extends SubsystemBase {
         () -> {},
         (Boolean cons) -> {},
         () -> {
-          return Math.abs(inputs.speed) < 0.1;
+          return Math.abs(inputs.position - 0.27) < 0.1;
         },
         this);
   }
@@ -218,7 +218,7 @@ public class Arm extends SubsystemBase {
   public Command NHangar() {
     return new FunctionalCommand(
         () -> {
-          io.getToAngle(0.03);
+          io.getToAngle(0.02);
         },
         () -> {},
         (Boolean cons) -> {},
@@ -242,11 +242,16 @@ public class Arm extends SubsystemBase {
   }
 
   public Command NTop() {
-    return new FunctionalCommand(()->{
-      io.getToAngle(0.52);
-    }, ()->{}, (Boolean cons)->{}, ()->{
-      return Math.abs(inputs.position-0.52)<0.03;
-    }, this);
+    return new FunctionalCommand(
+        () -> {
+          io.getToAngle(0.52);
+        },
+        () -> {},
+        (Boolean cons) -> {},
+        () -> {
+          return Math.abs(inputs.position - 0.52) < 0.03;
+        },
+        this);
   }
 
   @Override
