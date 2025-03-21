@@ -5,52 +5,21 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "SetLeft"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "sol pta"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "align-l4"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "zerotol4"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.1
+            "pathName": "SOL YAKLASMA"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shootincorrectangle"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ortala"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "adjusttocenter"
+            "name": "OtoL4"
           }
         },
         {
@@ -64,7 +33,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.2
+                        "waitTime": 0.1
                       }
                     },
                     {
@@ -79,7 +48,45 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "retreat"
+                  "name": "Hangar"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "AlignHangar"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "GripOto"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Sol 2. Yaklasma"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Ortala"
                 }
               }
             ]
@@ -88,7 +95,89 @@
         {
           "type": "named",
           "data": {
-            "name": "hangar-asagi"
+            "name": "OtoL4"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.1
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Sol 2. Hangar"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Hangar"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "AlignHangar"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "GripOto"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Sol 2. Yaklasma"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Ortala"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetRight"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "OtoL4"
           }
         }
       ]

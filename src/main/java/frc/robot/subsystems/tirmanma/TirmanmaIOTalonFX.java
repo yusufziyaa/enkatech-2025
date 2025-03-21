@@ -9,6 +9,8 @@ public class TirmanmaIOTalonFX implements TirmanmaIO {
 
   public TirmanmaIOTalonFX(int CANID) {
     m_motor = new TalonFX(CANID, "canivore");
+
+    m_motor.setPosition(0);
   }
 
   public void updateInputs() {}

@@ -30,7 +30,7 @@ public class Intake extends SubsystemBase {
 
   // arm için 0.647 l2 l3, zaten destek olacak
 
-  double desired = 1;
+  double desired = -1;
 
   public double getDesired() {
     return desired;

@@ -21,10 +21,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.DriverScoreCommands;
 import frc.robot.commands.GetCoral;
 import frc.robot.commands.NewDriveCommands;
 import frc.robot.commands.NewHangar;
@@ -32,6 +32,7 @@ import frc.robot.commands.NewScoreL1;
 import frc.robot.commands.NewScoreL2;
 import frc.robot.commands.NewScoreL3;
 import frc.robot.commands.NewScoreL4;
+import frc.robot.commands.OtoL4;
 import frc.robot.generated.TunerConstants;
 import frc.robot.positions.MechanismController;
 import frc.robot.subsystems.arm.Arm;
@@ -53,9 +54,6 @@ import frc.robot.subsystems.gripper.GripperIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
-import frc.robot.subsystems.interior_elevator.InteriorElevator;
-import frc.robot.subsystems.interior_elevator.InteriorElevatorIOSim;
-import frc.robot.subsystems.interior_elevator.InteriorElevatorIOTalonFX;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterIOSim;
 import frc.robot.subsystems.shooter.ShooterIOTalonFX;
@@ -98,7 +96,6 @@ public class RobotContainer {
   private Shooter shooter;
   private Gripper gripper;
   private Arm arm;
-  private InteriorElevator interiorElevator;
   private ExteriorElevator exteriorElevator;
   private Intake intake;
   private Tirmanma tirmanma;
@@ -107,6 +104,10 @@ public class RobotContainer {
   private MechanismController positionController;
   private SlewRateLimiter xLimiter = new SlewRateLimiter(4);
   private SlewRateLimiter yLimiter = new SlewRateLimiter(4);
+
+  public Command stopShooter() {
+    return shooter.runAtVoltage(0);
+  }
 
   public RobotContainer() {
 
@@ -131,8 +132,6 @@ public class RobotContainer {
 
         intake = new Intake(new IntakeIOTalonFX(Constants.IntakeCANID));
 
-        interiorElevator =
-            new InteriorElevator(new InteriorElevatorIOTalonFX(Constants.InteriorElevatorCANID));
         exteriorElevator =
             new ExteriorElevator(
                 new ExteriorElevatorIOTalonFX(
@@ -160,7 +159,6 @@ public class RobotContainer {
         gripper = new Gripper(new GripperIOSim());
         arm = new Arm(new ArmIOSim());
         intake = new Intake(new IntakeIOSim());
-        interiorElevator = new InteriorElevator(new InteriorElevatorIOSim());
         exteriorElevator = new ExteriorElevator(new ExteriorElevatorIOSim());
 
         tirmanma = new Tirmanma(new TirmanmaIOSim());
@@ -184,31 +182,27 @@ public class RobotContainer {
     }
     drive.setPose(Constants.initialPose);
 
-    positionController = new MechanismController(intake, exteriorElevator, interiorElevator, arm);
+    NamedCommands.registerCommand("AlignL4", AutoCommands.alignL4(vision, drive));
+    NamedCommands.registerCommand("AlignHangar", AutoCommands.alignToHangar(hangarVision, drive));
+    NamedCommands.registerCommand(
+        "OtoL4", new OtoL4(exteriorElevator, arm, intake, shooter, drive, vision));
+    NamedCommands.registerCommand("Hangar", NewDriveCommands.Hangar(exteriorElevator, arm, intake));
+    NamedCommands.registerCommand("GripOto", gripper.gripTillSeen(shooter));
+    NamedCommands.registerCommand("Ortala", shooter.ortala());
 
-    NamedCommands.registerCommand("align-l2l3", AutoCommands.alignL2(vision, drive));
-    NamedCommands.registerCommand("align-l4", AutoCommands.alignL4(vision, drive));
     NamedCommands.registerCommand(
-        "zerotol2", DriverScoreCommands.zeroToL2(interiorElevator, intake, arm, exteriorElevator));
+        "SetRight",
+        new InstantCommand(
+            () -> {
+              intake.setDesiredToRight();
+            }));
     NamedCommands.registerCommand(
-        "zerotol3", DriverScoreCommands.zeroToL3(interiorElevator, intake, arm, exteriorElevator));
-    NamedCommands.registerCommand(
-        "zerotol4",
-        DriverScoreCommands.startToL4(arm, intake, exteriorElevator, interiorElevator, shooter));
-    NamedCommands.registerCommand(
-        "retreat", DriverScoreCommands.retreatL4(exteriorElevator, interiorElevator, arm, intake));
-    NamedCommands.registerCommand(
-        "hangar-asagi",
-        DriverScoreCommands.Hangar(interiorElevator, exteriorElevator, intake, arm));
-    NamedCommands.registerCommand(
-        "hangar-yukari",
-        DriverScoreCommands.HangarYukari(interiorElevator, exteriorElevator, intake, arm));
-    NamedCommands.registerCommand(
-        "shootincorrectangle", shooter.shootInCorrectAngle(intake, exteriorElevator));
-    NamedCommands.registerCommand("adjusttocenter", intake.waitTillCenter());
-    NamedCommands.registerCommand("ortala", shooter.waitToOrtala());
-    NamedCommands.registerCommand("backup", shooter.backup(intake, exteriorElevator));
-    NamedCommands.registerCommand("griptillseen", gripper.gripPP(shooter));
+        "SetLeft",
+        new InstantCommand(
+            () -> {
+              intake.setDesiredToLeft();
+            }));
+    // NamedCommands.registerCommand("OtoL4",);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -247,7 +241,7 @@ public class RobotContainer {
         .onFalse(shooter.runAtVoltage(0));
 
     // controller.povUp().onTrue(DriverScoreCommands.startToZero(arm, interiorElevator));
-    controller.povUp().onTrue(shooter.shootInCorrectAngle(intake, exteriorElevator));
+    // controller.povUp().onTrue(shooter.shootInCorrectAngle(intake, exteriorElevator));
     // controller
     //    .leftBumper()
     //    .onTrue(DriverScoreCommands.zeroToGround(intake, exteriorElevator, arm,
@@ -287,10 +281,15 @@ public class RobotContainer {
         .button(7)
         .whileTrue(new NewScoreL1(exteriorElevator, arm, intake, vision, drive, gripper))
         .onFalse(gripper.runAtVoltage(0));
+    controller.povDown().whileTrue(tirmanma.tirman()).onFalse(tirmanma.runAtVoltage(0));
     controller
-        .povDown()
-        .whileTrue(new SequentialCommandGroup(shooter.ortala(), shooter.az_ileri()))
-        .onFalse(shooter.runAtVoltage(0));
+        .povUp()
+        .onTrue(
+            new SequentialCommandGroup(
+                shooter.ortala(),
+                shooter.runAtVoltage(-1),
+                new WaitCommand(0.1),
+                shooter.runAtVoltage(0)));
 
     controller
         .button(8)
@@ -317,20 +316,6 @@ public class RobotContainer {
                 () -> {
                   intake.setDesiredToRight();
                 }));
-
-    operator
-        .x()
-        .onTrue(DriverScoreCommands.retreatL4(exteriorElevator, interiorElevator, arm, intake));
-    operator
-        .a()
-        .onTrue(DriverScoreCommands.zeroToL2(interiorElevator, intake, arm, exteriorElevator));
-    operator
-        .b()
-        .onTrue(DriverScoreCommands.zeroToL3(interiorElevator, intake, arm, exteriorElevator));
-    operator
-        .y()
-        .onTrue(
-            DriverScoreCommands.zeroToL4(interiorElevator, intake, arm, exteriorElevator, shooter));
 
     operator.button(7).onTrue(intake.adjustToLeft());
     operator.button(8).onTrue(intake.adjustToRight());

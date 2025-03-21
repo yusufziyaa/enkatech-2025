@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.exterior_elevator.ExteriorElevator;
@@ -31,6 +32,6 @@ public class NewHangar extends ParallelCommandGroup {
     addCommands(
         AutoCommands.alignToHangar(vision, drive),
         NewDriveCommands.Hangar(exterior, arm, intake),
-        gripper.gripTillSeen(shooter));
+        new SequentialCommandGroup(gripper.gripTillSeen(shooter), shooter.ortala()));
   }
 }

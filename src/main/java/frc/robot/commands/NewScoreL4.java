@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.exterior_elevator.ExteriorElevator;
@@ -29,6 +30,7 @@ public class NewScoreL4 extends SequentialCommandGroup {
     addCommands(
         AutoCommands.alignL4(vision, drive),
         NewDriveCommands.ScoreL4(exterior, arm, intake),
+        new WaitCommand(0.2),
         shooter.shootInCorrectAngle(intake, exterior));
   }
 }

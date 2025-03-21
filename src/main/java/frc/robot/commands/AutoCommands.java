@@ -257,10 +257,10 @@ public class AutoCommands {
 
           Transform3d t3d = target.getBestCameraToTarget();
 
-          double errorX = -(t3d.getX() - 0.71) * 1;
-          double errorY = -(t3d.getY() + 0.2);
+          double errorX = -(t3d.getX() - 0.74) * 1;
+          double errorY = -(t3d.getY() + 0.15);
 
-          if (Math.abs(errorY) > 0.3) errorY = 0.3 * Math.signum(errorY);
+          if (Math.abs(errorY) > 0.5) errorY = 0.55 * Math.signum(errorY);
 
           if (Math.abs(errorX) > 0.15) errorX = 1 * Math.signum(errorX);
 
@@ -276,7 +276,7 @@ public class AutoCommands {
           if (!opt_target.isPresent()) return true;
           PhotonTrackedTarget t = opt_target.get();
           Transform3d t3d = t.getBestCameraToTarget();
-          if ((t3d.getX() - 0.72) < 0.02 && Math.abs(t3d.getY() + 0.2) < 0.1) return true;
+          if ((t3d.getX() - 0.74) < 0.02 && Math.abs(t3d.getY() + 0.15) < 0.2) return true;
           return false;
         },
         vision,
@@ -320,7 +320,7 @@ public class AutoCommands {
               double ileriHareket = 0;
               if (uzaklik < dUzaklik || Math.abs(uzaklik - dUzaklik) < 0.1) {
                 ileriHareket = (uzaklik - dUzaklik) * 2;
-              } else ileriHareket = 1.2;
+              } else ileriHareket = 1.2; // 1.2
 
               if (Math.abs(saghareket) > 0.3) saghareket = 0.5 * Math.signum(saghareket);
               if (Math.abs(saghareket) < 0.005) saghareket = 0;

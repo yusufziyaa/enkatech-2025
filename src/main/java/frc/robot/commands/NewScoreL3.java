@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.arm.Arm;
@@ -12,6 +13,7 @@ import frc.robot.subsystems.exterior_elevator.ExteriorElevator;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.util.LimelightHelpers;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
@@ -28,8 +30,15 @@ public class NewScoreL3 extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new ParallelCommandGroup(
-            NewDriveCommands.ScoreL3(exterior, arm, intake), AutoCommands.alignL3(vision, drive)),
-        shooter.shootInCorrectAngle(intake, exterior));
+        new ConditionalCommand(
+            new SequentialCommandGroup(
+                new ParallelCommandGroup(
+                    NewDriveCommands.ScoreL3(exterior, arm, intake),
+                    AutoCommands.alignL3(vision, drive)),
+                shooter.shootInCorrectAngle(intake, exterior)),
+            NewDriveCommands.ScoreL2(exterior, arm, intake),
+            () -> {
+              return LimelightHelpers.getFiducialID("limelight") != -1;
+            }));
   }
 }

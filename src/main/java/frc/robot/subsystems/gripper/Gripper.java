@@ -63,7 +63,7 @@ public class Gripper extends SubsystemBase {
               setVoltage(0);
             },
             () -> {
-              if (shooter.getSensor1() && shooter.getSensor2()) return true;
+              if (shooter.getSensor1() || shooter.getSensor2()) return true;
               return false;
             },
             this),

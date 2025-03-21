@@ -205,12 +205,12 @@ public class Arm extends SubsystemBase {
   public Command NL4() {
     return new FunctionalCommand(
         () -> {
-          io.getToAngle(0.27);
+          io.getToAngle(0.28);
         },
         () -> {},
         (Boolean cons) -> {},
         () -> {
-          return Math.abs(inputs.position - 0.27) < 0.1;
+          return Math.abs(inputs.position - 0.28) < 0.1;
         },
         this);
   }
@@ -218,7 +218,7 @@ public class Arm extends SubsystemBase {
   public Command NHangar() {
     return new FunctionalCommand(
         () -> {
-          io.getToAngle(0.02);
+          io.getToAngle(0.01);
         },
         () -> {},
         (Boolean cons) -> {},

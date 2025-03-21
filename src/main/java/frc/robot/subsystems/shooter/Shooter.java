@@ -71,6 +71,24 @@ public class Shooter extends SubsystemBase {
         * (exteriorElevator.getState() == 3 ? -1 : 1));*/
   }
 
+  public Command shootInCorrectAngle(
+      Intake intake, ExteriorElevator exteriorElevator, double coef) {
+    return new ConditionalCommand(
+        new ConditionalCommand(
+            shoot(Constants.shootingVoltage * -1 * coef),
+            shoot(Constants.shootingVoltage * coef),
+            () -> intake.getDesired() == 1),
+        new ConditionalCommand(
+            shoot(Constants.shootingVoltage * coef),
+            shoot(-Constants.shootingVoltage * coef),
+            () -> intake.getDesired() == 1),
+        () -> exteriorElevator.getState() == 3);
+    /*return shoot(
+    Constants.shootingVoltage
+        * (intake.getDesired() == 0 ? 1 : -1)
+        * (exteriorElevator.getState() == 3 ? -1 : 1));*/
+  }
+
   double direction = 1;
 
   public Command backup(Intake intake, ExteriorElevator exteriorElevator) {
@@ -98,7 +116,7 @@ public class Shooter extends SubsystemBase {
             () -> {
               io.runVoltage(voltage);
             }),
-        new WaitCommand(0.3),
+        new WaitCommand(0.1),
         new InstantCommand(
             () -> {
               io.runVoltage(0);
@@ -154,6 +172,11 @@ public class Shooter extends SubsystemBase {
   }
 
   public Command ortala() {
+    return new SequentialCommandGroup(
+        ortala_raw(), runAtVoltage(-1), new WaitCommand(0.1), runAtVoltage(0));
+  }
+
+  public Command ortala_raw() {
     return new FunctionalCommand(
         () -> {
           ciktimi = false;

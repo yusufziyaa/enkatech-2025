@@ -4,41 +4,34 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.exterior_elevator.ExteriorElevator;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.util.LimelightHelpers;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class NewScoreL2 extends SequentialCommandGroup {
-  /** Creates a new NewScoreL2. */
-  public NewScoreL2(
-      Vision vision,
-      Drive drive,
+public class OtoL4 extends SequentialCommandGroup {
+  /** Creates a new OtoL4. */
+  public OtoL4(
       ExteriorElevator exterior,
       Arm arm,
       Intake intake,
-      Shooter shooter) {
+      Shooter shooter,
+      Drive drive,
+      Vision vision) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new ConditionalCommand(
-            new SequentialCommandGroup(
-                new ParallelCommandGroup(
-                    NewDriveCommands.ScoreL2(exterior, arm, intake),
-                    AutoCommands.alignL2(vision, drive)),
-                shooter.shootInCorrectAngle(intake, exterior)),
-            NewDriveCommands.ScoreL2(exterior, arm, intake),
-            () -> {
-              return LimelightHelpers.getFiducialID("limelight") != -1;
-            }));
+        new ParallelCommandGroup(
+            AutoCommands.alignL4(vision, drive), NewDriveCommands.ScoreL4(exterior, arm, intake)),
+        new WaitCommand(0.1),
+        shooter.shootInCorrectAngle(intake, exterior));
   }
 }
