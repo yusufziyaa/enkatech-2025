@@ -105,10 +105,10 @@ public class AutoCommands {
 
   public static List<Hangar> hangarlar =
       Arrays.asList(
-          new Hangar(1, new Rotation2d(Units.degreesToRadians(125))),
-          new Hangar(2, new Rotation2d(Units.degreesToRadians(0))),
-          new Hangar(13, new Rotation2d(Units.degreesToRadians(125))),
-          new Hangar(12, new Rotation2d(Units.degreesToRadians(0))));
+          new Hangar(1, new Rotation2d(Units.degreesToRadians(126))),
+          new Hangar(2, new Rotation2d(Units.degreesToRadians(-126))),
+          new Hangar(13, new Rotation2d(Units.degreesToRadians(126))),
+          new Hangar(12, new Rotation2d(Units.degreesToRadians(-126))));
 
   public static Rotation2d getReefRotation(double id) {
     // System.out.println(id);
@@ -225,15 +225,19 @@ public class AutoCommands {
   }
 
   public static Command alignL2(Vision vision, Drive drive) {
-    return alignToReef(vision, drive, 0.3);
+    return alignToReef(vision, drive, 0.305);
   }
 
   public static Command alignL3(Vision vision, Drive drive) {
-    return alignToReef(vision, drive, 0.4);
+    return alignToReef(vision, drive, 0.41);
   }
 
   public static Command alignL4(Vision vision, Drive drive) {
     return alignToReef(vision, drive, 0.19);
+  }
+
+  public static Command alignL4Oto(Vision vision, Drive drive) {
+    return alignToReefOto(vision, drive, 0.19);
   }
 
   public static Command alignBall(Vision vision, Drive drive) {
@@ -273,7 +277,7 @@ public class AutoCommands {
         },
         () -> {
           Optional<PhotonTrackedTarget> opt_target = vision.getHangarTarget();
-          if (!opt_target.isPresent()) return true;
+          if (!opt_target.isPresent()) return false;
           PhotonTrackedTarget t = opt_target.get();
           Transform3d t3d = t.getBestCameraToTarget();
           if ((t3d.getX() - 0.74) < 0.02 && Math.abs(t3d.getY() + 0.15) < 0.2) return true;
@@ -284,10 +288,19 @@ public class AutoCommands {
   }
 
   public static Command alignToReef(Vision vision, Drive drive, double dUzaklik) {
+    return alignToReef(vision, drive, dUzaklik, 2);
+  }
+
+  public static Command alignToReefOto(Vision vision, Drive drive, double dUzaklik) {
+    return alignToReef(vision, drive, dUzaklik, 1);
+  }
+
+  public static Command alignToReef(
+      Vision vision, Drive drive, double dUzaklik, double ileriSpeed) {
     // System.out.println(LimelightHelpers.getFiducialID("limelight"));
     // Rotation2d reefrotation = angles.get((int) LimelightHelpers.getFiducialID("limelight"));
     // System.out.println(reefrotation);
-    pid = new PIDController(0.02, 0, 0);
+    pid = new PIDController(0.07, 0, 0);
     pidX = new PIDController(0.6, 0, 0);
     pidY = new PIDController(0.08, 0, 0);
     return new SequentialCommandGroup(
@@ -318,12 +331,13 @@ public class AutoCommands {
               double saghareket = uzaklik * pidY.calculate(LimelightHelpers.getTX("limelight"));
 
               double ileriHareket = 0;
-              if (uzaklik < dUzaklik || Math.abs(uzaklik - dUzaklik) < 0.1) {
-                ileriHareket = (uzaklik - dUzaklik) * 2;
-              } else ileriHareket = 1.2; // 1.2
+              if (uzaklik < dUzaklik || Math.abs(uzaklik - dUzaklik) < 0.25) { // 0.35
+                ileriHareket = (uzaklik - dUzaklik) * 4;
+              } else ileriHareket = ileriSpeed; // 1.2
 
-              if (Math.abs(saghareket) > 0.3) saghareket = 0.5 * Math.signum(saghareket);
-              if (Math.abs(saghareket) < 0.005) saghareket = 0;
+              if (Math.abs(saghareket) > 0.5) saghareket = 0.7 * Math.signum(saghareket);
+              if (Math.abs(saghareket) < 0.015)
+                saghareket = 0; // başta 0.005  idi sonra 0.01 yaptım
 
               if ((LimelightHelpers.getTX("limelight")) * Math.signum(turningError) > 20)
                 turningError = 0;

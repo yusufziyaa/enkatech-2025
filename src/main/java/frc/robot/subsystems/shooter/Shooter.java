@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.exterior_elevator.ExteriorElevator;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.util.LimelightHelpers;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
@@ -52,6 +53,13 @@ public class Shooter extends SubsystemBase {
 
   public SequentialCommandGroup shootLeft() {
     return shoot(-2);
+  }
+
+  public Command shootIfAvab(Intake intake, ExteriorElevator exteriorElevator) {
+    return new ConditionalCommand(
+        shootInCorrectAngle(intake, exteriorElevator),
+        new InstantCommand(() -> {}),
+        () -> LimelightHelpers.getFiducialID("limelight") != -1);
   }
 
   public Command shootInCorrectAngle(Intake intake, ExteriorElevator exteriorElevator) {
@@ -116,7 +124,7 @@ public class Shooter extends SubsystemBase {
             () -> {
               io.runVoltage(voltage);
             }),
-        new WaitCommand(0.1),
+        new WaitCommand(0.2),
         new InstantCommand(
             () -> {
               io.runVoltage(0);

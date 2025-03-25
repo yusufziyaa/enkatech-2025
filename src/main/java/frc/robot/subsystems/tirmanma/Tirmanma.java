@@ -31,7 +31,7 @@ public class Tirmanma extends SubsystemBase {
   }
 
   public Command tirman() {
-    return runToPosition(-300);
+    return runToPosition(630); // acma konumu 110
   }
 
   public Command runToPosition(double position) {
@@ -46,7 +46,7 @@ public class Tirmanma extends SubsystemBase {
           io.runVoltage(0);
         },
         () -> {
-          return Math.abs(position - inputs.position) < 5;
+          return position - inputs.position < 0;
         },
         this);
   }

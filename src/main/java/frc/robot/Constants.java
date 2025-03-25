@@ -84,12 +84,12 @@ public final class Constants {
   public static int MZ80_2_ID = 9;
   public static double shooterAdjustingVoltage = 1;
   public static double shooterBackupVoltage = 1;
-  public static double shootingVoltage = 3;
+  public static double shootingVoltage = 4;
 
   public static int IntakeCANID = 8;
 
   public static int TirmanmaCANID = 40;
-  public static double tirmanmaVoltage = -5;
+  public static double tirmanmaVoltage = 12;
 
   public static enum APPROACH_TYPE {
     LOWER,

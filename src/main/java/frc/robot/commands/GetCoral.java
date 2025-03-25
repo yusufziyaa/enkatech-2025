@@ -5,7 +5,11 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.exterior_elevator.ExteriorElevator;
 import frc.robot.subsystems.gripper.Gripper;
+import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -13,9 +17,12 @@ import frc.robot.subsystems.shooter.Shooter;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class GetCoral extends ParallelCommandGroup {
   /** Creates a new GetCoral. */
-  public GetCoral(Gripper gripper, Shooter shooter) {
+  public GetCoral(
+      Gripper gripper, Shooter shooter, ExteriorElevator exterior, Arm arm, Intake intake) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(gripper.gripTillSeen(shooter), shooter.waitToOrtala());
+    addCommands(
+        NewDriveCommands.Hangar(exterior, arm, intake),
+        new SequentialCommandGroup(gripper.gripTillSeen(shooter), shooter.ortala()));
   }
 }

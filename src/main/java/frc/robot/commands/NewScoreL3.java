@@ -35,7 +35,7 @@ public class NewScoreL3 extends SequentialCommandGroup {
                 new ParallelCommandGroup(
                     NewDriveCommands.ScoreL3(exterior, arm, intake),
                     AutoCommands.alignL3(vision, drive)),
-                shooter.shootInCorrectAngle(intake, exterior)),
+                shooter.shootIfAvab(intake, exterior)),
             NewDriveCommands.ScoreL2(exterior, arm, intake),
             () -> {
               return LimelightHelpers.getFiducialID("limelight") != -1;

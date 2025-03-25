@@ -30,7 +30,8 @@ public class OtoL4 extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
         new ParallelCommandGroup(
-            AutoCommands.alignL4(vision, drive), NewDriveCommands.ScoreL4(exterior, arm, intake)),
+            AutoCommands.alignL4Oto(vision, drive),
+            NewDriveCommands.ScoreL4(exterior, arm, intake)),
         new WaitCommand(0.1),
         shooter.shootInCorrectAngle(intake, exterior));
   }
