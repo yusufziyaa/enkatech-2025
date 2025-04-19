@@ -55,7 +55,7 @@ public class ExteriorElevator extends SubsystemBase {
     return new InstantCommand(
         () -> {
           state = 2;
-          io.getToPosition(39);
+          io.getToPosition(42);
         });
   }
 

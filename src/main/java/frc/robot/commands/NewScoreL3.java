@@ -7,6 +7,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.exterior_elevator.ExteriorElevator;
@@ -35,6 +36,7 @@ public class NewScoreL3 extends SequentialCommandGroup {
                 new ParallelCommandGroup(
                     NewDriveCommands.ScoreL3(exterior, arm, intake),
                     AutoCommands.alignL3(vision, drive)),
+                new WaitCommand(0.2),
                 shooter.shootIfAvab(intake, exterior)),
             NewDriveCommands.ScoreL2(exterior, arm, intake),
             () -> {

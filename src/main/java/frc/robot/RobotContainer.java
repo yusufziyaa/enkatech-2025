@@ -20,7 +20,9 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.DriveCommands;
@@ -32,6 +34,7 @@ import frc.robot.commands.NewScoreL2;
 import frc.robot.commands.NewScoreL3;
 import frc.robot.commands.NewScoreL4;
 import frc.robot.commands.OtoL4;
+import frc.robot.commands.OtoL4Yavas;
 import frc.robot.generated.TunerConstants;
 import frc.robot.positions.MechanismController;
 import frc.robot.subsystems.arm.Arm;
@@ -187,7 +190,10 @@ public class RobotContainer {
         "OtoL4", new OtoL4(exteriorElevator, arm, intake, shooter, drive, vision));
     NamedCommands.registerCommand("Hangar", NewDriveCommands.Hangar(exteriorElevator, arm, intake));
     NamedCommands.registerCommand("GripOto", gripper.gripTillSeen(shooter));
-    NamedCommands.registerCommand("Ortala", shooter.ortala());
+    NamedCommands.registerCommand(
+        "Ortala",
+        new SequentialCommandGroup(
+            new ParallelRaceGroup(shooter.ortala(), new WaitCommand(1)), shooter.runAtVoltage(0)));
     NamedCommands.registerCommand("XPos", NewDriveCommands.Zero(exteriorElevator, arm, intake));
 
     NamedCommands.registerCommand(
@@ -202,6 +208,11 @@ public class RobotContainer {
             () -> {
               intake.setDesiredToLeft();
             }));
+    NamedCommands.registerCommand(
+        "Shoot", shooter.shootInCorrectAngle(intake, exteriorElevator, 4 / 3));
+
+    NamedCommands.registerCommand(
+        "OtoL4Yavas", new OtoL4Yavas(exteriorElevator, arm, intake, shooter, drive, vision));
     // NamedCommands.registerCommand("OtoL4",);
 
     // Set up auto routines
@@ -216,7 +227,7 @@ public class RobotContainer {
             drive,
             () -> -yLimiter.calculate(controller.getLeftY()),
             () -> -xLimiter.calculate(controller.getLeftX()),
-            () -> -controller.getRightX()));
+            () -> -controller.getRightX() * 0.6));
 
     controller.x().onTrue(NewDriveCommands.Zero(exteriorElevator, arm, intake));
 
@@ -225,13 +236,20 @@ public class RobotContainer {
         .whileTrue(
             new NewHangar(exteriorElevator, intake, arm, hangarVision, drive, gripper, shooter))
         .onFalse(
-            new SequentialCommandGroup(shooter.runAtVoltage(0), gripper.runAtVoltage(0))); // asagi
+            new SequentialCommandGroup(
+                shooter.ortala(), shooter.runAtVoltage(0), gripper.runAtVoltage(0))); // asagi
 
     // controller
     //    .a()
     //    .onTrue(DriverScoreCommands.zeroToL2(interiorElevator, intake, arm, exteriorElevator));
-    controller.a().onTrue(new NewScoreL2(vision, drive, exteriorElevator, arm, intake, shooter));
-    controller.b().onTrue(new NewScoreL3(vision, drive, exteriorElevator, arm, intake, shooter));
+    controller
+        .a()
+        .whileTrue(new NewScoreL2(vision, drive, exteriorElevator, arm, intake, shooter))
+        .onFalse(shooter.runAtVoltage(0));
+    controller
+        .b()
+        .whileTrue(new NewScoreL3(vision, drive, exteriorElevator, arm, intake, shooter))
+        .onFalse(shooter.runAtVoltage(0));
     // controller
     //    .y()
     //    .onTrue(DriverScoreCommands.zeroToL4(interiorElevator, intake, arm, exteriorElevator));
@@ -270,7 +288,9 @@ public class RobotContainer {
     controller
         .axisMagnitudeGreaterThan(3, 0.1)
         .whileTrue(new GetCoral(gripper, shooter, exteriorElevator, arm, intake))
-        .onFalse(new ParallelCommandGroup(shooter.runAtVoltage(0), gripper.runAtVoltage(0)));
+        .onFalse(
+            new SequentialCommandGroup(
+                shooter.ortala(), shooter.runAtVoltage(0), gripper.runAtVoltage(0)));
     // controller
     //    .axisMagnitudeGreaterThan(2, 0.1)
     //    .onTrue(DriverScoreCommands.HangarYukari(interiorElevator, exteriorElevator, intake,
@@ -286,6 +306,7 @@ public class RobotContainer {
         .whileTrue(new NewScoreL1(exteriorElevator, arm, intake, vision, drive, gripper))
         .onFalse(gripper.runAtVoltage(0));
     controller.povUp().whileTrue(tirmanma.tirman()).onFalse(tirmanma.runAtVoltage(0));
+
     // controller
     //    .povDown()
     //    .onTrue(
@@ -323,8 +344,8 @@ public class RobotContainer {
                   intake.setDesiredToRight();
                 }));
 
-    operator.button(7).onTrue(intake.adjustToLeft());
-    operator.button(8).onTrue(intake.adjustToRight());
+    // operator.button(7).onTrue(intake.adjustToLeft());
+    // operator.button(8).onTrue(intake.adjustToRight());
 
     operator
         .axisMagnitudeGreaterThan(2, 0.1)
@@ -335,7 +356,15 @@ public class RobotContainer {
         .onTrue(shooter.shootInCorrectAngle(intake, exteriorElevator));
 
     operator.leftBumper().onTrue(gripper.runAtVoltage(-8)).onFalse(gripper.runAtVoltage(0));
-    operator.rightBumper().onTrue(intake.adjustToCenter());
+    // operator.rightBumper().onTrue(intake.adjustToCenter());
+    operator.x().onTrue(NewDriveCommands.Zero(exteriorElevator, arm, intake));
+    operator.a().onTrue(NewDriveCommands.ScoreL2(exteriorElevator, arm, intake));
+    operator.b().onTrue(NewDriveCommands.ScoreL3(exteriorElevator, arm, intake));
+    operator.y().onTrue(NewDriveCommands.ScoreL4(exteriorElevator, arm, intake));
+
+    operator
+        .button(7)
+        .onTrue(new ParallelCommandGroup(shooter.runAtVoltage(0), gripper.runAtVoltage(0)));
   }
 
   public Command getAutonomousCommand() {

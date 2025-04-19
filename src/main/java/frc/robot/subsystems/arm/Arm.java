@@ -218,7 +218,7 @@ public class Arm extends SubsystemBase {
   public Command NHangar() {
     return new FunctionalCommand(
         () -> {
-          io.getToAngle(0.016);
+          io.getToAngle(0.01);
         },
         () -> {},
         (Boolean cons) -> {},

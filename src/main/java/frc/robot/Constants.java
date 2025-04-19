@@ -80,11 +80,11 @@ public final class Constants {
   public static int ExteriorElevatorCANID_AKU = 36;
   public static int ExteriorElevatorCANID_N = 37;
 
-  public static int MZ80_1_ID = 8;
-  public static int MZ80_2_ID = 9;
+  public static int MZ80_1_ID = 2;
+  public static int MZ80_2_ID = 3;
   public static double shooterAdjustingVoltage = 1;
   public static double shooterBackupVoltage = 1;
-  public static double shootingVoltage = 4;
+  public static double shootingVoltage = 3;
 
   public static int IntakeCANID = 8;
 

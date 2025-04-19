@@ -4,7 +4,6 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.arm.Arm;
@@ -17,9 +16,9 @@ import frc.robot.subsystems.vision.Vision;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class OtoL4 extends SequentialCommandGroup {
-  /** Creates a new OtoL4. */
-  public OtoL4(
+public class OtoL4Yavas extends SequentialCommandGroup {
+  /** Creates a new OtoL4Yavas. */
+  public OtoL4Yavas(
       ExteriorElevator exterior,
       Arm arm,
       Intake intake,
@@ -29,10 +28,9 @@ public class OtoL4 extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new ParallelCommandGroup(
-            AutoCommands.alignL4Oto(vision, drive),
-            NewDriveCommands.ScoreL4(exterior, arm, intake)),
-        new WaitCommand(0.1), // 0.1
-        shooter.shootInCorrectAngle(intake, exterior, 4 / 3)); //  4/3
+        AutoCommands.alignL4Oto(vision, drive),
+        NewDriveCommands.ScoreL4(exterior, arm, intake),
+        new WaitCommand(2),
+        shooter.shootInCorrectAngle(intake, exterior, 4 / 3));
   }
 }

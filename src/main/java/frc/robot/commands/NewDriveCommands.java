@@ -9,7 +9,7 @@ import frc.robot.subsystems.intake.Intake;
 
 public class NewDriveCommands {
   public static Command Hangar(ExteriorElevator exterior, Arm arm, Intake intake) {
-    return new ParallelCommandGroup(exterior.getToGround(), arm.NHangar(), intake.NZero());
+    return new ParallelCommandGroup(exterior.getToGround(), arm.NHangar(), intake.NHangar());
   }
 
   public static Command TersHangar() {

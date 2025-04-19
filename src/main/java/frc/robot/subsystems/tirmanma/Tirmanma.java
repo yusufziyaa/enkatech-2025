@@ -31,7 +31,7 @@ public class Tirmanma extends SubsystemBase {
   }
 
   public Command tirman() {
-    return runToPosition(630); // acma konumu 110
+    return runToPosition(480); // acma konumu 110
   }
 
   public Command runToPosition(double position) {

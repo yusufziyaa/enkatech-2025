@@ -36,7 +36,7 @@ public class NewScoreL4 extends SequentialCommandGroup {
             new SequentialCommandGroup(
                 NewDriveCommands.ScoreL4(exterior, arm, intake),
                 new WaitCommand(0.2),
-                shooter.shootInCorrectAngle(intake, exterior)),
+                shooter.shootInCorrectAngle(intake, exterior, 4 / 3)),
             new InstantCommand(() -> {}),
             () -> LimelightHelpers.getFiducialID("limelight") != -1));
   }
